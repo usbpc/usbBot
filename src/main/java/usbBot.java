@@ -12,7 +12,6 @@ import java.util.Properties;
 
 public class usbBot {
 	public static void main(String...args) {
-		//TODO: write very simple bot that just writes "Hello, are you there?" to my #usbbot channel on my discord.
 		Properties keys = new Properties();
 		String discordApiKey = "404";
 		try {
@@ -24,10 +23,7 @@ public class usbBot {
 				System.out.println("No discord API key found, please enter one in the keys.properties file");
 				keys.setProperty("discord", "404");
 				keys.store(out, "");
-			} else {
-				System.out.println("Key found: " + discordApiKey);
 			}
-
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -40,10 +36,9 @@ public class usbBot {
 		}
 
 		try {
-			client.getChannelByID("274560721147265024").sendMessage("Hello, are you there?");
-			while (client.isLoggedIn()) {
-				client.logout();
-			}
+			client.getChannelByID(274560721147265024L).sendMessage("Hello, are you there?");
+			client.logout();
+
 
 		} catch (MissingPermissionsException e) {
 			e.printStackTrace();
