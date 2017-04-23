@@ -20,3 +20,6 @@
 
 # apiKeys
 /keys.properties
+
+#mac
+.DS_Store
