@@ -1,0 +1,14 @@
+[
+  {
+    "name": "ping",
+    "response": "pong!"
+  },
+  {
+    "name": "test",
+    "response": "Jaha, der bot funktioniert"
+  },
+  {
+    "name": "sheep",
+    "response": "beep beep, I'm a sheep"
+  }
+]

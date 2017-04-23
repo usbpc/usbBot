@@ -13,7 +13,7 @@ public class CommandHandler {
 	static private final String PREFIX = "!";
 
 	public CommandHandler() {
-		registerCommands(SimpleCommands.class);
+		CommandRegister.register(this);
 	}
 
 	void registerCommands(Object obj, Class cl) {
@@ -37,6 +37,14 @@ public class CommandHandler {
 	void registerCommands(Object obj) {
 		registerCommands(obj, obj.getClass());
 	}
+	void registerSimpleCommand(SimpleCommand cmd) {
+		MethodHandles.Lookup lookup = MethodHandles.lookup();
+		try {
+			commands.put(cmd.name, lookup.unreflect(cmd.getClass().getDeclaredMethod("execute", String[].class, IMessage.class)).bindTo(cmd));
+		} catch (IllegalAccessException | NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void handleCommand(IMessage message) {
 		String msg = message.getContent();
@@ -49,7 +57,6 @@ public class CommandHandler {
 
 	private void executeCommand(String cmd, String[] args, IMessage msg) {
 		if (commands.containsKey(cmd)) {
-			Object response = null;
 			MethodHandle m = commands.get(cmd);
 
 			try {
