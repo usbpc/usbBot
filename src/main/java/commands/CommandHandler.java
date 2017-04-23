@@ -44,33 +44,27 @@ public class CommandHandler {
 		String cmd = digestedString[0];
 		String[] args = Arrays.copyOfRange(digestedString, 1, digestedString.length);
 
-		message.getChannel().sendMessage(getResponseText(cmd, args, message));
+		executeCommand(cmd, args, message);
 	}
 
-	private String getResponseText(String cmd, String[] args, IMessage msg) {
+	private void executeCommand(String cmd, String[] args, IMessage msg) {
 		if (commands.containsKey(cmd)) {
 			Object response = null;
 			MethodHandle m = commands.get(cmd);
 
 			try {
-				response = m.invoke(args, msg);
+				m.invoke(args, msg);
 			} catch (Throwable throwable) {
 				throwable.printStackTrace();
 			}
 
 
-			return (String) response;
+		} else {
+			msg.getChannel().sendMessage("Command \"" + PREFIX + cmd + "\" not found.");
 		}
-
-		return "Command \"" + PREFIX + cmd + "\" not found.";
 	}
 
 	public static boolean isCommand(String str) {
 		return str.matches(" *" + PREFIX + ".*");
-	}
-
-	public static void main(String...args) {
-		String hi = "Hello World";
-		System.out.println(hi.substring(hi.indexOf("H")));
 	}
 }
