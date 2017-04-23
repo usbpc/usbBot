@@ -1,17 +1,35 @@
+package main;
+
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.util.DiscordException;
-import sx.blah.discord.util.MissingPermissionsException;
-import sx.blah.discord.util.RateLimitException;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
 
 public class usbBot {
+	private static IDiscordClient client;
 	public static void main(String...args) {
+		String discordAPIKey = getDiscordAPIKey();
+
+		//Get a connection to discord and log in with the given API key
+		client = createClient(discordAPIKey, true);
+
+		client.getDispatcher().registerListener(new EventHandler());
+
+		//Waiting for the client to be ready before continuing
+		while (!client.isReady()) {
+		}
+	}
+
+	public static void shutdown() {
+		//Logout the client when everything is done
+		client.logout();
+	}
+
+	private static String getDiscordAPIKey() {
 		Properties keys = new Properties();
 		String discordApiKey = "404";
 		try {
@@ -23,30 +41,12 @@ public class usbBot {
 				System.out.println("No discord API key found, please enter one in the keys.properties file");
 				keys.setProperty("discord", "404");
 				keys.store(out, "");
+				System.exit(-1);
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-
-		IDiscordClient client = createClient(discordApiKey, true);
-
-		while (!client.isReady()) {
-		}
-
-		try {
-			client.getChannelByID(274560721147265024L).sendMessage("Hello, are you there?");
-			client.logout();
-
-
-		} catch (MissingPermissionsException e) {
-			e.printStackTrace();
-		} catch (RateLimitException e) {
-			e.printStackTrace();
-		} catch (DiscordException e) {
-			e.printStackTrace();
-		}
+		return discordApiKey;
 	}
 
 	public static IDiscordClient createClient(String token, boolean login) {

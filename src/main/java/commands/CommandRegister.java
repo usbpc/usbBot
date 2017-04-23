@@ -6,6 +6,5 @@ public class CommandRegister {
 
 		handler.registerCommands(SimpleCommands.class);
 
-		handler.execute("ping");
 	}
 }
