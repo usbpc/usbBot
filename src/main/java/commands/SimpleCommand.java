@@ -11,6 +11,8 @@ public class SimpleCommand {
 	}
 
 	public void execute(String[] args, IMessage msg) {
-		msg.getChannel().sendMessage(response);
+		String answer = response;
+		answer = answer.replaceAll("@@Author@@", "<@!" + msg.getAuthor().getLongID() + ">");
+		msg.getChannel().sendMessage(answer);
 	}
 }

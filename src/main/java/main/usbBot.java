@@ -10,21 +10,24 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class usbBot {
-	private static IDiscordClient client;
-	public static void main(String...args) {
-		String discordAPIKey = getDiscordAPIKey();
+	private IDiscordClient client;
 
+	usbBot(String discordAPIKey) {
 		//Get a connection to discord and log in with the given API key
 		client = createClient(discordAPIKey, true);
 
-		client.getDispatcher().registerListener(new EventHandler());
+		client.getDispatcher().registerListener(new EventHandler(this));
 
 		//Waiting for the client to be ready before continuing
 		while (!client.isReady()) {
 		}
 	}
 
-	public static void shutdown() {
+	public static void main(String...args) {
+		new usbBot(getDiscordAPIKey());
+	}
+
+	public void shutdown() {
 		//Logout the client when everything is done
 		client.logout();
 	}

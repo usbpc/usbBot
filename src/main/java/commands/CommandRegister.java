@@ -2,18 +2,19 @@ package commands;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import main.usbBot;
 
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
 import java.util.List;
 
 public class CommandRegister {
-	public static void register(CommandHandler handler) {
-		handler.registerCommands(SimpleCommands.class);
+	public static void register(CommandHandler handler, usbBot bot) {
+		handler.registerCommands(StaticCommands.class);
+		handler.registerCommands(new Commands(handler, bot));
 		try {
 			loadSimpleCommands(handler);
 		} catch (IOException e) {

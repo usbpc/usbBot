@@ -1,5 +1,7 @@
 package commands;
 
+import main.EventHandler;
+import main.usbBot;
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.lang.invoke.MethodHandle;
@@ -7,13 +9,16 @@ import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class CommandHandler {
 	private Map<String, MethodHandle> commands = new HashMap<>();
 	static private final String PREFIX = "!";
+	private usbBot bot;
 
-	public CommandHandler() {
-		CommandRegister.register(this);
+	public CommandHandler(usbBot bot) {
+		this.bot = bot;
+		CommandRegister.register(this, bot);
 	}
 
 	void registerCommands(Object obj, Class cl) {
@@ -69,6 +74,10 @@ public class CommandHandler {
 		} else {
 			msg.getChannel().sendMessage("Command \"" + PREFIX + cmd + "\" not found.");
 		}
+	}
+
+	Set<String> getRegisteredCommands() {
+		return commands.keySet();
 	}
 
 	public static boolean isCommand(String str) {

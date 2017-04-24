@@ -10,5 +10,9 @@
   {
     "name": "sheep",
     "response": "beep beep, I'm a sheep"
+  },
+  {
+    "name": "hug",
+    "response": "_umarmt @@Author@@_"
   }
 ]
