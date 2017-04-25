@@ -1,86 +1,62 @@
 package commands;
 
-import main.EventHandler;
-import main.usbBot;
+import sx.blah.discord.api.events.EventSubscriber;
+import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 
 public class CommandHandler {
-	private Map<String, MethodHandle> commands = new HashMap<>();
+	private Map<String, Command> commands = new HashMap<>();
 	static private final String PREFIX = "!";
-	private usbBot bot;
 
-	public CommandHandler(usbBot bot) {
-		this.bot = bot;
-		CommandRegister.register(this, bot);
+	public CommandHandler() {
+		registerCommands(this);
 	}
 
-	void registerCommands(Object obj, Class cl) {
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		Arrays.stream(cl.getMethods()).filter(method -> method.isAnnotationPresent(Command.class))
-				.forEach(method -> {
-					try {
-						if (obj == null) {
-							commands.put(method.getAnnotation(Command.class).value(), lookup.unreflect(method));
-						} else {
-							commands.put(method.getAnnotation(Command.class).value(), lookup.unreflect(method).bindTo(obj));
-						}
-					} catch (IllegalAccessException e) {
-						e.printStackTrace();
-					}
-				});
-	}
-	void registerCommands(Class cl) {
-		registerCommands(null, cl);
-	}
-	void registerCommands(Object obj) {
-		registerCommands(obj, obj.getClass());
-	}
-	void registerSimpleCommand(SimpleCommand cmd) {
-		MethodHandles.Lookup lookup = MethodHandles.lookup();
-		try {
-			commands.put(cmd.name, lookup.unreflect(cmd.getClass().getDeclaredMethod("execute", String[].class, IMessage.class)).bindTo(cmd));
-		} catch (IllegalAccessException | NoSuchMethodException e) {
-			e.printStackTrace();
-		}
+	public void registerCommands(Object obj) {
+		CommandRegisterHelper.getCommands(obj).forEach(this::registerCommand);
 	}
 
-	public void handleCommand(IMessage message) {
-		String msg = message.getContent();
-		String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
-		String cmd = digestedString[0];
-		String[] args = Arrays.copyOfRange(digestedString, 1, digestedString.length);
-
-		executeCommand(cmd, args, message);
+	public void registerCommand(Command cmd) {
+		commands.put(cmd.name, cmd);
 	}
 
-	private void executeCommand(String cmd, String[] args, IMessage msg) {
-		if (commands.containsKey(cmd)) {
-			MethodHandle m = commands.get(cmd);
-
-			try {
-				m.invoke(args, msg);
-			} catch (Throwable throwable) {
-				throwable.printStackTrace();
+	@EventSubscriber
+	public void runCommand(MessageReceivedEvent event) {
+		IMessage message = event.getMessage();
+		if (isCommand(message.getContent())) {
+			String msg = message.getContent();
+			String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
+			if (commands.containsKey(digestedString[0])) {
+				commands.get(digestedString[0]).execute(message, digestedString);
+			} else {
+				message.getChannel().sendMessage("Command `" + PREFIX + digestedString[0] + "` not found.");
 			}
 
-
-		} else {
-			msg.getChannel().sendMessage("Command \"" + PREFIX + cmd + "\" not found.");
 		}
 	}
 
-	Set<String> getRegisteredCommands() {
-		return commands.keySet();
+	@DiscordCommand("list")
+	public void list(IMessage msg, String...args) {
+		Iterator<String> iterator = commands.keySet().iterator();
+		String commands = "";
+		StringBuilder builder = new StringBuilder();
+		while (iterator.hasNext()) {
+			builder.append('!').append(iterator.next());
+			if (iterator.hasNext()) {
+				builder.append(", ");
+			} else {
+				commands = builder.toString();
+			}
+		}
+		msg.getChannel().sendMessage("Commands are: " + commands);
+
 	}
 
-	public static boolean isCommand(String str) {
+	private static boolean isCommand(String str) {
 		return str.matches(" *" + PREFIX + ".*");
 	}
 }

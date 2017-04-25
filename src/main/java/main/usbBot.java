@@ -1,7 +1,11 @@
 package main;
 
+import commands.CommandHandler;
+import commands.DiscordCommand;
+import commands.TestCommands;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
+import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 
 import java.io.FileInputStream;
@@ -16,7 +20,11 @@ public class usbBot {
 		//Get a connection to discord and log in with the given API key
 		client = createClient(discordAPIKey, true);
 
-		client.getDispatcher().registerListener(new EventHandler(this));
+		CommandHandler commandHandler = new CommandHandler();
+		commandHandler.registerCommands(this);
+		commandHandler.registerCommands(new TestCommands());
+
+		client.getDispatcher().registerListener(commandHandler);
 
 		//Waiting for the client to be ready before continuing
 		while (!client.isReady()) {
@@ -27,8 +35,10 @@ public class usbBot {
 		new usbBot(getDiscordAPIKey());
 	}
 
-	public void shutdown() {
+	@DiscordCommand("shutdown")
+	public void shutdown(IMessage msg, String...args) {
 		//Logout the client when everything is done
+		msg.getChannel().sendMessage("Shutting down...");
 		client.logout();
 	}
 

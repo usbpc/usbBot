@@ -1,12 +1,17 @@
 package commands;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import sx.blah.discord.handle.obj.IMessage;
 
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface Command {
-	String value();
+public abstract class Command {
+	String name;
+	protected String description;
+	protected CommandAccesChecker permission;
+
+	abstract public void execute(IMessage msg, String...args);
+	public void setPermission(CommandAccesChecker permission) {
+		this.permission = permission;
+	}
+	public CommandAccesChecker getPermission() {
+		return permission;
+	}
 }

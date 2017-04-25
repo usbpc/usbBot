@@ -17,6 +17,7 @@ public class EventHandler {
 	public void onMessageReceivedEvent(MessageReceivedEvent event) {
 		if (CommandHandler.isCommand(event.getMessage().getContent())) {
 			commandHandler.handleCommand(event.getMessage());
+
 		}
 	}
 }
