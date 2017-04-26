@@ -43,4 +43,9 @@ public class Permission {
         }
         return false;
     }
+
+    @Override
+    public String toString() {
+        return roleMode + roles.toString() + userMode + users.toString();
+    }
 }

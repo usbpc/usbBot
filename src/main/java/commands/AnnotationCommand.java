@@ -7,7 +7,7 @@ import java.lang.invoke.MethodHandle;
 
 public class AnnotationCommand extends Command{
 	private MethodHandle command;
-	AnnotationCommand(String name, String description, MethodHandle command, CommandAccesChecker permission) {
+	AnnotationCommand(String name, String description, MethodHandle command, Permission permission) {
 		this.name = name;
 		this.description = description;
 		this.command = command;
@@ -16,7 +16,7 @@ public class AnnotationCommand extends Command{
 
 	@Override
 	public void execute(IMessage msg, String...args) {
-		if (this.permission.isAllowed(this, msg)) {
+		if (permission.isAllowed(msg)) {
 			try {
 				command.invoke(msg, args);
 			} catch (Throwable throwable) {

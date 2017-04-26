@@ -1,6 +1,9 @@
 package main;
 
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import commands.CommandHandler;
+import commands.CommandRegisterHelper;
 import commands.DiscordCommand;
 import commands.TestCommands;
 import sx.blah.discord.api.ClientBuilder;
@@ -8,9 +11,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Properties;
 
 public class usbBot {
@@ -20,7 +21,21 @@ public class usbBot {
 		//Get a connection to discord and log in with the given API key
 		client = createClient(discordAPIKey, true);
 
-		CommandHandler commandHandler = new CommandHandler();
+		File configFolder = new File("configs");
+		File commands = new File(configFolder, "commands.json");
+
+		JsonObject commandConfig = null;
+		try (FileReader commandsReader = new FileReader(commands)) {
+			commandConfig = new Gson().fromJson(commandsReader, JsonObject.class);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		System.out.println("CompleteFileJsonObject: " + commandConfig);
+
+		CommandHandler commandHandler = new CommandHandler(new CommandRegisterHelper(commandConfig.getAsJsonArray("systemCommands")));
 		commandHandler.registerCommands(this);
 		commandHandler.registerCommands(new TestCommands());
 

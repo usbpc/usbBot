@@ -1,18 +1,64 @@
-[
-  {
-    "name": "ping",
-    "response": "pong!"
-  },
-  {
-    "name": "test",
-    "response": "Jaha, der bot funktioniert"
-  },
-  {
-    "name": "sheep",
-    "response": "beep beep, I'm a sheep"
-  },
-  {
-    "name": "hug",
-    "response": "_umarmt @@Author@@_"
-  }
-]
+{
+  "systemCommands":
+  [
+    {
+      "name": "ping",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    },
+    {
+      "name": "deleteme",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    },
+    {
+      "name": "getroleids",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    },
+    {
+      "name": "list",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    },
+    {
+      "name": "shutdown",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    }
+  ],
+  "customCommands":
+  [
+    {
+      "name": "sheep",
+      "response": "beep beep, I'm a sheep",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [123, 123, 123],
+        "userMode": "whitelist",
+        "users": [234, 234, 234]
+      }
+    }
+  ]
+}
+

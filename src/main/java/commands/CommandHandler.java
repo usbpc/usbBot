@@ -11,13 +11,15 @@ import java.util.Map;
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
 	private String PREFIX = "!";
+	private CommandRegisterHelper helper;
 
-	public CommandHandler() {
+	public CommandHandler(CommandRegisterHelper helper) {
+		this.helper = helper;
 		registerCommands(this);
 	}
 
 	public void registerCommands(Object obj) {
-		CommandRegisterHelper.getCommands(obj).forEach(this::registerCommand);
+		helper.getCommands(obj).forEach(this::registerCommand);
 	}
 
 	public void registerCommand(Command cmd) {
