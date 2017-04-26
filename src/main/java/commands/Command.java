@@ -5,13 +5,13 @@ import sx.blah.discord.handle.obj.IMessage;
 public abstract class Command {
 	String name;
 	protected String description;
-	protected CommandAccesChecker permission;
+	protected Permission permission;
 
 	abstract public void execute(IMessage msg, String...args);
-	public void setPermission(CommandAccesChecker permission) {
+	public void setPermission(Permission permission) {
 		this.permission = permission;
 	}
-	public CommandAccesChecker getPermission() {
+	public Permission getPermission() {
 		return permission;
 	}
 }
