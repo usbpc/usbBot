@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
-	static private final String PREFIX = "!";
+	private String PREFIX = "!";
 
 	public CommandHandler() {
 		registerCommands(this);
@@ -56,7 +56,7 @@ public class CommandHandler {
 
 	}
 
-	private static boolean isCommand(String str) {
+	private boolean isCommand(String str) {
 		return str.matches(" *" + PREFIX + ".*");
 	}
 }
