@@ -9,18 +9,13 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 
 public class CommandRegisterHelper {
-	private Map<String, Permission> commandPermissions = new HashMap<>();
+	private PermissionManager commandPermissions;
 
-	public CommandRegisterHelper(JsonArray commands) {
-		Gson gson = new Gson();
-		for(JsonElement element : commands) {
-			JsonObject jsonObject = element.getAsJsonObject();
-
-			commandPermissions.put(jsonObject.getAsJsonPrimitive("name").getAsString(), gson.fromJson(jsonObject.getAsJsonObject("permission"), Permission.class));
-		}
+	public CommandRegisterHelper(PermissionManager commands) {
+		commandPermissions = commands;
 	}
 
-	public List<Command> getCommands(Object obj) {
+	public List<Command> getCommandList(Object obj) {
 		Class cl = obj.getClass();
 		List<Command> commands = new ArrayList<>();
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -28,7 +23,7 @@ public class CommandRegisterHelper {
 				.forEach(method -> {
 					try {
 						String name = method.getAnnotation(DiscordCommand.class).value();
-						commands.add(new AnnotationCommand(name,"",lookup.unreflect(method).bindTo(obj), commandPermissions.get(name)));
+						commands.add(new AnnotationCommand(name,"",lookup.unreflect(method).bindTo(obj), commandPermissions.getPermissionByName(name)));
 					} catch (IllegalAccessException e) {
 						e.printStackTrace();
 					}

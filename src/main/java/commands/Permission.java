@@ -20,6 +20,30 @@ public class Permission {
         this.userMode = userMode;
         this.users = users;
     }
+    public List<Long> getRoles() {
+        return roles;
+    }
+    public String getRoleMode() {
+        return roleMode;
+    }
+    public void setRoleMode(String mode) {
+        roleMode = mode;
+    }
+    public void setUserMode(String mode) {
+        userMode = mode;
+    }
+    public String getUserMode() {
+        return userMode;
+    }
+    public List<Long> getUsers() {
+        return users;
+    }
+    public void setUsers(List<Long> list) {
+        users = list;
+    }
+    public void setRoles(List<Long> list) {
+        roles = list;
+    }
 
     public boolean isAllowed(IMessage message) {
         Long user = message.getAuthor().getLongID();
@@ -29,7 +53,7 @@ public class Permission {
         } else if (users.contains(user) && userMode.equals("whitelist")) {
             return true;
         }
-
+        //TODO: userMode:whitelist AND roleMode:blacklist is this code working correctly?
         if (message.getAuthor().getRolesForGuild(message.getGuild()).stream().filter(role -> roles.contains(role.getLongID())).count() > 0) {
             //If the user has any role that is mentioned in the "roles" list and the mode for roles is set to whitelist then the user is allowed to use the command
             if (roleMode.equals("whitelist")) {

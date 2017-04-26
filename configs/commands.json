@@ -45,6 +45,15 @@
         "userMode": "whitelist",
         "users": []
       }
+    },
+    {
+      "name": "permissions",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
     }
   ],
   "customCommands":

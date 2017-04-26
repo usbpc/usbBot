@@ -6,6 +6,7 @@ import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class CommandHandler {
@@ -13,13 +14,11 @@ public class CommandHandler {
 	private String PREFIX = "!";
 	private CommandRegisterHelper helper;
 
-	public CommandHandler(CommandRegisterHelper helper) {
-		this.helper = helper;
-		registerCommands(this);
+	public CommandHandler() {
 	}
 
-	public void registerCommands(Object obj) {
-		helper.getCommands(obj).forEach(this::registerCommand);
+	public void registerCommands(List<Command> commands) {
+		commands.forEach(this::registerCommand);
 	}
 
 	public void registerCommand(Command cmd) {
@@ -56,6 +55,10 @@ public class CommandHandler {
 		}
 		msg.getChannel().sendMessage("Commands are: " + commands);
 
+	}
+
+	public Command getCommandByName(String name) {
+		return commands.get(name);
 	}
 
 	private boolean isCommand(String str) {

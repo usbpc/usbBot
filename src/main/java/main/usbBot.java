@@ -2,10 +2,7 @@ package main;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import commands.CommandHandler;
-import commands.CommandRegisterHelper;
-import commands.DiscordCommand;
-import commands.TestCommands;
+import commands.*;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -34,10 +31,14 @@ public class usbBot {
 		}
 
 		System.out.println("CompleteFileJsonObject: " + commandConfig);
+		CommandHandler commandHandler = new CommandHandler();
+		PermissionManager permissionManager = new PermissionManager(commandHandler, commandConfig.getAsJsonArray("systemCommands"));
+		CommandRegisterHelper commandRegisterHelper = new CommandRegisterHelper(permissionManager);
 
-		CommandHandler commandHandler = new CommandHandler(new CommandRegisterHelper(commandConfig.getAsJsonArray("systemCommands")));
-		commandHandler.registerCommands(this);
-		commandHandler.registerCommands(new TestCommands());
+		commandHandler.registerCommands(commandRegisterHelper.getCommandList(commandHandler));
+		commandHandler.registerCommands(commandRegisterHelper.getCommandList(this));
+		commandHandler.registerCommands(commandRegisterHelper.getCommandList(permissionManager));
+		commandHandler.registerCommands(commandRegisterHelper.getCommandList(new TestCommands()));
 
 		client.getDispatcher().registerListener(commandHandler);
 
