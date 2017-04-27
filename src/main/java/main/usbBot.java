@@ -16,7 +16,7 @@ public class usbBot {
 
 	usbBot(String discordAPIKey) {
 		//Get a connection to discord and log in with the given API key
-		client = createClient(discordAPIKey, true);
+		client = createClient(discordAPIKey, false);
 
 		File configFolder = new File("configs");
 		File commands = new File(configFolder, "commands.json");
@@ -30,7 +30,6 @@ public class usbBot {
 			e.printStackTrace();
 		}
 
-		System.out.println("CompleteFileJsonObject: " + commandConfig);
 		CommandHandler commandHandler = new CommandHandler();
 		PermissionManager permissionManager = new PermissionManager(commandHandler, commandConfig.getAsJsonArray("systemCommands"));
 		CommandRegisterHelper commandRegisterHelper = new CommandRegisterHelper(permissionManager);
@@ -41,7 +40,7 @@ public class usbBot {
 		commandHandler.registerCommands(commandRegisterHelper.getCommandList(new TestCommands()));
 
 		client.getDispatcher().registerListener(commandHandler);
-
+		client.login();
 		//Waiting for the client to be ready before continuing
 		while (!client.isReady()) {
 		}

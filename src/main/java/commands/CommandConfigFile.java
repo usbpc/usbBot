@@ -1,7 +1,11 @@
 package commands;
 
-/**
- * Created by kjh on 27.04.2017.
- */
+import java.io.File;
+
 public class CommandConfigFile {
+    private final File config;
+    CommandConfigFile(File config) {
+        this.config = config;
+    }
+
 }

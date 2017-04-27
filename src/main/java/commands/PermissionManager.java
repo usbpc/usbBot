@@ -25,8 +25,12 @@ public class PermissionManager {
     }
 
     public Permission getPermissionByName(String name) {
-        //TODO: What if no permission is found in the command.json
-        return commandPermissions.get(name);
+        //TODO: What if no permission is found in the command.json?
+        Permission perm = commandPermissions.get(name);
+        if (perm == null) {
+            return commandPermissions.get("ping");
+        }
+        return perm;
     }
 
     @DiscordCommand("permissions")
@@ -51,11 +55,11 @@ public class PermissionManager {
         List<Long> idList = null;
         String mode = "";
         switch (args[2]) {
-            case "user":
+            case "users":
                 idList = toChange.getUsers();
                 mode = toChange.getUserMode();
                 break;
-            case "role":
+            case "roles":
                 idList = toChange.getRoles();
                 mode = toChange.getRoleMode();
                 break;
