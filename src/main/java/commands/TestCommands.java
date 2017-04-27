@@ -19,4 +19,8 @@ public class TestCommands {
 		msg.getGuild().getRoles().forEach(role -> builder.append(role.getName()).append(": ").append(role.getLongID()).append('\n'));
 		msg.getChannel().sendMessage("There are the IDs I found: ```" + builder.toString() + "```");
 	}
+	@DiscordCommand("getavatarlink")
+	public void getavatarlink(IMessage msg, String...args) {
+		msg.getChannel().sendMessage(msg.getAuthor().getAvatarURL());
+	}
 }

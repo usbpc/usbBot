@@ -11,6 +11,15 @@
       }
     },
     {
+      "name": "getavatarlink",
+      "permission": {
+        "roleMode": "whitelist",
+        "roles": [105460792198959104],
+        "userMode": "whitelist",
+        "users": []
+      }
+    },
+    {
       "name": "deleteme",
       "permission": {
         "roleMode": "whitelist",
