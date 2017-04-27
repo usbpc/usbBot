@@ -1,0 +1,29 @@
+!permissions <command name> user:role add:remove:mode:list
+!permissions <command name> user:role mode whitelist:blacklist
+
+Task for now: Design the interface that other modules interact with!
+
+What do I want from my Command/Permission system?
+
+Other systems shouldn't need to know too much about it, ideally just use the @DiscordCommand(Sting name) annotation and register the comands that way
+	- to register they Should just call a registerCommands(Object obj) function on some kind of CommandSystem object
+		- how should the command system register the commands?
+			a) all internally, commands are not seen outside at all
+			b) get some object witch contains all the commands and register it with registerCommands() like everything else
+	- what about a help command? 
+		- where should it live?
+		- needs access to all command names
+	- what about a alias/rename system? [not in version 1.0]
+		- where should it live?
+		- needs access to all command names
+
+Internally:
+
+Command system and Permission system ideally are just loosly coppeled, so I can rework one system in the future if I want
+The permission system needs read and write access to the commands.json file
+
+Simple text response based commands should be in a seperate module, not the core command system
+	-save these in the same file for easy acces to change the permissions and responses as the commands.json?
+		pro: easier for an end user to edit
+		con: couples this system togeter with the core command system
+
