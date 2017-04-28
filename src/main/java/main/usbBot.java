@@ -45,9 +45,11 @@ public class usbBot {
 	@DiscordCommand("shutdown")
 	public void shutdown(IMessage msg, String...args) {
 		//Logout the client when everything is done
+
 		msg.getChannel().sendMessage("Shutting down...");
+		Runtime.getRuntime().addShutdownHook(new Thread(() -> configObject.closeConnections()));
 		client.logout();
-		configObject.closeConnections();
+
 	}
 
 	private static String getDiscordAPIKey() {
