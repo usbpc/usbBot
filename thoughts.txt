@@ -1,7 +1,7 @@
 !permissions <command name> user:role add:remove:mode:list
 !permissions <command name> user:role mode whitelist:blacklist
 
-Task for now: Design the interface that other modules interact with!
+Task for now: Think about config files stuff!
 
 What do I want from my Command/Permission system?
 
@@ -16,6 +16,7 @@ Other systems shouldn't need to know too much about it, ideally just use the @Di
 	- what about a alias/rename system? [not in version 1.0]
 		- where should it live?
 		- needs access to all command names
+		- does the permission system need to know about this?
 
 Internally:
 
