@@ -1,7 +1,7 @@
 !permissions <command name> user:role add:remove:mode:list
 !permissions <command name> user:role mode whitelist:blacklist
 
-Task for now: Think about config files stuff!
+Task for now: Create parser for @DiscordSubCommand
 
 What do I want from my Command/Permission system?
 

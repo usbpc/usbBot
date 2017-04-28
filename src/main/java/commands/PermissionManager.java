@@ -70,6 +70,12 @@ public class PermissionManager {
         }
 
     }
+
+    //@DiscordSubCommand(name = "users", parent = "permissions")
+    private void permissionUsers(IMessage msg, String...args) {
+
+    }
+
     private class DummyCommand implements ConfigElement {
         String name;
         Permission permission;

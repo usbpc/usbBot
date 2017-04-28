@@ -28,6 +28,7 @@ public class usbBot {
 		CommandModule commandModule = new CommandModule(configObject);
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
+		commandModule.registerCommandsFromObject(new SubCommandTest());
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(commandModule);
