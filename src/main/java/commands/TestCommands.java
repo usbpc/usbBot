@@ -43,6 +43,5 @@ public class TestCommands {
 
 		msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
 
-
 	}
 }

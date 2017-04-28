@@ -3,6 +3,7 @@ package main;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import commands.*;
+import config.ConfigObject;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -13,33 +14,23 @@ import java.util.Properties;
 
 public class usbBot {
 	private IDiscordClient client;
-
+	private ConfigObject configObject;
 	usbBot(String discordAPIKey) {
-		//Get a connection to discord and log in with the given API key
-		client = createClient(discordAPIKey, false);
+
+
 
 		File configFolder = new File("configs");
 		File commands = new File(configFolder, "commands.json");
 
-		JsonObject commandConfig = null;
-		try (FileReader commandsReader = new FileReader(commands)) {
-			commandConfig = new Gson().fromJson(commandsReader, JsonObject.class);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
 
-		CommandHandler commandHandler = new CommandHandler();
-		PermissionManager permissionManager = new PermissionManager(commandHandler, commandConfig.getAsJsonArray("systemCommands"));
-		CommandRegisterHelper commandRegisterHelper = new CommandRegisterHelper(permissionManager);
+		configObject = new ConfigObject(commands).bindToProperty("systemCommands");
 
-		commandHandler.registerCommands(commandRegisterHelper.getCommandList(commandHandler));
-		commandHandler.registerCommands(commandRegisterHelper.getCommandList(this));
-		commandHandler.registerCommands(commandRegisterHelper.getCommandList(permissionManager));
-		commandHandler.registerCommands(commandRegisterHelper.getCommandList(new TestCommands()));
+		CommandModule commandModule = new CommandModule(configObject);
+		commandModule.registerCommandsFromObject(this);
+		commandModule.registerCommandsFromObject(new TestCommands());
 
-		client.getDispatcher().registerListener(commandHandler);
+		client = createClient(discordAPIKey, false);
+		client.getDispatcher().registerListener(commandModule);
 		client.login();
 		//Waiting for the client to be ready before continuing
 		while (!client.isReady()) {
@@ -55,6 +46,7 @@ public class usbBot {
 		//Logout the client when everything is done
 		msg.getChannel().sendMessage("Shutting down...");
 		client.logout();
+		configObject.closeConnections();
 	}
 
 	private static String getDiscordAPIKey() {

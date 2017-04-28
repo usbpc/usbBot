@@ -1,9 +1,7 @@
 package commands;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import config.ConfigElement;
+import config.ConfigObject;
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.HashMap;
@@ -12,25 +10,21 @@ import java.util.Map;
 
 public class PermissionManager {
     CommandHandler cmdHandler;
-    Map<String, Permission> commandPermissions = new HashMap<>();
+    ConfigObject commandPermissions;
     //TODO Handle saving of changed permissions, need reference to commands.json
-    public PermissionManager(CommandHandler cmdHandler, JsonArray commands) {
+    public PermissionManager(CommandHandler cmdHandler, ConfigObject commandPermissions) {
         this.cmdHandler = cmdHandler;
-        Gson gson = new Gson();
-        for(JsonElement element : commands) {
-            JsonObject jsonObject = element.getAsJsonObject();
+        this.commandPermissions = commandPermissions;
 
-            commandPermissions.put(jsonObject.getAsJsonPrimitive("name").getAsString(), gson.fromJson(jsonObject.getAsJsonObject("permission"), Permission.class));
-        }
     }
 
     public Permission getPermissionByName(String name) {
         //TODO: What if no permission is found in the command.json?
-        Permission perm = commandPermissions.get(name);
-        if (perm == null) {
-            return commandPermissions.get("ping");
+        DummyCommand cmd = commandPermissions.getObjectbyName(name, DummyCommand.class);
+        if (cmd == null) {
+            cmd = commandPermissions.getObjectbyName("ping", DummyCommand.class);
         }
-        return perm;
+        return cmd.permission;
     }
 
     @DiscordCommand("permissions")
@@ -75,6 +69,20 @@ public class PermissionManager {
                 msg.getChannel().sendMessage(builder.toString());
         }
 
+    }
+    private class DummyCommand implements ConfigElement {
+        String name;
+        Permission permission;
+
+        @Override
+        public String getUUID() {
+            return name;
+        }
+
+        @Override
+        public String getName() {
+            return name;
+        }
     }
 
 

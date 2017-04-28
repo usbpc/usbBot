@@ -25,7 +25,6 @@ public class CommandHandler {
 		commands.put(cmd.name, cmd);
 	}
 
-	@EventSubscriber
 	public void runCommand(MessageReceivedEvent event) {
 		IMessage message = event.getMessage();
 		if (isCommand(message.getContent())) {
