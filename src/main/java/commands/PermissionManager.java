@@ -11,7 +11,6 @@ import sx.blah.discord.handle.obj.IUser;
 public class PermissionManager {
     CommandHandler cmdHandler;
     ConfigObject commandPermissions;
-    //TODO Handle saving of changed permissions, need reference to commands.json
     public PermissionManager(CommandHandler cmdHandler, ConfigObject commandPermissions) {
         this.cmdHandler = cmdHandler;
         this.commandPermissions = commandPermissions;

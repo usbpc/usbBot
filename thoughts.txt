@@ -1,7 +1,8 @@
-!permissions <command name> user:role add:remove:mode:list
-!permissions <command name> user:role mode whitelist:blacklist
+!permissions <command name> users:roles add:remove:mode:list
+!permissions <command name> users:roles mode whitelist:blacklist
 
-Task for now: Create parser for @DiscordSubCommand
+
+Task for now: Save Bot owner somewhere and overwite all permissions that way and create empty permissions for unknown commands
 
 What do I want from my Command/Permission system?
 
