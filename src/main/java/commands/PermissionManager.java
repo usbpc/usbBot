@@ -8,11 +8,6 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class PermissionManager {
     CommandHandler cmdHandler;
     ConfigObject commandPermissions;
@@ -158,7 +153,7 @@ public class PermissionManager {
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().add(role.getLongID());
         commandPermissions.putObject(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Added " + role.getName() + " to the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        msg.getChannel().sendMessage("Added " + role.getName() + " to the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "remove", parent = "permissionsRoles")
@@ -180,7 +175,7 @@ public class PermissionManager {
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().remove(role.getLongID());
         commandPermissions.putObject(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Removed " + role.getName() + " from the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        msg.getChannel().sendMessage("Removed " + role.getName() + " from the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")
@@ -210,7 +205,7 @@ public class PermissionManager {
         StringBuilder builder = new StringBuilder();
         IGuild guild = msg.getGuild();
 
-        builder.append("Roles ").append(cmdPermission.getUserMode()).append(" contains: ```");
+        builder.append("Roles ").append(cmdPermission.getRoleMode()).append(" contains: ```");
         cmdPermission.getRoles().forEach(x -> {
             IRole role = guild.getRoleByID(x);
             builder.append(role.getName()).append(": ").append(role.getLongID()).append('\n');
