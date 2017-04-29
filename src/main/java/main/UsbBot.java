@@ -1,7 +1,5 @@
 package main;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import commands.*;
 import config.ConfigObject;
 import sx.blah.discord.api.ClientBuilder;
@@ -12,10 +10,10 @@ import sx.blah.discord.util.DiscordException;
 import java.io.*;
 import java.util.Properties;
 
-public class usbBot {
+public class UsbBot {
 	private IDiscordClient client;
 	private ConfigObject configObject;
-	usbBot(String discordAPIKey) {
+	UsbBot(String discordAPIKey) {
 
 
 
@@ -37,7 +35,7 @@ public class usbBot {
 	}
 
 	public static void main(String...args) {
-		new usbBot(getDiscordAPIKey());
+		new UsbBot(getDiscordAPIKey());
 	}
 
 	@DiscordCommand("shutdown")
