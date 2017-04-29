@@ -23,12 +23,15 @@
     {
       "name": "ping",
       "permission": {
-        "roleMode": "whitelist",
+        "roleMode": "blacklist",
         "roles": [
-          105460792198959104
+          105460792198959104,
+          306879944867184641
         ],
         "userMode": "whitelist",
-        "users": []
+        "users": [
+          306878973961568259
+        ]
       }
     },
     {

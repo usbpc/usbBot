@@ -28,14 +28,12 @@ public class usbBot {
 		CommandModule commandModule = new CommandModule(configObject);
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
-		commandModule.registerCommandsFromObject(new SubCommandTest());
+		//commandModule.registerCommandsFromObject(new SubCommandTest());
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(commandModule);
 		client.login();
-		//Waiting for the client to be ready before continuing
-		while (!client.isReady()) {
-		}
+
 	}
 
 	public static void main(String...args) {

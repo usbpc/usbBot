@@ -24,8 +24,9 @@ public class CommandRegisterHelper {
 		MethodHandles.Lookup lookup = MethodHandles.lookup();
 
 		//Gets all methods from the object that have the @DiscordCommand annotation and adds them to the commandMap
-		Arrays.stream(cl.getMethods()).filter(x -> x.isAnnotationPresent(DiscordCommand.class)).forEach(x -> {
+		Arrays.stream(cl.getDeclaredMethods()).filter(x -> x.isAnnotationPresent(DiscordCommand.class)).forEach(x -> {
 			try {
+				x.setAccessible(true);
 				commandMap.put(x.getName(), new TmpCommandContainer(x.getAnnotation(DiscordCommand.class).value(), null, lookup.unreflect(x).bindTo(obj)));
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
@@ -33,8 +34,9 @@ public class CommandRegisterHelper {
 		});
 
 		//Gets all methods from the object that have the @DiscordSubCommand annotation and adds them to the commandMap
-		Arrays.stream(cl.getMethods()).filter(x -> x.isAnnotationPresent(DiscordSubCommand.class)).forEach(x -> {
+		Arrays.stream(cl.getDeclaredMethods()).filter(x -> x.isAnnotationPresent(DiscordSubCommand.class)).forEach(x -> {
 			try {
+				x.setAccessible(true);
 				commandMap.put(x.getName(), new TmpCommandContainer(x.getAnnotation(DiscordSubCommand.class).name(), x.getAnnotation(DiscordSubCommand.class).parent() ,lookup.unreflect(x).bindTo(obj)));
 			} catch (IllegalAccessException e) {
 				e.printStackTrace();
@@ -42,17 +44,17 @@ public class CommandRegisterHelper {
 		});
 
 		//This sets the hasChildren of the Commands in the commandMap to true that have sub commands
-		commandMap.values().stream()
+		commandMap.entrySet().stream()
 				//filters all the Top Level Commands out
-				.filter(x -> x.parentCommand != null)
+				.filter(x -> x.getValue().parentCommand != null)
 				.forEach(x -> {
-			if (commandMap.containsKey(x.parentCommand)) {
-				commandMap.get(x.parentCommand).hasChildren = true;
+			if (commandMap.containsKey(x.getValue().parentCommand)) {
+				commandMap.get(x.getValue().parentCommand).hasChildren = true;
 			} else {
-				System.out.println("Can't find parent " + x.parentCommand);
+				throw new IllegalStateException("Can't find parent " + x.getValue().parentCommand + " of method " + x.getKey());
 			}
 		});
-
+		System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
 
 		//This regeisters all commands that don't have sub commands and removes them from the commandMap Map
@@ -95,7 +97,7 @@ public class CommandRegisterHelper {
 			TmpCommandContainer currParent = commandMap.get(currDeepest.parentCommand);
 			currParent.subCommands = new HashMap<>();
 
-			//System.out.printf("Currently searching for subcommand of %s \r\n", curSearchParentName);
+			System.out.printf("Currently searching for subcommand of %s \r\n", curSearchParentName);
 
 			//This goes through every entry that is not a top level command and has the same parent command that our deepest command has
 			for (Map.Entry<String, TmpCommandContainer> entry : commandMap.entrySet().stream()
@@ -105,6 +107,7 @@ public class CommandRegisterHelper {
 			{
 				//Create a SubCommand and add it into the subCommands map of the parent
 				TmpCommandContainer sameParent = entry.getValue();
+				System.out.printf("I found: %s\r\n", sameParent.name);
 				currParent.subCommands.put(sameParent.name, new SubCommand(sameParent.command, sameParent.subCommands));
 				commandMap.remove(entry.getKey());
 			}
@@ -113,7 +116,7 @@ public class CommandRegisterHelper {
 		}
 
 		//adds all the top level command to the returned commands list
-		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", x.command, commandPermissions.getPermissionByName(x.name), x.subCommands)));
+		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", commandPermissions.getPermissionByName(x.name), new SubCommand(x.command, x.subCommands))));
 
 
 		return commands;
@@ -130,6 +133,11 @@ public class CommandRegisterHelper {
 			this.command = command;
 			this.parentCommand = parentCommand;
 		}
+
+		@Override
+		public String toString() {
+			return "TmpCommandContainer: hasChildren:" + hasChildren + " name:" + name + " parentCommand:" + parentCommand;
+		}
 	}
 	private class SubCommand {
 		private MethodHandle command;
@@ -142,16 +150,17 @@ public class CommandRegisterHelper {
 
 		public void execute(IMessage msg, String[] args, int depth) {
 			try {
-				String[] newArgs = (String[]) command.invoke(msg, args);
-				if (subCommandMap != null) {
+				int offset = (int) command.invoke(msg, args);
+				if (subCommandMap != null && offset != -1) {
+					depth += offset;
 					if (args.length > depth + 1) {
-						if (subCommandMap.containsKey(newArgs[depth + 1])) {
-							subCommandMap.get(newArgs[depth + 1]).execute(msg, newArgs, depth + 1);
+						if (subCommandMap.containsKey(args[depth + 1])) {
+							subCommandMap.get(args[depth + 1]).execute(msg, args, depth + 1);
 						} else {
 							StringBuilder builder = new StringBuilder();
-							builder.append("The Subcommand `").append(newArgs[depth + 1]).append("` of command `");
+							builder.append("The Subcommand `").append(args[depth + 1]).append("` of command `");
 							for (int i = 0; i <= depth; i++) {
-								builder.append(newArgs[i]).append(' ');
+								builder.append(args[i]).append(' ');
 							}
 							builder.append("` dosen't exist");
 
@@ -174,31 +183,19 @@ public class CommandRegisterHelper {
 		}
 	}
 	private class SubCommandParent extends Command {
-		private MethodHandle command;
-		Map<String, SubCommand> subCommandMap;
+		SubCommand command;
 
-		SubCommandParent(String name, String description, MethodHandle command, Permission permission, Map<String, SubCommand> subCommandMap) {
+		SubCommandParent(String name, String description, Permission permission, SubCommand command) {
 			this.name = name;
 			this.description = description;
 			this.command = command;
 			this.permission = permission;
-			this.subCommandMap = subCommandMap;
 		}
 
 		@Override
 		public void execute(IMessage msg, String... args) {
 			if (permission.isAllowed(msg)) {
-				try {
-					String[] newArgs = (String[]) command.invoke(msg, args);
-					subCommandMap.get(newArgs[1]).execute(msg, newArgs, 1);
-				} catch (Throwable throwable) {
-					if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-						msg.getChannel().sendMessage("Well that sure got me an Error... ```" + throwable.getMessage() + "```");
-					} else {
-						throwable.printStackTrace();
-						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
-					}
-				}
+				command.execute(msg, args, 0);
 			}
 		}
 	}
@@ -220,6 +217,7 @@ public class CommandRegisterHelper {
 					if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
 						msg.getChannel().sendMessage("Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 					} else {
+						throwable.printStackTrace();
 						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 					}
 

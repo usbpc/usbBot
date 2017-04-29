@@ -1,6 +1,8 @@
 package commands;
 
+import main.Utils;
 import sx.blah.discord.handle.obj.IMessage;
+import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.MessageBuilder;
 
@@ -38,10 +40,28 @@ public class TestCommands {
 	@DiscordCommand("getuserids")
 	public void getuserids(IMessage msg, String...args) {
 		StringBuilder builder = new StringBuilder();
-		msg.getGuild().getUsers().forEach(user -> builder.append(user.getName()).append(": ").append(user.getLongID()).append("\r\n"));
+		msg.getGuild().getUsers().forEach(user -> builder/*.append(user.getName()).append(": ")*/.append(user.getLongID()).append("\r\n"));
 		MessageBuilder msgBuilder = new MessageBuilder(msg.getClient());
 
 		msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
 
+	}
+	@DiscordCommand("getusername")
+	public void getusername(IMessage msg, String...args) {
+		IUser user = Utils.getUser(msg.getGuild(), args[1]);
+		if (user == null) {
+			msg.getChannel().sendMessage("Couldn't find user <@" + args[1] +">");
+			return;
+		}
+		msg.getChannel().sendMessage("Name: " + user.getName());
+	}
+	@DiscordCommand("getrolename")
+	public void getrolename(IMessage msg, String...args) {
+		IRole role = Utils.getRole(msg.getGuild(), args[1]);
+		if (role == null) {
+			msg.getChannel().sendMessage("Couldn't find role `" + args[1] +"`");
+			return;
+		}
+		msg.getChannel().sendMessage("Name: " + role.getName());
 	}
 }
