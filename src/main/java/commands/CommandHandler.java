@@ -1,5 +1,6 @@
 package commands;
 
+import main.Utils;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
@@ -53,7 +54,7 @@ public class CommandHandler {
 				commands = builder.toString();
 			}
 		}
-		msg.getChannel().sendMessage("Commands are: " + commands);
+		Utils.sendMessage(msg.getChannel(), "Commands are: " + commands);
 
 	}
 

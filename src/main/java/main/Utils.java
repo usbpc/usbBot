@@ -5,6 +5,8 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.io.InputStream;
+
 public class Utils {
     public static IUser getUser(IGuild guild, String id) {
         Long userID;
@@ -32,5 +34,9 @@ public class Utils {
 
     public static void sendMessage(IChannel channel, String message) {
         channel.sendMessage(message);
+    }
+
+    public static void sendFile(IChannel channel, String message, InputStream inputStream, String fileName) {
+        channel.sendFile(message, inputStream, fileName);
     }
 }

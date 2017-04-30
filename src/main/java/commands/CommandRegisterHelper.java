@@ -1,5 +1,6 @@
 package commands;
 
+import main.Utils;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.Permissions;
 
@@ -164,17 +165,17 @@ public class CommandRegisterHelper {
 							}
 							builder.append("` dosen't exist");
 
-							msg.getChannel().sendMessage(builder.toString());
+							Utils.sendMessage(msg.getChannel(), builder.toString());
 						}
 
 					} else {
-						msg.getChannel().sendMessage("You need to give me more, please!");
+						Utils.sendMessage(msg.getChannel(), "You need to give me more, please!");
 					}
 
 				}
 			} catch (Throwable throwable) {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-					msg.getChannel().sendMessage("Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+					Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 				} else {
 					throwable.printStackTrace();
 					System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
@@ -197,7 +198,7 @@ public class CommandRegisterHelper {
 			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				command.execute(msg, args, 0);
 			} else {
-				msg.getChannel().sendMessage("No Permission for you!");
+				Utils.sendMessage(msg.getChannel(), "No Permission for you!");
 			}
 		}
 	}
@@ -217,14 +218,14 @@ public class CommandRegisterHelper {
 					command.invoke(msg, args);
 				} catch (Throwable throwable) {
 					if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-						msg.getChannel().sendMessage("Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+						Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 					} else {
 						throwable.printStackTrace();
 						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 					}
 				}
 			} else {
-				msg.getChannel().sendMessage("No Permission for you!");
+				Utils.sendMessage(msg.getChannel(), "No Permission for you!");
 			}
 		}
 	}

@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 public class TestCommands {
 	@DiscordCommand("ping")
 	public void ping(IMessage msg, String...args) {
-		msg.getChannel().sendMessage("Pong!");
+		Utils.sendMessage(msg.getChannel(), "Pong!");
 	}
 	@DiscordCommand("deletereactions")
 	public void deletereactions(IMessage msg, String...args) {
@@ -36,15 +36,15 @@ public class TestCommands {
 	public void getroleids(IMessage msg, String...args) {
 		StringBuilder builder = new StringBuilder();
 		msg.getGuild().getRoles().forEach(role -> builder.append(role.getName()).append(": ").append(role.getLongID()).append('\n'));
-		msg.getChannel().sendMessage("There are the IDs I found: ```" + builder.toString() + "```");
+		Utils.sendMessage(msg.getChannel(), "There are the IDs I found: ```" + builder.toString() + "```");
 	}
 	@DiscordCommand("getavatarlink")
 	public void getavatarlink(IMessage msg, String...args) {
-		msg.getChannel().sendMessage(Utils.getUser(msg.getGuild(), args[1]).getAvatarURL());
+		Utils.sendMessage(msg.getChannel(), Utils.getUser(msg.getGuild(), args[1]).getAvatarURL());
 	}
 	@DiscordCommand("pruneamount")
 	public void pruneamount(IMessage msg, String...args) {
-		msg.getChannel().sendMessage("Amount of members to be pruned: " + msg.getGuild().getUsersToBePruned(Integer.valueOf(args[1])));
+		Utils.sendMessage(msg.getChannel(), "Amount of members to be pruned: " + msg.getGuild().getUsersToBePruned(Integer.valueOf(args[1])));
 	}
 
 	@DiscordCommand("getuserids")
@@ -58,25 +58,26 @@ public class TestCommands {
 
 		//msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
 
-		msg.getChannel().sendFile("List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
+		//msg.getChannel().sendFile("List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
+		Utils.sendFile(msg.getChannel(), "List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
 
 	}
 	@DiscordCommand("getusername")
 	public void getusername(IMessage msg, String...args) {
 		IUser user = Utils.getUser(msg.getGuild(), args[1]);
 		if (user == null) {
-			msg.getChannel().sendMessage("Couldn't find user <@" + args[1] +">");
+			Utils.sendMessage(msg.getChannel(), "Couldn't find user <@" + args[1] +">");
 			return;
 		}
-		msg.getChannel().sendMessage("Name: " + user.getName());
+		Utils.sendMessage(msg.getChannel(), "Name: " + user.getName());
 	}
 	@DiscordCommand("getrolename")
 	public void getrolename(IMessage msg, String...args) {
 		IRole role = Utils.getRole(msg.getGuild(), args[1]);
 		if (role == null) {
-			msg.getChannel().sendMessage("Couldn't find role `" + args[1] +"`");
+			Utils.sendMessage(msg.getChannel(), "Couldn't find role `" + args[1] +"`");
 			return;
 		}
-		msg.getChannel().sendMessage("Name: " + role.getName());
+		Utils.sendMessage(msg.getChannel(), "Name: " + role.getName());
 	}
 }

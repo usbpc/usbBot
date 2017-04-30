@@ -39,7 +39,7 @@ public class UsbBot {
 	public void shutdown(IMessage msg, String...args) {
 		//Logout the client when everything is done
 
-		msg.getChannel().sendMessage("Shutting down...");
+		Utils.sendMessage(msg.getChannel(), "Shutting down...");
 		Runtime.getRuntime().addShutdownHook(new Thread(Config::close));
 		client.logout();
 

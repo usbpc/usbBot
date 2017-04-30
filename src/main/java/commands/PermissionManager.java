@@ -32,7 +32,7 @@ public class PermissionManager {
     public int permissions(IMessage msg, String...args) {
         if (args.length > 1) {
             if (cmdHandler.getCommandByName(args[1]) == null) {
-                msg.getChannel().sendMessage("`" + args[1] + "` is not a valid command name");
+                Utils.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }
         }
@@ -49,45 +49,45 @@ public class PermissionManager {
     @DiscordSubCommand(name = "add", parent = "permissionsUsers")
     private void permissionsUsersAdd(IMessage msg, String...args) {
         if (args.length < 5) {
-            msg.getChannel().sendMessage("Please specify a user either by @mention or by ID");
+            Utils.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
         if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@!??\\d{18,19}?>"))) {
-            msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+            Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IUser user = Utils.getUser(msg.getGuild(), args[4]);
         if (user == null) {
-            msg.getChannel().sendMessage("<@" + args[4] + "> is not a valid user on this server");
+            Utils.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getUsers().add(user.getLongID());
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Added " + user.getDisplayName(msg.getGuild()) + " to the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        Utils.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) + " to the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
         if (args.length < 5) {
-            msg.getChannel().sendMessage("Please specify a user either by @mention or by ID");
+            Utils.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
         if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@!??\\d{18,19}?>"))) {
-            msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+            Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IUser user = Utils.getUser(msg.getGuild(), args[4]);
         if (user == null) {
-            msg.getChannel().sendMessage("<@" + args[4] + "> is not a valid user on this server");
+            Utils.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getUsers().remove(user.getLongID());
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Removed " + user.getDisplayName(msg.getGuild()) + " from the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        Utils.sendMessage(msg.getChannel(), "Removed " + user.getDisplayName(msg.getGuild()) + " from the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
     //permissions <command> users mode blacklist|whitelist
@@ -104,11 +104,11 @@ public class PermissionManager {
                 cmdPermission.setUserMode("whitelist");
                 break;
             default:
-                msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+                Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
                 return;
         }
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("The Mode for Users is now " + args[4]);
+        Utils.sendMessage(msg.getChannel(), "The Mode for Users is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsUsers")
@@ -125,7 +125,7 @@ public class PermissionManager {
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
-        msg.getChannel().sendMessage(builder.toString());
+        Utils.sendMessage(msg.getChannel(), builder.toString());
     }
 
 
@@ -138,45 +138,45 @@ public class PermissionManager {
     @DiscordSubCommand(name = "add", parent = "permissionsRoles")
     private void permissionsRolesAdd(IMessage msg, String...args) {
         if (args.length < 5) {
-            msg.getChannel().sendMessage("Please specify a role either by @mention or by ID");
+            Utils.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
         if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@&\\d{18,19}?>"))) {
-            msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+            Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IRole role = Utils.getRole(msg.getGuild(), args[4]);
         if (role == null) {
-            msg.getChannel().sendMessage("<@" + args[4] + "> is not a valid role on this server");
+            Utils.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().add(role.getLongID());
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Added " + role.getName() + " to the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
+        Utils.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "remove", parent = "permissionsRoles")
     private void permissionsRolesRemove(IMessage msg, String...args) {
         if (args.length < 5) {
-            msg.getChannel().sendMessage("Please specify a role either by @mention or by ID");
+            Utils.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
         if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@&\\d{18,19}?>"))) {
-            msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+            Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IRole role = Utils.getRole(msg.getGuild(), args[4]);
         if (role == null) {
-            msg.getChannel().sendMessage("<@" + args[4] + "> is not a valid role on this server");
+            Utils.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().remove(role.getLongID());
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("Removed " + role.getName() + " from the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
+        Utils.sendMessage(msg.getChannel(), "Removed " + role.getName() + " from the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")
@@ -192,11 +192,11 @@ public class PermissionManager {
                 cmdPermission.setRoleMode("whitelist");
                 break;
             default:
-                msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
+                Utils.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
                 return;
         }
         Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        msg.getChannel().sendMessage("The Mode for Roles is now " + args[4]);
+        Utils.sendMessage(msg.getChannel(), "The Mode for Roles is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsRoles")
@@ -213,7 +213,7 @@ public class PermissionManager {
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
-        msg.getChannel().sendMessage(builder.toString());
+        Utils.sendMessage(msg.getChannel(), builder.toString());
     }
 
     private class DummyCommand implements ConfigElement {
