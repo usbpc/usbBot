@@ -6,6 +6,7 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 import sx.blah.discord.util.MessageBuilder;
 
+import javax.rmi.CORBA.Util;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
@@ -14,9 +15,11 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 public class TestCommands {
-	@DiscordCommand("ping")
-	public void ping(IMessage msg, String...args) {
-		Utils.sendMessage(msg.getChannel(), "Pong!");
+
+	@DiscordCommand("teststuff")
+	public void add(IMessage msg, String...args) {
+		//Utils.sendMessage(msg.getChannel(), "This command just exists you you can't break my commands add command! :P");
+		Utils.sendMessage(msg.getChannel(), "The first index: " + "commands add".indexOf("add"));
 	}
 	@DiscordCommand("deletereactions")
 	public void deletereactions(IMessage msg, String...args) {

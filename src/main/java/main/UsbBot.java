@@ -2,6 +2,7 @@ package main;
 
 import commands.*;
 import config.Config;
+import modules.SimpleTextResponses;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -17,6 +18,7 @@ public class UsbBot {
 		CommandModule commandModule = new CommandModule();
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
+		commandModule.registerCommandsFromObject(new SimpleTextResponses(commandModule));
 		//commandModule.registerCommandsFromObject(new SubCommandTest());*/
 
 		client = createClient(discordAPIKey, false);

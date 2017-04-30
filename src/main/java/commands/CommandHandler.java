@@ -5,10 +5,7 @@ import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
@@ -24,6 +21,10 @@ public class CommandHandler {
 
 	public void registerCommand(Command cmd) {
 		commands.put(cmd.name, cmd);
+	}
+
+	public void unregisterCommand(String name) {
+		commands.remove(name);
 	}
 
 	public void runCommand(MessageReceivedEvent event) {
@@ -60,6 +61,10 @@ public class CommandHandler {
 
 	public Command getCommandByName(String name) {
 		return commands.get(name);
+	}
+
+	Collection<Command> getAllCommands() {
+		return commands.values();
 	}
 
 	private boolean isCommand(String str) {

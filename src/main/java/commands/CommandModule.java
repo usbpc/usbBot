@@ -26,16 +26,21 @@ public class CommandModule {
         commands.forEach(this::registerCommand);
     }
 
-    public void unregisterCommand(Command command) {
-
+    public void unregisterCommand(String name) {
+        commandHandler.unregisterCommand(name);
     }
 
-    public void unregisterCommands(Collection<Command> commands) {
+    public void unregisterCommands(Collection<String> commands) {
         commands.forEach(this::unregisterCommand);
     }
 
     public void registerCommandsFromObject(Object obj) {
         registerCommands(commandRegisterHelper.getCommandList(obj));
+    }
+
+    public void addRoleToCommandPermissions(String commandName, Long roleID) {
+        if (getCommand(commandName) == null) throw new IllegalArgumentException(commandName + " is not a valid command");
+        permissionManager.addRoleToPermission(commandName, roleID);
     }
 
     public void registerCommandFromObjects(Collection<Object> objs) {
@@ -46,8 +51,8 @@ public class CommandModule {
         return null;
     }
 
-    public Collection<Command> getCommand(String uuid) {
-        return null;
+    public Command getCommand(String uuid) {
+        return commandHandler.getCommandByName(uuid);
     }
 
     @EventSubscriber

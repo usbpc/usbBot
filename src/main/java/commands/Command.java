@@ -3,7 +3,7 @@ package commands;
 import sx.blah.discord.handle.obj.IMessage;
 
 public abstract class Command {
-	String name;
+	protected String name;
 	String uuid;
 	protected String description;
 	protected Permission permission;

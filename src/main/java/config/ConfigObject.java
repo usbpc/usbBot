@@ -5,8 +5,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class ConfigObject {
     protected static Type mapType = new TypeToken<Map<String, JsonElement>>(){}.getType();
@@ -47,6 +46,12 @@ public class ConfigObject {
 
         if (!objects.containsKey(name)) return null;
         return gson.fromJson(objects.get(name), typeOfT);
+    }
+
+    public <T extends ConfigElement> Collection<T> getAllObjectsAs(Type typeOfT) {
+        Set<T> tmp = new HashSet<>();
+        objects.values().forEach(x -> tmp.add(gson.fromJson(x, typeOfT)));
+        return tmp;
     }
 
     protected Map<String, JsonElement> collectSubObjects() {

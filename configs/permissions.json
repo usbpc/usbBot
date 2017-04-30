@@ -1,0 +1,164 @@
+{
+  "getrolename": {
+    "perrmission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "deletereactions": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": [
+        104214100422180864
+      ]
+    }
+  },
+  "getusername": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "ping": {
+    "name": "ping",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104,
+        306879944867184641,
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": [
+        266951623643758592,
+        271071290692075520,
+        150384898362966016
+      ]
+    }
+  },
+  "permissions": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "getavatarlink": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "pruneamount": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "deleteme": {
+    "name": "deleteme",
+    "permission": {
+      "roleMode": "blacklist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "getuserids": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": [
+        104214100422180864
+      ]
+    }
+  },
+  "getroleids": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "list": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "shutdown": {
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        105460792198959104
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "add": {
+    "name": "add",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "commands": {
+    "name": "commands",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "blah": {
+    "name": "blah",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "test": {
+    "name": "test",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  }
+}

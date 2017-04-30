@@ -2,9 +2,7 @@
 !permissions <command name> users:roles mode whitelist:blacklist
 
 Tasks befor command-system will be merged to master:
-- Improve Config System
-- Deal with new commands and their permissions better
-- Make all sending of messages Central so RateLimitExceptions can be cought and message sending can be retryed
+
 - Help command?
 
 - Use a better logging System than System.out
