@@ -2,6 +2,7 @@ package main;
 
 import commands.*;
 import config.ConfigObject;
+import misc.BugEliros;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -26,11 +27,18 @@ public class UsbBot {
 		CommandModule commandModule = new CommandModule(configObject);
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
-		//commandModule.registerCommandsFromObject(new SubCommandTest());
+		//commandModule.registerCommandsFromObject(new SubCommandTest());*/
 
 		client = createClient(discordAPIKey, false);
+		client.getDispatcher().registerListener(new BugEliros());
 		client.getDispatcher().registerListener(commandModule);
 		client.login();
+
+		//while (!client.isReady()) {
+
+		//}
+
+		//client.getUserByID(271071290692075520L).getOrCreatePMChannel().sendMessage("`Oh, gütige Herrscherin, ihr Freund hat soeben seinen Status geändert.` is what I would write you if <@105306394130968576> changed his status.");
 
 	}
 

@@ -8,6 +8,8 @@ import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
+import java.util.ArrayList;
+
 public class PermissionManager {
     CommandHandler cmdHandler;
     ConfigObject commandPermissions;
@@ -21,7 +23,8 @@ public class PermissionManager {
         //TODO: What if no permission is found in the command.json?
         DummyCommand cmd = commandPermissions.getObjectbyName(name, DummyCommand.class);
         if (cmd == null) {
-            cmd = commandPermissions.getObjectbyName("ping", DummyCommand.class);
+            cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
+            commandPermissions.putObject(cmd);
         }
         return cmd.permission;
     }

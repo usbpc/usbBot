@@ -220,10 +220,7 @@ public class CommandRegisterHelper {
 						throwable.printStackTrace();
 						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 					}
-
 				}
-			} else {
-				msg.getChannel().sendMessage("You have no Permission to use this command.");
 			}
 		}
 	}

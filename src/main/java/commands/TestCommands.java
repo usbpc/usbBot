@@ -10,13 +10,23 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 public class TestCommands {
 	@DiscordCommand("ping")
 	public void ping(IMessage msg, String...args) {
-		msg.getChannel().sendMessage("pong!");
+		msg.getChannel().sendMessage("Pong!");
 	}
-
+	@DiscordCommand("deletereactions")
+	public void deletereactions(IMessage msg, String...args) {
+		if (args[1].matches("\\d{18,19}+")) {
+			IMessage toDelete = msg.getChannel().getMessageByID(Long.valueOf(args[1]));
+			if (toDelete != null) {
+				toDelete.removeAllReactions();
+			}
+		}
+	}
 	@DiscordCommand("deleteme")
 	public void deleteme(IMessage msg, String...args) {
 		msg.delete();
