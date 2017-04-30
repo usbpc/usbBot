@@ -1,9 +1,7 @@
 package config;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
 import java.lang.reflect.Type;
@@ -11,58 +9,49 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ConfigObject {
-    String boundTo = null;
-    File configFile;
-    FileReader reader;
-    FileWriter writer;
-    JsonObject file;
-    Map<String, JsonObject> boundObjects = new HashMap<>();
-    Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    protected static Type mapType = new TypeToken<Map<String, JsonElement>>(){}.getType();
+    protected final Map<String, ConfigObject> subObjects = new HashMap<>();
+    protected Map<String, JsonElement> objects;
+    protected Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    //TODO make config file writable!
-    public ConfigObject(File configFile) {
-        this.configFile = configFile;
+    protected ConfigObject() {
+    }
 
-        try {
-            reader = new FileReader(configFile);
-            //TODO this produces NullPointerException if the file to read is empty or the property dosen't exist
-            file = new Gson().fromJson(reader, JsonObject.class);
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+    public ConfigObject(Map<String, JsonElement> objects) {
+        this.objects = objects;
+    }
+
+    public ConfigObject getPropertyAsSubConfigObject(String name) {
+        if (subObjects.containsKey(name)) return subObjects.get(name);
+        ConfigObject subObject;
+        if (!objects.containsKey(name)) {
+            subObject = new ConfigObject(new HashMap<>());
+        } else {
+            subObject = new ConfigObject(gson.fromJson(objects.get(name), mapType));
         }
+        subObjects.put(name, subObject);
+        return subObject;
     }
 
-    public ConfigObject bindToProperty(String name) {
-        boundTo = name;
-        JsonArray array = file.getAsJsonArray(name);
-
-        array.forEach(x -> boundObjects.put(x.getAsJsonObject().get("name").getAsString(), x.getAsJsonObject()));
-
-        return this;
-    }
-    public void putObject(ConfigElement object) {
-        boundObjects.put(object.getUUID(), gson.fromJson(gson.toJson(object), JsonObject.class));
+    public void putConfigElement(ConfigElement object) {
+        objects.put(object.getUUID(), gson.toJsonTree(object));
     }
 
-    public <T extends ConfigElement> T getObjectbyName(String name, Type typeOfT) {
-        if (!boundObjects.containsKey(name)) return null;
-        return gson.fromJson(boundObjects.get(name), typeOfT);
+    public void removeConfigElement(String name) {
+        if (subObjects.containsKey(name)) throw new IllegalArgumentException("The Object you tried to remove is a SubConfigObject");
+        objects.remove(name);
     }
 
-    public void closeConnections() {
-        try {
-            file.remove(boundTo);
-            JsonArray array = new JsonArray();
-            boundObjects.values().forEach(array::add);
-            file.add(boundTo, array);
-            writer = new FileWriter(configFile);
-            writer.write(gson.toJson(file));
-            writer.flush();
-            writer.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public <T extends ConfigElement> T getObjectByName(String name, Type typeOfT) {
+        if (subObjects.containsKey(name)) throw new IllegalArgumentException("The Object you tried to get is already a SubConfigObject!");
+
+        if (!objects.containsKey(name)) return null;
+        return gson.fromJson(objects.get(name), typeOfT);
     }
 
+    protected Map<String, JsonElement> collectSubObjects() {
+        if (subObjects.isEmpty()) return objects;
+        subObjects.forEach((key, value) -> objects.put(key, gson.toJsonTree(value.collectSubObjects())));
+        return objects;
+    }
 }

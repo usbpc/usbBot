@@ -1,5 +1,6 @@
 package main;
 
+import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
@@ -27,5 +28,9 @@ public class Utils {
             return null;
         }
         return guild.getRoleByID(longId);
+    }
+
+    public static void sendMessage(IChannel channel, String message) {
+        channel.sendMessage(message);
     }
 }

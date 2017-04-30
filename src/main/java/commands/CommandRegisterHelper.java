@@ -62,7 +62,7 @@ public class CommandRegisterHelper {
 		commandMap.entrySet().stream().filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
 				.forEach(x -> {
 					noSubCommands.add(x.getKey());
-					commands.add(new AnnotationCommand(x.getValue().name, "", x.getValue().command, commandPermissions.getPermissionByName(x.getValue().name)));
+					commands.add(new AnnotationCommand(x.getValue().name, "", x.getValue().command, commandPermissions.loadPermissionByName(x.getValue().name)));
 				});
 		noSubCommands.forEach(commandMap::remove);
 
@@ -116,7 +116,7 @@ public class CommandRegisterHelper {
 		}
 
 		//adds all the top level command to the returned commands list
-		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", commandPermissions.getPermissionByName(x.name), new SubCommand(x.command, x.subCommands))));
+		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", commandPermissions.loadPermissionByName(x.name), new SubCommand(x.command, x.subCommands))));
 
 
 		return commands;
@@ -196,6 +196,8 @@ public class CommandRegisterHelper {
 		public void execute(IMessage msg, String... args) {
 			if (permission.isAllowed(msg)) {
 				command.execute(msg, args, 0);
+			} else {
+				msg.getChannel().sendMessage("No Permission for you!");
 			}
 		}
 	}
@@ -210,7 +212,7 @@ public class CommandRegisterHelper {
 
 		@Override
 		public void execute(IMessage msg, String...args) {
-			if (permission.isAllowed(msg)) {
+			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				try {
 					command.invoke(msg, args);
 				} catch (Throwable throwable) {
@@ -221,6 +223,8 @@ public class CommandRegisterHelper {
 						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 					}
 				}
+			} else {
+				msg.getChannel().sendMessage("No Permission for you!");
 			}
 		}
 	}

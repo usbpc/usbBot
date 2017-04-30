@@ -9,9 +9,9 @@ public class CommandModule {
     CommandHandler commandHandler;
     PermissionManager permissionManager;
     CommandRegisterHelper commandRegisterHelper;
-    public CommandModule(ConfigObject commandConfig) {
+    public CommandModule() {
         commandHandler = new CommandHandler();
-        permissionManager = new PermissionManager(commandHandler, commandConfig);
+        permissionManager = new PermissionManager(commandHandler);
         commandRegisterHelper = new CommandRegisterHelper(permissionManager);
 
         registerCommandsFromObject(commandHandler);
@@ -52,6 +52,7 @@ public class CommandModule {
 
     @EventSubscriber
     public void runCommand(MessageReceivedEvent event) {
+        System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         commandHandler.runCommand(event);
     }
 }

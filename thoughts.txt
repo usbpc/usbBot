@@ -36,9 +36,11 @@ Simple text response based commands should be in a seperate module, not the core
 		con: couples this system togeter with the core command system
 
 Module Ideas:
-	Symple text response commands
+	Simple text response commands
 	Auto roles for stuff
 	Musikbot
 	Quotes
 	Automagically more voice rooms
 	Game matching system
+	dailyaww
+	greeting messages when joining

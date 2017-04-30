@@ -1,8 +1,7 @@
 package main;
 
 import commands.*;
-import config.ConfigObject;
-import misc.BugEliros;
+import config.Config;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -13,24 +12,14 @@ import java.util.Properties;
 
 public class UsbBot {
 	private IDiscordClient client;
-	private ConfigObject configObject;
 	UsbBot(String discordAPIKey) {
 
-
-
-		File configFolder = new File("configs");
-		File commands = new File(configFolder, "commands.json");
-
-
-		configObject = new ConfigObject(commands).bindToProperty("systemCommands");
-
-		CommandModule commandModule = new CommandModule(configObject);
+		CommandModule commandModule = new CommandModule();
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
 		//commandModule.registerCommandsFromObject(new SubCommandTest());*/
 
 		client = createClient(discordAPIKey, false);
-		client.getDispatcher().registerListener(new BugEliros());
 		client.getDispatcher().registerListener(commandModule);
 		client.login();
 
@@ -51,7 +40,7 @@ public class UsbBot {
 		//Logout the client when everything is done
 
 		msg.getChannel().sendMessage("Shutting down...");
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> configObject.closeConnections()));
+		Runtime.getRuntime().addShutdownHook(new Thread(Config::close));
 		client.logout();
 
 	}

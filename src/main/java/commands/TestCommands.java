@@ -40,7 +40,7 @@ public class TestCommands {
 	}
 	@DiscordCommand("getavatarlink")
 	public void getavatarlink(IMessage msg, String...args) {
-		msg.getChannel().sendMessage(msg.getAuthor().getAvatarURL());
+		msg.getChannel().sendMessage(Utils.getUser(msg.getGuild(), args[1]).getAvatarURL());
 	}
 	@DiscordCommand("pruneamount")
 	public void pruneamount(IMessage msg, String...args) {
@@ -49,11 +49,16 @@ public class TestCommands {
 
 	@DiscordCommand("getuserids")
 	public void getuserids(IMessage msg, String...args) {
-		StringBuilder builder = new StringBuilder();
-		msg.getGuild().getUsers().forEach(user -> builder/*.append(user.getName()).append(": ")*/.append(user.getLongID()).append("\r\n"));
-		MessageBuilder msgBuilder = new MessageBuilder(msg.getClient());
 
-		msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
+		StringBuilder builder = new StringBuilder();
+		msg.getGuild().getUsers().forEach(user -> builder.append(user.getName()).append(": ").append(user.getLongID()).append("\r\n"));
+		builder.deleteCharAt(builder.length() - 1);
+		builder.deleteCharAt(builder.length() - 1);
+		//MessageBuilder msgBuilder = new MessageBuilder(msg.getClient());
+
+		//msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
+
+		msg.getChannel().sendFile("List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
 
 	}
 	@DiscordCommand("getusername")

@@ -31,6 +31,7 @@ public class CommandHandler {
 			String msg = message.getContent();
 			String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
 			if (commands.containsKey(digestedString[0])) {
+				System.out.printf("[CommandHandler] Executing command '%s'\r\n", digestedString[0]);
 				commands.get(digestedString[0]).execute(message, digestedString);
 			} /*else {
 				message.getChannel().sendMessage("Command `" + PREFIX + digestedString[0] + "` not found.");
