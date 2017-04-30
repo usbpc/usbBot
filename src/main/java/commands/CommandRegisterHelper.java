@@ -194,7 +194,7 @@ public class CommandRegisterHelper {
 
 		@Override
 		public void execute(IMessage msg, String... args) {
-			if (permission.isAllowed(msg)) {
+			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				command.execute(msg, args, 0);
 			} else {
 				msg.getChannel().sendMessage("No Permission for you!");

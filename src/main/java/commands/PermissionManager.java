@@ -2,7 +2,6 @@ package commands;
 
 import config.Config;
 import config.ConfigElement;
-import config.ConfigObject;
 import main.Utils;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -13,18 +12,16 @@ import java.util.ArrayList;
 
 public class PermissionManager {
     CommandHandler cmdHandler;
-    ConfigObject commandPermissions;
     public PermissionManager(CommandHandler cmdHandler) {
         this.cmdHandler = cmdHandler;
-        this.commandPermissions = Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands");
 
     }
 
     public Permission loadPermissionByName(String name) {
-        DummyCommand cmd = commandPermissions.getObjectByName(name, DummyCommand.class);
+        DummyCommand cmd = Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").getObjectByName(name, DummyCommand.class);
         if (cmd == null) {
             cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
-            commandPermissions.putConfigElement(cmd);
+            Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(cmd);
         }
         return cmd.permission;
     }
@@ -67,7 +64,7 @@ public class PermissionManager {
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getUsers().add(user.getLongID());
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("Added " + user.getDisplayName(msg.getGuild()) + " to the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
@@ -89,7 +86,7 @@ public class PermissionManager {
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getUsers().remove(user.getLongID());
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("Removed " + user.getDisplayName(msg.getGuild()) + " from the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
@@ -110,7 +107,7 @@ public class PermissionManager {
                 msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
                 return;
         }
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("The Mode for Users is now " + args[4]);
     }
 
@@ -156,7 +153,7 @@ public class PermissionManager {
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().add(role.getLongID());
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("Added " + role.getName() + " to the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
@@ -178,7 +175,7 @@ public class PermissionManager {
         Command cmd = cmdHandler.getCommandByName(args[1]);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().remove(role.getLongID());
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("Removed " + role.getName() + " from the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
@@ -198,7 +195,7 @@ public class PermissionManager {
                 msg.getChannel().sendMessage("`" + args[4] + "` is not a valid argument");
                 return;
         }
-        commandPermissions.putConfigElement(new DummyCommand(args[1], cmdPermission));
+        Config.getConfigByName("commands").getPropertyAsSubConfigObject("systemCommands").putConfigElement(new DummyCommand(args[1], cmdPermission));
         msg.getChannel().sendMessage("The Mode for Roles is now " + args[4]);
     }
 

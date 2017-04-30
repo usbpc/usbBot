@@ -94,11 +94,10 @@
       }
     },
     "deleteme": {
+      "name": "deleteme",
       "permission": {
-        "roleMode": "whitelist",
-        "roles": [
-          105460792198959104
-        ],
+        "roleMode": "blacklist",
+        "roles": [],
         "userMode": "whitelist",
         "users": []
       }

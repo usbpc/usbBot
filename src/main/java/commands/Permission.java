@@ -53,8 +53,8 @@ public class Permission {
         } else if (users.contains(user) && userMode.equals("whitelist")) {
             return true;
         }
-        //TODO: userMode:whitelist AND roleMode:blacklist is this code working correctly?
-        //TODO handle PM channels correctly
+
+        if (roleMode.equals("blacklist") && userMode.equals("whitelist") && roles.isEmpty() && users.isEmpty()) return false;
         if (message.getAuthor().getRolesForGuild(message.getGuild()).stream().filter(role -> roles.contains(role.getLongID())).count() > 0) {
             //If the user has any role that is mentioned in the "roles" list and the mode for roles is set to whitelist then the user is allowed to use the command
             if (roleMode.equals("whitelist")) {

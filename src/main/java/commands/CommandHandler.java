@@ -27,7 +27,7 @@ public class CommandHandler {
 
 	public void runCommand(MessageReceivedEvent event) {
 		IMessage message = event.getMessage();
-		if (isCommand(message.getContent())) {
+		if (!message.getChannel().isPrivate() && isCommand(message.getContent())) {
 			String msg = message.getContent();
 			String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
 			if (commands.containsKey(digestedString[0])) {
