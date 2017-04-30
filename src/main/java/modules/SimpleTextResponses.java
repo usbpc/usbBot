@@ -4,6 +4,8 @@ import commands.*;
 import config.Config;
 import config.ConfigElement;
 import main.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.*;
@@ -14,13 +16,14 @@ import java.util.stream.Collectors;
  */
 public class SimpleTextResponses {
     private Map<String, SimpleTextCommand> commands = new HashMap<>();
-
+    private Logger logger = LoggerFactory.getLogger(SimpleTextResponses.class);
     CommandModule commandModule;
     public SimpleTextResponses(CommandModule commandModule) {
         this.commandModule = commandModule;
         Collection<DummyCommand> command = Config.getConfigByName("commands").getAllObjectsAs(DummyCommand.class);
         command.forEach(x -> {
-            System.out.printf("[SimpleTextResponses] name: %s message: %s \r\n", x.name, x.message);
+            logger.debug("name: {} message: {}", x.name, x.message);
+            //System.out.printf("[SimpleTextResponses] name: %s message: %s \r\n", x.name, x.message);
             commands.put(x.name, new SimpleTextCommand(x.name, x.message));
         });
 
@@ -53,8 +56,10 @@ public class SimpleTextResponses {
         String message = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
         DummyCommand cmd = new DummyCommand(args[2], message);
         Config.getConfigByName("commands").putConfigElement(cmd);
-        commandModule.registerCommand(new SimpleTextCommand(args[2], message));
+        SimpleTextCommand simpleTextCommand = new SimpleTextCommand(args[2], message);
+        commandModule.registerCommand(simpleTextCommand);
         commandModule.addRoleToCommandPermissions(args[2], msg.getGuild().getEveryoneRole().getLongID());
+        commands.put(args[2], simpleTextCommand);
         Utils.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
@@ -112,6 +117,7 @@ public class SimpleTextResponses {
         }
         @Override
         public void execute(IMessage msg, String... args) {
+            //TODO replace placeholders with message writer and args.
             Utils.sendMessage(msg.getChannel(), content);
         }
     }

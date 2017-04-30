@@ -2,5 +2,45 @@
   "test": {
     "name": "test",
     "message": " This is a test!"
+  },
+  "ping": {
+    "name": "ping",
+    "message": "Pong!"
+  },
+  "sample": {
+    "name": "sample",
+    "message": "Ich bin ein beispiel befehl um zu zeigen, dass man jetzt befehle hinzufügen kann!"
+  },
+  "cry": {
+    "name": "cry",
+    "message": "Me a River"
+  },
+  "butz": {
+    "name": "butz",
+    "message": "BUTZ DIGGER"
+  },
+  "gj": {
+    "name": "gj",
+    "message": "Thanks M8"
+  },
+  "nug": {
+    "name": "nug",
+    "message": "NuggetLife ❤"
+  },
+  "support": {
+    "name": "support",
+    "message": "Falls ihr Hilfe bei etwas braucht, dann könnt Ihr euch gerne an die Mods wenden."
+  },
+  "business": {
+    "name": "business",
+    "message": "Wanna make BUSINESS Boy ?"
+  },
+  "awwdog": {
+    "name": "awwdog",
+    "message": "https://imgur.com/6sz7O6F"
+  },
+  "stream": {
+    "name": "stream",
+    "message": "Gibt es heute einen streeeeam \u003c@105306394130968576\u003e ?"
   }
 }

@@ -1,6 +1,8 @@
 package commands;
 
 import main.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.Permissions;
 
@@ -11,6 +13,7 @@ import java.util.stream.Collectors;
 
 public class CommandRegisterHelper {
 	private PermissionManager commandPermissions;
+	private Logger logger = LoggerFactory.getLogger(CommandRegisterHelper.class);
 
 	public CommandRegisterHelper(PermissionManager commands) {
 		commandPermissions = commands;
@@ -55,7 +58,8 @@ public class CommandRegisterHelper {
 				throw new IllegalStateException("Can't find parent " + x.getValue().parentCommand + " of method " + x.getKey());
 			}
 		});
-		System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
+		logger.debug("This is the map of all command I currently have before creating any Command Objects {}", commandMap.toString());
+		//System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
 
 		//This regeisters all commands that don't have sub commands and removes them from the commandMap Map
@@ -98,7 +102,8 @@ public class CommandRegisterHelper {
 			TmpCommandContainer currParent = commandMap.get(currDeepest.parentCommand);
 			currParent.subCommands = new HashMap<>();
 
-			System.out.printf("Currently searching for subcommand of %s \r\n", curSearchParentName);
+			logger.debug("Currently searching for subcommand of {}", curSearchParentName);
+			//System.out.printf("Currently searching for subcommand of %s \r\n", curSearchParentName);
 
 			//This goes through every entry that is not a top level command and has the same parent command that our deepest command has
 			for (Map.Entry<String, TmpCommandContainer> entry : commandMap.entrySet().stream()
@@ -108,7 +113,8 @@ public class CommandRegisterHelper {
 			{
 				//Create a SubCommand and add it into the subCommands map of the parent
 				TmpCommandContainer sameParent = entry.getValue();
-				System.out.printf("I found: %s\r\n", sameParent.name);
+				logger.debug("I found: {}", sameParent.name);
+				//System.out.printf("I found: %s\r\n", sameParent.name);
 				currParent.subCommands.put(sameParent.name, new SubCommand(sameParent.command, sameParent.subCommands));
 				commandMap.remove(entry.getKey());
 			}
@@ -178,7 +184,8 @@ public class CommandRegisterHelper {
 					Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 				} else {
 					throwable.printStackTrace();
-					System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
+					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
+					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
 			}
 		}
@@ -221,7 +228,8 @@ public class CommandRegisterHelper {
 						Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 					} else {
 						throwable.printStackTrace();
-						System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
+						logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
+						//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 					}
 				}
 			} else {

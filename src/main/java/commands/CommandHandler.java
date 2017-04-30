@@ -1,6 +1,8 @@
 package commands;
 
 import main.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
@@ -11,7 +13,7 @@ public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
 	private String PREFIX = "!";
 	private CommandRegisterHelper helper;
-
+	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 	public CommandHandler() {
 	}
 
@@ -33,7 +35,9 @@ public class CommandHandler {
 			String msg = message.getContent();
 			String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
 			if (commands.containsKey(digestedString[0])) {
-				System.out.printf("[CommandHandler] Executing command '%s'\r\n", digestedString[0]);
+
+				logger.debug("Executing command '{}'", digestedString[0]);
+				//System.out.printf("[CommandHandler] Executing command '%s'\r\n", digestedString[0]);
 				commands.get(digestedString[0]).execute(message, digestedString);
 			} /*else {
 				message.getChannel().sendMessage("Command `" + PREFIX + digestedString[0] + "` not found.");

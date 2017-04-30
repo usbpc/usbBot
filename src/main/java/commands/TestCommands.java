@@ -1,5 +1,6 @@
 package commands;
 
+import config.Config;
 import main.Utils;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
@@ -19,7 +20,10 @@ public class TestCommands {
 	@DiscordCommand("teststuff")
 	public void add(IMessage msg, String...args) {
 		//Utils.sendMessage(msg.getChannel(), "This command just exists you you can't break my commands add command! :P");
-		Utils.sendMessage(msg.getChannel(), "The first index: " + "commands add".indexOf("add"));
+		//Utils.sendMessage(msg.getChannel(), "The first index: " + "commands add".indexOf("add"));
+
+		Config.close();
+		Utils.sendMessage(msg.getChannel(), "Saved the world!");
 	}
 	@DiscordCommand("deletereactions")
 	public void deletereactions(IMessage msg, String...args) {

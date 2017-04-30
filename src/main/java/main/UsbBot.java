@@ -3,6 +3,8 @@ package main;
 import commands.*;
 import config.Config;
 import modules.SimpleTextResponses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
@@ -12,9 +14,11 @@ import java.io.*;
 import java.util.Properties;
 
 public class UsbBot {
+	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
 	private IDiscordClient client;
 	UsbBot(String discordAPIKey) {
-
+		Logger logger = LoggerFactory.getLogger(UsbBot.class);
+		//TODO propper logging
 		CommandModule commandModule = new CommandModule();
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
@@ -56,7 +60,9 @@ public class UsbBot {
 			discordApiKey = keys.getProperty("discord", "404");
 			if (discordApiKey.equals("404")) {
 				FileOutputStream out = new FileOutputStream("keys.properties");
-				System.out.println("No discord API key found, please enter one in the keys.properties file");
+
+				logger.error("No discord API key found, please enter one in the keys.properties file");
+				//System.out.println("No discord API key found, please enter one in the keys.properties file");
 				keys.setProperty("discord", "404");
 				keys.store(out, "");
 				System.exit(-1);

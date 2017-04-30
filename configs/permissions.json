@@ -30,16 +30,10 @@
     "permission": {
       "roleMode": "whitelist",
       "roles": [
-        105460792198959104,
-        306879944867184641,
         104214741601247232
       ],
       "userMode": "whitelist",
-      "users": [
-        266951623643758592,
-        271071290692075520,
-        150384898362966016
-      ]
+      "users": []
     }
   },
   "permissions": {
@@ -134,9 +128,13 @@
     "name": "commands",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [],
+      "roles": [
+        105460792198959104
+      ],
       "userMode": "whitelist",
-      "users": []
+      "users": [
+        266951623643758592
+      ]
     }
   },
   "blah": {
@@ -152,6 +150,147 @@
   },
   "test": {
     "name": "test",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "teststuff": {
+    "name": "teststuff",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "sample": {
+    "name": "sample",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "blub": {
+    "name": "blub",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "\u003c!cry\u003e": {
+    "name": "\u003c!cry\u003e",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "cry": {
+    "name": "cry",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "butz": {
+    "name": "butz",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "gj": {
+    "name": "gj",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "eliros": {
+    "name": "eliros",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "nug": {
+    "name": "nug",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "support": {
+    "name": "support",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "business": {
+    "name": "business",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "awwdog": {
+    "name": "awwdog",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "stream": {
+    "name": "stream",
     "permission": {
       "roleMode": "whitelist",
       "roles": [

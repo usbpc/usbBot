@@ -1,6 +1,8 @@
 package commands;
 
 import config.ConfigObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 
@@ -9,6 +11,7 @@ public class CommandModule {
     CommandHandler commandHandler;
     PermissionManager permissionManager;
     CommandRegisterHelper commandRegisterHelper;
+    private Logger logger = LoggerFactory.getLogger(CommandModule.class);
     public CommandModule() {
         commandHandler = new CommandHandler();
         permissionManager = new PermissionManager(commandHandler);
@@ -48,7 +51,7 @@ public class CommandModule {
     }
 
     public Collection<Command> getAllCommands() {
-        return null;
+        return commandHandler.getAllCommands();
     }
 
     public Command getCommand(String uuid) {
@@ -57,7 +60,9 @@ public class CommandModule {
 
     @EventSubscriber
     public void runCommand(MessageReceivedEvent event) {
-        System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
+
+        logger.debug("#{} @{} : {}", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
+        //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         commandHandler.runCommand(event);
     }
 }
