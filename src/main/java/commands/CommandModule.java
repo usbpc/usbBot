@@ -18,7 +18,7 @@ public class CommandModule {
     public CommandModule() {
         commandHandler = new CommandHandler();
         permissionManager = new PermissionManager(commandHandler);
-        annotationRegister = new AnnotationRegister(permissionManager);
+        annotationRegister = new AnnotationRegister();
 
         registerCommandsFromObject(commandHandler);
         registerCommandsFromObject(permissionManager);
@@ -62,7 +62,6 @@ public class CommandModule {
     }
 
     @EventSubscriber
-    //TODO check for permissions here so permissions don't need to know about the commands and vice versa
     public void runCommand(MessageReceivedEvent event) {
 
         logger.debug("#{} @{} : {}", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());

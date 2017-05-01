@@ -4,7 +4,6 @@ import commands.annotations.DiscordCommand;
 import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.*;
@@ -49,7 +48,6 @@ public class CommandHandler {
 
 	public void runCommand(IMessage message, String[] digestedString) {
 		if (!message.getChannel().isPrivate() && isCommand(message.getContent())) {
-			//TODO make regex ignore multiple spaces
 			if (commands.containsKey(digestedString[0])) {
 
 				logger.debug("Executing command '{}'", digestedString[0]);
@@ -95,6 +93,6 @@ public class CommandHandler {
 		return str.matches(" *" + Pattern.quote(PREFIX) + '(' +cmdPattern.toString() + ')' + ".*");
 	}
 	public String[] getArguments(String input) {
-		return input.substring(input.indexOf(PREFIX) + 1).split(" ");
+		return input.substring(input.indexOf(PREFIX) + 1).split(" +");
 	}
 }

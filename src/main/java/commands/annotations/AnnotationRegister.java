@@ -15,11 +15,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class AnnotationRegister {
-	private PermissionManager commandPermissions;
 	private Logger logger = LoggerFactory.getLogger(AnnotationRegister.class);
 
-	public AnnotationRegister(PermissionManager commands) {
-		commandPermissions = commands;
+	public AnnotationRegister() {
 	}
 
 	public List<Command> getCommandList(Object obj) {
@@ -36,7 +34,7 @@ public class AnnotationRegister {
 				x.setAccessible(true);
 				commandMap.put(x.getName(), new TmpCommandContainer(x.getAnnotation(DiscordCommand.class).value(), null, lookup.unreflect(x).bindTo(obj)));
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				logger.error("Something went wrong trying to register {}", x.getAnnotation(DiscordCommand.class).value(), e);
 			}
 		});
 
@@ -46,7 +44,7 @@ public class AnnotationRegister {
 				x.setAccessible(true);
 				commandMap.put(x.getName(), new TmpCommandContainer(x.getAnnotation(DiscordSubCommand.class).name(), x.getAnnotation(DiscordSubCommand.class).parent() ,lookup.unreflect(x).bindTo(obj)));
 			} catch (IllegalAccessException e) {
-				e.printStackTrace();
+				logger.error("Something went wrong trying to register {}", x.getAnnotation(DiscordSubCommand.class).name(), e);
 			}
 		});
 
@@ -187,8 +185,7 @@ public class AnnotationRegister {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
 					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 				} else {
-					throwable.printStackTrace();
-					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
+					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
 					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
 			}
@@ -225,8 +222,7 @@ public class AnnotationRegister {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
 					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 				} else {
-					throwable.printStackTrace();
-					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
+					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
 					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
 			}

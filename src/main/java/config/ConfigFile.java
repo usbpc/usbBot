@@ -1,5 +1,8 @@
 package config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.HashMap;
 
@@ -8,7 +11,7 @@ import java.util.HashMap;
  */
 class ConfigFile extends ConfigObject {
     private File configFile;
-
+    private static Logger logger = LoggerFactory.getLogger(ConfigObject.class);
     ConfigFile(File configFile) {
         try {
             this.objects = gson.fromJson(new FileReader(configFile), mapType);
@@ -23,7 +26,7 @@ class ConfigFile extends ConfigObject {
             fileWriter.write(gson.toJson(collectSubObjects()));
             fileWriter.flush();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.error("Something went wrong trying to write to {}", configFile.getName(), e);
         }
     }
 }

@@ -69,7 +69,7 @@ public class UsbBot {
 				System.exit(-1);
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.error("Something went wrong while opening the keys.properties", e);
 		}
 		return discordApiKey;
 	}
@@ -84,7 +84,7 @@ public class UsbBot {
 				return clientBuilder.build();
 			}
 		} catch (DiscordException e) {
-			e.printStackTrace();
+			logger.error("Building the client failed ", e);
 			return null;
 		}
 	}
