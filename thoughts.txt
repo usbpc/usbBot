@@ -4,9 +4,12 @@
 Improvment ideas:
 	
 - Help command?
-
-- Use a better logging System than System.out
+- support more than one guild
+- have one log channel per guild
 - Rework the CommandRegisterHelper to be smarter with sub command depth (calculate once and look up after that)
+
+Test stuff:
+- test that regex charaters don't break anything
 
 What do I want from my Command/Permission system?
 
@@ -42,3 +45,5 @@ Module Ideas:
 	dailyaww
 	greeting messages when joining
 	jokes
+	message logging (save all messages and also changes?)
+	reminders

@@ -8,13 +8,12 @@
     }
   },
   "deletereactions": {
+    "name": "deletereactions",
     "permission": {
       "roleMode": "whitelist",
       "roles": [],
       "userMode": "whitelist",
-      "users": [
-        104214100422180864
-      ]
+      "users": []
     }
   },
   "getusername": {
@@ -29,21 +28,22 @@
     "name": "ping",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        104214741601247232
-      ],
+      "roles": [],
       "userMode": "whitelist",
-      "users": []
+      "users": [
+        104214100422180864
+      ]
     }
   },
   "permissions": {
+    "name": "permissions",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
-      "users": []
+      "users": [
+        105460792198959104
+      ]
     }
   },
   "getavatarlink": {
@@ -86,31 +86,28 @@
     }
   },
   "getroleids": {
+    "name": "getroleids",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
       "users": []
     }
   },
   "list": {
+    "name": "list",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
       "users": []
     }
   },
   "shutdown": {
+    "name": "shutdown",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
       "users": []
     }
@@ -318,6 +315,117 @@
       "roles": [
         104214741601247232
       ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "qg": {
+    "name": "qg",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "something": {
+    "name": "something",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "compare": {
+    "name": "compare",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "regexquote": {
+    "name": "regexquote",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "getcommandregex": {
+    "name": "getcommandregex",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "aab": {
+    "name": "aab",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "bba": {
+    "name": "bba",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "|blah": {
+    "name": "|blah",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "\\Qtest": {
+    "name": "\\Qtest",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "listroleids": {
+    "name": "listroleids",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "hhh": {
+    "name": "hhh",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
       "userMode": "whitelist",
       "users": []
     }

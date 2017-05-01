@@ -6,6 +6,8 @@ import commands.annotations.DiscordCommand;
 import commands.annotations.DiscordSubCommand;
 import config.Config;
 import config.ConfigElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.MessageSending;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -13,22 +15,62 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Matcher;
 
 public class PermissionManager {
+    private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
     private CommandHandler cmdHandler;
+    private Map<String, DummyCommand> commandMap = new HashMap<>();
     public PermissionManager(CommandHandler cmdHandler) {
         this.cmdHandler = cmdHandler;
-
+        Config.getConfigByName("permissions").getAllObjectsAs(DummyCommand.class).forEach(x -> commandMap.put(x.getUUID(), (DummyCommand) x));
+        logger.debug("This is my command map: {}", commandMap);
     }
 
-    public Permission loadPermissionByName(String name) {
-        //TODO load all permissions into map for faster lookup and use only call from the Command Module
-        DummyCommand cmd = Config.getConfigByName("permissions").getObjectByName(name, DummyCommand.class);
-        if (cmd == null) {
-            cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
+    //TODO fix users and roles that no longer exist beeing stuck on the list and producing null pointer exceptions when listing
+    private DummyCommand loadPermissionByName(String name) {
+        if (!commandMap.containsKey(name)) {
+            DummyCommand cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
+            commandMap.put(name, cmd);
             Config.getConfigByName("permissions").putConfigElement(cmd);
         }
-        return cmd.permission;
+        return commandMap.get(name);
+    }
+    public void addUser(String commandName, long userID) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.getUsers().add(userID);
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+    public void delUser(String commandName, long userID) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.getUsers().remove(userID);
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+    public void addRole(String commandName, long roleID) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.getUsers().add(roleID);
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+    public void delRole(String commandName, long roleID) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.getUsers().remove(roleID);
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+    public void setRolesMode(String commandName, boolean whitelist) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.setRoleMode(whitelist ? "whitelist" : "blacklist");
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+    public void setUsersMode(String commandName, boolean whitelist) {
+        DummyCommand command = loadPermissionByName(commandName);
+        command.permission.setUserMode(whitelist ? "whitelist" : "blacklist");
+        Config.getConfigByName("permissions").putConfigElement(command);
+    }
+
+    public boolean hasPermission(IMessage msg, String name) {
+        return loadPermissionByName(name).permission.isAllowed(msg);
     }
 
     //TODO move duplicate code to private methods
@@ -43,7 +85,6 @@ public class PermissionManager {
         }
         return 1;
     }
-
     //USERS sub command block
     @DiscordSubCommand(name = "users", parent = "permissions")
     private int permissionsUsers(IMessage msg, String...args) {
@@ -66,11 +107,8 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
-        cmdPermission.getUsers().add(user.getLongID());
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) + " to the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        addUser(args[1], user.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) + " to the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
@@ -88,45 +126,41 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
-        cmdPermission.getUsers().remove(user.getLongID());
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        MessageSending.sendMessage(msg.getChannel(), "Removed " + user.getDisplayName(msg.getGuild()) + " from the " + cmdPermission.getUserMode() + " for command `" + args[1] + "`.");
+        delUser(args[1], user.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Removed " + user.getDisplayName(msg.getGuild()) + " from the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
     //permissions <command> users mode blacklist|whitelist
     @DiscordSubCommand(name = "mode", parent = "permissionsUsers")
     private void permissionsUsersMode(IMessage msg, String...args) {
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
 
         switch (args[4]) {
             case "blacklist":
-                cmdPermission.setUserMode("blacklist");
+                setUsersMode(args[1], false);
                 break;
             case "whitelist":
-                cmdPermission.setUserMode("whitelist");
+                setUsersMode(args[1], true);
                 break;
             default:
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
                 return;
         }
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
         MessageSending.sendMessage(msg.getChannel(), "The Mode for Users is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsUsers")
     private void permissionsUsersList(IMessage msg, String...args) {
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
+
+        DummyCommand cmd = loadPermissionByName(args[1]);
+        Permission cmdPermission = cmd.permission;
         StringBuilder builder = new StringBuilder();
         IGuild guild = msg.getGuild();
 
         builder.append("User ").append(cmdPermission.getUserMode()).append(" contains: ```");
         cmdPermission.getUsers().forEach(x -> {
             IUser user = guild.getUserByID(x);
-            builder.append(user.getName()).append(": ").append(user.getLongID()).append('\n');
+            logger.debug("userid: {} user: {} guild: {} builder: {}",x, user, guild, builder);
+            builder.append(user.getDisplayName(guild)).append(": ").append(user.getLongID()).append('\n');
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
@@ -155,19 +189,16 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
-        cmdPermission.getRoles().add(role.getLongID());
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        MessageSending.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
+        addRole(args[1], role.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " + loadPermissionByName(args[1]).permission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
-    public void addRoleToPermission(String cmdName, Long roleId) {
+    /*public void addRoleToPermission(String cmdName, Long roleId) {
         Command cmd = cmdHandler.getCommandByName(cmdName);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().add(roleId);
         Config.getConfigByName("permissions").putConfigElement(new DummyCommand(cmdName, cmdPermission));
-    }
+    }*/
 
     @DiscordSubCommand(name = "remove", parent = "permissionsRoles")
     private void permissionsRolesRemove(IMessage msg, String...args) {
@@ -184,39 +215,33 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
-        cmdPermission.getRoles().remove(role.getLongID());
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
-        MessageSending.sendMessage(msg.getChannel(), "Removed " + role.getName() + " from the " + cmdPermission.getRoleMode() + " for command `" + args[1] + "`.");
+        delRole(args[1], role.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Removed " + role.getName() + " from the " + loadPermissionByName(args[1]).permission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")
     private void permissionsRolesMode(IMessage msg, String...args) {
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
 
         switch (args[4]) {
             case "blacklist":
-                cmdPermission.setRoleMode("blacklist");
+                setRolesMode(args[1], false);
                 break;
             case "whitelist":
-                cmdPermission.setRoleMode("whitelist");
+                setRolesMode(args[1], true);
                 break;
             default:
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
                 return;
         }
-        Config.getConfigByName("permissions").putConfigElement(new DummyCommand(args[1], cmdPermission));
         MessageSending.sendMessage(msg.getChannel(), "The Mode for Roles is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsRoles")
     private void permissionsRolesList(IMessage msg, String...args) {
-        Command cmd = cmdHandler.getCommandByName(args[1]);
-        Permission cmdPermission = cmd.getPermission();
-        StringBuilder builder = new StringBuilder();
+        Permission cmdPermission = loadPermissionByName(args[1]).permission;
         IGuild guild = msg.getGuild();
+        StringBuilder builder = new StringBuilder();
+
 
         builder.append("Roles ").append(cmdPermission.getRoleMode()).append(" contains: ```");
         cmdPermission.getRoles().forEach(x -> {

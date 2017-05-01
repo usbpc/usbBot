@@ -2,22 +2,30 @@ package modules;
 
 import commands.annotations.DiscordCommand;
 import config.Config;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.ByteArrayInputStream;
+import java.util.regex.Pattern;
 
 public class TestCommands {
-
-	@DiscordCommand("teststuff")
-	public void add(IMessage msg, String...args) {
+	private static Logger logger = LoggerFactory.getLogger(TestCommands.class);
+	@DiscordCommand("regexquote")
+	public void aregexquote(IMessage msg, String...args) {
+		StringBuilder builder = new StringBuilder("This is a test");
+		MessageSending.sendMessage(msg.getChannel(), builder.replace(builder.indexOf("is"), builder.indexOf("is") + "is".length(), "").toString());
+	}
+	@DiscordCommand("compare")
+	public void compare(IMessage msg, String...args) {
 		//MessageSending.sendMessage(msg.getChannel(), "This command just exists you you can't break my commands add command! :P");
 		//MessageSending.sendMessage(msg.getChannel(), "The first index: " + "commands add".indexOf("add"));
 
-		Config.close();
-		MessageSending.sendMessage(msg.getChannel(), "Saved the world!");
+		logger.debug("First arg: '{}' second arg: '{}'", args[1], args[2]);
+		MessageSending.sendMessage(msg.getChannel(), "Does it match? " + args[1].matches(args[2]));
 	}
 	@DiscordCommand("deletereactions")
 	public void deletereactions(IMessage msg, String...args) {

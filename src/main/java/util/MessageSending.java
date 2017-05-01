@@ -38,7 +38,7 @@ public class MessageSending {
     }
 
     public static void sendMessage(IChannel channel, String message) {
-        //TODO deal with exceptions
+        //TODO deal smarter with exceptions and bundle messages to the same channel if RLE happens
         RequestBuffer.request(() -> {
             try {
                 channel.sendMessage(message);

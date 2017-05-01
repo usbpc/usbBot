@@ -31,7 +31,7 @@ public class CommandModule {
     public void registerCommands(Collection<Command> commands) {
         commands.forEach(this::registerCommand);
     }
-
+    //TODO removing commands dosen't remove their permissions
     public void unregisterCommand(String name) {
         commandHandler.unregisterCommand(name);
     }
@@ -44,10 +44,10 @@ public class CommandModule {
         registerCommands(annotationRegister.getCommandList(obj));
     }
 
-    public void addRoleToCommandPermissions(String commandName, Long roleID) {
+    /*public void addRoleToCommandPermissions(String commandName, Long roleID) {
         if (getCommand(commandName) == null) throw new IllegalArgumentException(commandName + " is not a valid command");
         permissionManager.addRoleToPermission(commandName, roleID);
-    }
+    }*/
 
     public void registerCommandFromObjects(Collection<Object> objs) {
         objs.forEach(this::registerCommandsFromObject);
@@ -67,6 +67,11 @@ public class CommandModule {
 
         logger.debug("#{} @{} : {}", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
-        commandHandler.runCommand(event);
+        if (commandHandler.isCommand(event.getMessage().getContent())) {
+            String[] args = commandHandler.getArguments(event.getMessage().getContent());
+            if (permissionManager.hasPermission(event.getMessage(), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
+                commandHandler.runCommand(event.getMessage(), args);
+            }
+        }
     }
 }

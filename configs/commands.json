@@ -41,6 +41,10 @@
   },
   "stream": {
     "name": "stream",
-    "message": "Gibt es heute einen streeeeam \u003c@105306394130968576\u003e ?"
+    "message": "Diesen Dienstag wird Eliros wieder anfangen mehr zu streamen."
+  },
+  "something": {
+    "name": "something",
+    "message": "this is a response"
   }
 }

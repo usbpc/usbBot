@@ -1,6 +1,5 @@
 package commands.core;
 
-import commands.annotations.AnnotationRegister;
 import commands.annotations.DiscordCommand;
 import util.MessageSending;
 import org.slf4j.Logger;
@@ -9,28 +8,48 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
 	//TODO make this a config option
 	private String PREFIX = "!";
 	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
+	private StringBuilder cmdPattern = new StringBuilder();
 	public CommandHandler() {
 	}
 
 	public void registerCommand(Command cmd) {
 		commands.put(cmd.getName(), cmd);
+		if (cmdPattern.length() > 1) {
+			cmdPattern.append('|');
+		}
+		cmdPattern.append(Pattern.quote(cmd.getName()));
 	}
 
 	public void unregisterCommand(String name) {
+		if (!commands.containsKey(name)) throw new IllegalArgumentException(name + " is not a valid command");
 		commands.remove(name);
+		name = Pattern.quote(name);
+		//This craziness needs to be in place in order to allow commands to contain all characters including ones that are used by regex
+		cmdPattern.replace(cmdPattern.indexOf(name), cmdPattern.indexOf(name) + name.length(), "");
+
+		if (cmdPattern.charAt(0) == '|') {
+			cmdPattern.deleteCharAt(0);
+		} else if (cmdPattern.charAt(cmdPattern.length() - 1) == '|') {
+			cmdPattern.deleteCharAt(cmdPattern.length() - 1);
+		} else {
+			int check = cmdPattern.indexOf("||");
+			if (check > 0) {
+				cmdPattern.replace(check, check + 2, "|");
+			}
+		}
+
 	}
 
-	public void runCommand(MessageReceivedEvent event) {
-		IMessage message = event.getMessage();
+	public void runCommand(IMessage message, String[] digestedString) {
 		if (!message.getChannel().isPrivate() && isCommand(message.getContent())) {
-			String msg = message.getContent();
-			String[] digestedString = msg.substring(msg.indexOf(PREFIX) + 1).split(" ");
+			//TODO make regex ignore multiple spaces
 			if (commands.containsKey(digestedString[0])) {
 
 				logger.debug("Executing command '{}'", digestedString[0]);
@@ -41,6 +60,10 @@ public class CommandHandler {
 			}*/
 
 		}
+	}
+	@DiscordCommand("getcommandregex")
+	private void getCommandRegex(IMessage msg, String...args) {
+		MessageSending.sendMessage(msg.getChannel(), cmdPattern.toString());
 	}
 
 	@DiscordCommand("list")
@@ -68,7 +91,10 @@ public class CommandHandler {
 		return commands.values();
 	}
 
-	private boolean isCommand(String str) {
-		return str.matches(" *" + PREFIX + ".*");
+	public boolean isCommand(String str) {
+		return str.matches(" *" + Pattern.quote(PREFIX) + '(' +cmdPattern.toString() + ')' + ".*");
+	}
+	public String[] getArguments(String input) {
+		return input.substring(input.indexOf(PREFIX) + 1).split(" ");
 	}
 }

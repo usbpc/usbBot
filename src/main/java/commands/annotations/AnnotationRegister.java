@@ -71,7 +71,7 @@ public class AnnotationRegister {
 		commandMap.entrySet().stream().filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
 				.forEach(x -> {
 					noSubCommands.add(x.getKey());
-					commands.add(new AnnotationCommand(x.getValue().name, "", x.getValue().command, commandPermissions.loadPermissionByName(x.getValue().name)));
+					commands.add(new AnnotationCommand(x.getValue().name, "", x.getValue().command));
 				});
 		noSubCommands.forEach(commandMap::remove);
 
@@ -127,7 +127,7 @@ public class AnnotationRegister {
 		}
 
 		//adds all the top level command to the returned commands list
-		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", commandPermissions.loadPermissionByName(x.name), new SubCommand(x.command, x.subCommands))));
+		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", new SubCommand(x.command, x.subCommands))));
 
 
 		return commands;
@@ -197,50 +197,40 @@ public class AnnotationRegister {
 	private class SubCommandParent extends Command {
 		SubCommand command;
 
-		SubCommandParent(String name, String description, Permission permission, SubCommand command) {
+		SubCommandParent(String name, String description, SubCommand command) {
 			this.name = name;
 			this.description = description;
 			this.command = command;
-			this.permission = permission;
 		}
 
 		@Override
 		public void execute(IMessage msg, String... args) {
-			//TODO remove permissions checking here once its in CommandModule
-			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
-				command.execute(msg, args, 0);
-			} else {
-				MessageSending.sendMessage(msg.getChannel(), "No Permission for you!");
-			}
+			command.execute(msg, args, 0);
 		}
 	}
 	private class AnnotationCommand extends Command {
 		private MethodHandle command;
-		AnnotationCommand(String name, String description, MethodHandle command, Permission permission) {
+		AnnotationCommand(String name, String description, MethodHandle command) {
 			this.name = name;
 			this.description = description;
 			this.command = command;
-			this.permission = permission;
 		}
 
 		@Override
 		public void execute(IMessage msg, String...args) {
-			//TODO remove permissions checking here once its in CommandModule
-			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
-				try {
-					command.invoke(msg, args);
-				} catch (Throwable throwable) {
-					if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-						MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
-					} else {
-						throwable.printStackTrace();
-						logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
-						//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
-					}
+
+			try {
+				command.invoke(msg, args);
+			} catch (Throwable throwable) {
+				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
+					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+				} else {
+					throwable.printStackTrace();
+					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
+					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
-			} else {
-				MessageSending.sendMessage(msg.getChannel(), "No Permission for you!");
 			}
+
 		}
 	}
 }

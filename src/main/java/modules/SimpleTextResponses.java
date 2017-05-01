@@ -62,7 +62,8 @@ public class SimpleTextResponses {
         Config.getConfigByName("commands").putConfigElement(cmd);
         SimpleTextCommand simpleTextCommand = new SimpleTextCommand(args[2], message);
         commandModule.registerCommand(simpleTextCommand);
-        commandModule.addRoleToCommandPermissions(args[2], msg.getGuild().getEveryoneRole().getLongID());
+        //TODO make something better for permissions stuff, this is just ugly and hacky and not even working anymore
+        //commandModule.addRoleToCommandPermissions(args[2], msg.getGuild().getEveryoneRole().getLongID());
         commands.put(args[2], simpleTextCommand);
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
@@ -112,12 +113,13 @@ public class SimpleTextResponses {
 
     }
 
+    //TODO permissions and stuff need to be fixed for this
     private class SimpleTextCommand extends Command {
         private String content;
         private SimpleTextCommand(String name, String content) {
             this.name = name;
             this.content = content;
-            this.permission = new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>());
+            //this.permission = new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>());
         }
         @Override
         public void execute(IMessage msg, String... args) {
