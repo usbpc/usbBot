@@ -61,6 +61,7 @@ public class AnnotationRegister {
 				throw new IllegalStateException("Can't find parent " + x.getValue().parentCommand + " of method " + x.getKey());
 			}
 		});
+		//TODO make this code smarter and less sucky
 		logger.debug("This is the map of all command I currently have before creating any Command Objects {}", commandMap.toString());
 		//System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
@@ -205,6 +206,7 @@ public class AnnotationRegister {
 
 		@Override
 		public void execute(IMessage msg, String... args) {
+			//TODO remove permissions checking here once its in CommandModule
 			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				command.execute(msg, args, 0);
 			} else {
@@ -223,6 +225,7 @@ public class AnnotationRegister {
 
 		@Override
 		public void execute(IMessage msg, String...args) {
+			//TODO remove permissions checking here once its in CommandModule
 			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				try {
 					command.invoke(msg, args);

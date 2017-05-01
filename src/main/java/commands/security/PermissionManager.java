@@ -22,6 +22,7 @@ public class PermissionManager {
     }
 
     public Permission loadPermissionByName(String name) {
+        //TODO load all permissions into map for faster lookup and use only call from the Command Module
         DummyCommand cmd = Config.getConfigByName("permissions").getObjectByName(name, DummyCommand.class);
         if (cmd == null) {
             cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
@@ -30,7 +31,7 @@ public class PermissionManager {
         return cmd.permission;
     }
 
-
+    //TODO move duplicate code to private methods
     //Discord permissions command stuff starts here
     @DiscordCommand("permissions")
     public int permissions(IMessage msg, String...args) {

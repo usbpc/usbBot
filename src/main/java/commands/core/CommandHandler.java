@@ -12,14 +12,10 @@ import java.util.*;
 
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
+	//TODO make this a config option
 	private String PREFIX = "!";
-	private AnnotationRegister helper;
 	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 	public CommandHandler() {
-	}
-
-	public void registerCommands(List<Command> commands) {
-		commands.forEach(this::registerCommand);
 	}
 
 	public void registerCommand(Command cmd) {

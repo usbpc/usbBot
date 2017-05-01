@@ -41,3 +41,4 @@ Module Ideas:
 	Game matching system
 	dailyaww
 	greeting messages when joining
+	jokes
