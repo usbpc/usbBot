@@ -1,4 +1,4 @@
-package main;
+package util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,10 +10,9 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.io.InputStream;
-import java.util.Arrays;
 
-public class Utils {
-    private static Logger logger = LoggerFactory.getLogger(Utils.class);
+public class MessageSending {
+    private static Logger logger = LoggerFactory.getLogger(MessageSending.class);
     public static IUser getUser(IGuild guild, String id) {
         Long userID;
         if (id.matches("\\d{18,19}+")) {
@@ -44,8 +43,8 @@ public class Utils {
             try {
                 channel.sendMessage(message);
             } catch (DiscordException e) {
-                logger.debug("I got an error trying to send a message: {}", e.getErrorMessage());
-                //System.out.printf("[Utils] I got an error trying to send a message: %s \r\n This is the stacktrace %s", e.getErrorMessage(), Arrays.toString(e.getStackTrace()));
+                logger.debug("I got an error trying to send a message: {}", e.getErrorMessage(), e);
+                //System.out.printf("[MessageSending] I got an error trying to send a message: %s \r\n This is the stacktrace %s", e.getErrorMessage(), Arrays.toString(e.getStackTrace()));
                 throw e;
             }
         });

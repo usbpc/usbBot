@@ -8,15 +8,15 @@ import java.lang.reflect.Type;
 import java.util.*;
 
 public class ConfigObject {
-    protected static Type mapType = new TypeToken<Map<String, JsonElement>>(){}.getType();
-    protected final Map<String, ConfigObject> subObjects = new HashMap<>();
-    protected Map<String, JsonElement> objects;
-    protected Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    static Type mapType = new TypeToken<Map<String, JsonElement>>(){}.getType();
+    private final Map<String, ConfigObject> subObjects = new HashMap<>();
+    Map<String, JsonElement> objects;
+    Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    protected ConfigObject() {
+    ConfigObject() {
     }
 
-    public ConfigObject(Map<String, JsonElement> objects) {
+    private ConfigObject(Map<String, JsonElement> objects) {
         this.objects = objects;
     }
 
@@ -54,7 +54,7 @@ public class ConfigObject {
         return tmp;
     }
 
-    protected Map<String, JsonElement> collectSubObjects() {
+    Map<String, JsonElement> collectSubObjects() {
         if (subObjects.isEmpty()) return objects;
         subObjects.forEach((key, value) -> objects.put(key, gson.toJsonTree(value.collectSubObjects())));
         return objects;

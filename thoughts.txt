@@ -1,8 +1,8 @@
 !permissions <command name> users:roles add:remove:mode:list
 !permissions <command name> users:roles mode whitelist:blacklist
 
-Tasks befor command-system will be merged to master:
-
+Improvment ideas:
+	
 - Help command?
 
 - Use a better logging System than System.out
@@ -34,7 +34,6 @@ Simple text response based commands should be in a seperate module, not the core
 		con: couples this system togeter with the core command system
 
 Module Ideas:
-	Simple text response commands
 	Auto roles for stuff
 	Musikbot
 	Quotes

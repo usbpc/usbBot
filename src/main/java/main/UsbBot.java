@@ -1,14 +1,17 @@
 package main;
 
 import commands.*;
+import commands.annotations.DiscordCommand;
 import config.Config;
 import modules.SimpleTextResponses;
+import modules.TestCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
+import util.MessageSending;
 
 import java.io.*;
 import java.util.Properties;
@@ -16,14 +19,12 @@ import java.util.Properties;
 public class UsbBot {
 	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
 	private IDiscordClient client;
-	UsbBot(String discordAPIKey) {
+	private UsbBot(String discordAPIKey) {
 		Logger logger = LoggerFactory.getLogger(UsbBot.class);
-		//TODO propper logging
 		CommandModule commandModule = new CommandModule();
 		commandModule.registerCommandsFromObject(this);
 		commandModule.registerCommandsFromObject(new TestCommands());
 		commandModule.registerCommandsFromObject(new SimpleTextResponses(commandModule));
-		//commandModule.registerCommandsFromObject(new SubCommandTest());*/
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(commandModule);
@@ -45,7 +46,7 @@ public class UsbBot {
 	public void shutdown(IMessage msg, String...args) {
 		//Logout the client when everything is done
 
-		Utils.sendMessage(msg.getChannel(), "Shutting down...");
+		MessageSending.sendMessage(msg.getChannel(), "Shutting down...");
 		Runtime.getRuntime().addShutdownHook(new Thread(Config::close));
 		client.logout();
 
@@ -73,7 +74,7 @@ public class UsbBot {
 		return discordApiKey;
 	}
 
-	public static IDiscordClient createClient(String token, boolean login) {
+	private static IDiscordClient createClient(String token, boolean login) {
 		ClientBuilder clientBuilder = new ClientBuilder();
 		clientBuilder.withToken(token);
 		try {

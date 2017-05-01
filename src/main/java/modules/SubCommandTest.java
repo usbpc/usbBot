@@ -1,6 +1,8 @@
-package commands;
+package modules;
 
-import main.Utils;
+import commands.annotations.DiscordCommand;
+import commands.annotations.DiscordSubCommand;
+import util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 
 public class SubCommandTest {
@@ -21,22 +23,22 @@ public class SubCommandTest {
 
             @DiscordSubCommand(parent = "subcommandsSub1Sub1", name = "sub1")
             public void subcommandsSub1Sub1Sub1(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub1`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub1`");
             }
 
             @DiscordSubCommand(parent = "subcommandsSub1Sub1", name = "sub2")
             public void subcommandsSub1Sub1Sub2(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub2`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub2`");
             }
 
             @DiscordSubCommand(parent = "subcommandsSub1Sub1", name = "sub3")
             public void subcommandsSub1Sub1Sub3(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub3`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub1 sub3`");
             }
 
         @DiscordSubCommand(parent = "subcommandsSub1", name = "sub3")
         public void subcommandsSub1Sub3(IMessage msg, String...args) {
-            Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub3`");
+            MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub1 sub3`");
         }
 
     @DiscordSubCommand(parent = "subcommands", name = "sub2")
@@ -51,29 +53,29 @@ public class SubCommandTest {
 
             @DiscordSubCommand(parent = "subcommandsSub2Sub1", name = "sub1")
             public void subcommandsSub2Sub1Sub1(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub1`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub1`");
             }
 
             @DiscordSubCommand(parent = "subcommandsSub2Sub1", name = "sub2")
             public void subcommandsSub2Sub1Sub2(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub2`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub2`");
             }
 
             @DiscordSubCommand(parent = "subcommandsSub2Sub1", name = "sub3")
             public void subcommandsSub2Sub1Sub3(IMessage msg, String...args) {
-                Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub3`");
+                MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub1 sub3`");
         }
 
         @DiscordSubCommand(parent = "subcommandsSub2", name = "sub3")
         public void subcommandsSub2Sub3(IMessage msg, String...args) {
-            Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub3`");
+            MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub2 sub3`");
         }
 
 
     //-------------------------------------------------------
     @DiscordSubCommand(parent = "subcommands", name = "sub3")
     public void subcommandsSub3(IMessage msg, String...args) {
-        Utils.sendMessage(msg.getChannel(), "you executed `subcommands sub3`");
+        MessageSending.sendMessage(msg.getChannel(), "you executed `subcommands sub3`");
     }
 
 

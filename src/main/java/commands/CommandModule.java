@@ -1,6 +1,9 @@
 package commands;
 
-import config.ConfigObject;
+import commands.annotations.AnnotationRegister;
+import commands.core.Command;
+import commands.core.CommandHandler;
+import commands.security.PermissionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -8,14 +11,14 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 
 import java.util.Collection;
 public class CommandModule {
-    CommandHandler commandHandler;
-    PermissionManager permissionManager;
-    CommandRegisterHelper commandRegisterHelper;
+    private CommandHandler commandHandler;
+    private PermissionManager permissionManager;
+    private AnnotationRegister annotationRegister;
     private Logger logger = LoggerFactory.getLogger(CommandModule.class);
     public CommandModule() {
         commandHandler = new CommandHandler();
         permissionManager = new PermissionManager(commandHandler);
-        commandRegisterHelper = new CommandRegisterHelper(permissionManager);
+        annotationRegister = new AnnotationRegister(permissionManager);
 
         registerCommandsFromObject(commandHandler);
         registerCommandsFromObject(permissionManager);
@@ -38,7 +41,7 @@ public class CommandModule {
     }
 
     public void registerCommandsFromObject(Object obj) {
-        registerCommands(commandRegisterHelper.getCommandList(obj));
+        registerCommands(annotationRegister.getCommandList(obj));
     }
 
     public void addRoleToCommandPermissions(String commandName, Long roleID) {
@@ -59,6 +62,7 @@ public class CommandModule {
     }
 
     @EventSubscriber
+    //TODO check for permissions here so permissions don't need to know about the commands and vice versa
     public void runCommand(MessageReceivedEvent event) {
 
         logger.debug("#{} @{} : {}", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());

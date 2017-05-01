@@ -1,4 +1,4 @@
-package commands;
+package commands.security;
 
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -20,22 +20,22 @@ public class Permission {
         this.userMode = userMode;
         this.users = users;
     }
-    public List<Long> getRoles() {
+    List<Long> getRoles() {
         return roles;
     }
-    public String getRoleMode() {
+    String getRoleMode() {
         return roleMode;
     }
-    public void setRoleMode(String mode) {
+    void setRoleMode(String mode) {
         roleMode = mode;
     }
-    public void setUserMode(String mode) {
+    void setUserMode(String mode) {
         userMode = mode;
     }
-    public String getUserMode() {
+    String getUserMode() {
         return userMode;
     }
-    public List<Long> getUsers() {
+    List<Long> getUsers() {
         return users;
     }
     public void setUsers(List<Long> list) {

@@ -1,9 +1,13 @@
 package modules;
 
 import commands.*;
+import commands.core.Command;
+import commands.annotations.DiscordCommand;
+import commands.annotations.DiscordSubCommand;
+import commands.security.Permission;
 import config.Config;
 import config.ConfigElement;
-import main.Utils;
+import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
@@ -34,7 +38,7 @@ public class SimpleTextResponses {
     @DiscordCommand("commands")
     private int commands(IMessage msg, String...args) {
         if (args.length < 3) {
-            Utils.sendMessage(msg.getChannel(), "Not enough arguments!");
+            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
             return -1;
         }
         return 0;
@@ -44,11 +48,11 @@ public class SimpleTextResponses {
     @DiscordSubCommand(parent = "commands", name = "add")
     private void commandsAdd(IMessage msg, String...args) {
         if (args.length < 4) {
-            Utils.sendMessage(msg.getChannel(), "Not enough arguments!");
+            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
             return;
         }
         if (commandModule.getCommand(args[2]) != null) {
-            Utils.sendMessage(msg.getChannel(), "`" + args[2] + "` is already a command!");
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is already a command!");
             return;
         }
 
@@ -60,34 +64,34 @@ public class SimpleTextResponses {
         commandModule.registerCommand(simpleTextCommand);
         commandModule.addRoleToCommandPermissions(args[2], msg.getGuild().getEveryoneRole().getLongID());
         commands.put(args[2], simpleTextCommand);
-        Utils.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
+        MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
     //commands remove <commandName>
     @DiscordSubCommand(parent = "commands", name = "remove")
     private void commandsRemove(IMessage msg, String...args) {
         if (args.length < 3) {
-            Utils.sendMessage(msg.getChannel(), "Not enough arguments.");
+            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
         } else if (!commands.containsKey(args[2])) {
-            Utils.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
         } else {
             Config.getConfigByName("commands").removeConfigElement(args[2]);
             commandModule.unregisterCommand(args[2]);
-            Utils.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
         }
     }
 
     @DiscordSubCommand(parent = "commands", name = "edit")
     private void commandsEdit(IMessage msg, String...args) {
         if (args.length < 4) {
-            Utils.sendMessage(msg.getChannel(), "Not enough arguments.");
+            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
         } else if (!commands.containsKey(args[2])) {
-            Utils.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
         } else {
             String content = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
             commands.get(args[2]).content = content;
             Config.getConfigByName("commands").putConfigElement(new DummyCommand(args[2], content));
-            Utils.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
+            MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
         }
     }
 
@@ -118,7 +122,7 @@ public class SimpleTextResponses {
         @Override
         public void execute(IMessage msg, String... args) {
             //TODO replace placeholders with message writer and args.
-            Utils.sendMessage(msg.getChannel(), content);
+            MessageSending.sendMessage(msg.getChannel(), content);
         }
     }
 

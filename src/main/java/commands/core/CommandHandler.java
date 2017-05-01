@@ -1,9 +1,10 @@
-package commands;
+package commands.core;
 
-import main.Utils;
+import commands.annotations.AnnotationRegister;
+import commands.annotations.DiscordCommand;
+import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IMessage;
 
@@ -12,7 +13,7 @@ import java.util.*;
 public class CommandHandler {
 	private Map<String, Command> commands = new HashMap<>();
 	private String PREFIX = "!";
-	private CommandRegisterHelper helper;
+	private AnnotationRegister helper;
 	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 	public CommandHandler() {
 	}
@@ -22,7 +23,7 @@ public class CommandHandler {
 	}
 
 	public void registerCommand(Command cmd) {
-		commands.put(cmd.name, cmd);
+		commands.put(cmd.getName(), cmd);
 	}
 
 	public void unregisterCommand(String name) {
@@ -59,7 +60,7 @@ public class CommandHandler {
 				commands = builder.toString();
 			}
 		}
-		Utils.sendMessage(msg.getChannel(), "Commands are: " + commands);
+		MessageSending.sendMessage(msg.getChannel(), "Commands are: " + commands);
 
 	}
 
@@ -67,7 +68,7 @@ public class CommandHandler {
 		return commands.get(name);
 	}
 
-	Collection<Command> getAllCommands() {
+	public Collection<Command> getAllCommands() {
 		return commands.values();
 	}
 

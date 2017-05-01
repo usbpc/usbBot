@@ -299,5 +299,27 @@
       "userMode": "whitelist",
       "users": []
     }
+  },
+  "somethingnew": {
+    "name": "somethingnew",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
+  },
+  "123": {
+    "name": "123",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
+    }
   }
 }

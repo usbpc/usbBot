@@ -6,10 +6,10 @@ import java.util.HashMap;
 /**
  * Created by usbpc on 30.04.2017.
  */
-public class ConfigFile extends ConfigObject {
-    File configFile;
+class ConfigFile extends ConfigObject {
+    private File configFile;
 
-    public ConfigFile(File configFile) {
+    ConfigFile(File configFile) {
         try {
             this.objects = gson.fromJson(new FileReader(configFile), mapType);
         } catch (FileNotFoundException e) {
@@ -18,7 +18,7 @@ public class ConfigFile extends ConfigObject {
         this.configFile = configFile;
     }
 
-    public void save() {
+    void save() {
         try (FileWriter fileWriter = new FileWriter(configFile)) {
             fileWriter.write(gson.toJson(collectSubObjects()));
             fileWriter.flush();

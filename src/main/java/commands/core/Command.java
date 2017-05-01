@@ -1,5 +1,6 @@
-package commands;
+package commands.core;
 
+import commands.security.Permission;
 import sx.blah.discord.handle.obj.IMessage;
 
 public abstract class Command {
@@ -15,5 +16,8 @@ public abstract class Command {
 	}
 	public Permission getPermission() {
 		return permission;
+	}
+	public String getName() {
+		return name;
 	}
 }

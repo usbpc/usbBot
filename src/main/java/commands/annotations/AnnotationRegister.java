@@ -1,6 +1,9 @@
-package commands;
+package commands.annotations;
 
-import main.Utils;
+import commands.core.Command;
+import commands.security.Permission;
+import commands.security.PermissionManager;
+import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
@@ -11,11 +14,11 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class CommandRegisterHelper {
+public class AnnotationRegister {
 	private PermissionManager commandPermissions;
-	private Logger logger = LoggerFactory.getLogger(CommandRegisterHelper.class);
+	private Logger logger = LoggerFactory.getLogger(AnnotationRegister.class);
 
-	public CommandRegisterHelper(PermissionManager commands) {
+	public AnnotationRegister(PermissionManager commands) {
 		commandPermissions = commands;
 	}
 
@@ -155,7 +158,7 @@ public class CommandRegisterHelper {
 			this.subCommandMap = subCommandMap;
 		}
 
-		public void execute(IMessage msg, String[] args, int depth) {
+		void execute(IMessage msg, String[] args, int depth) {
 			try {
 				int offset = (int) command.invoke(msg, args);
 				if (subCommandMap != null && offset != -1) {
@@ -171,17 +174,17 @@ public class CommandRegisterHelper {
 							}
 							builder.append("` dosen't exist");
 
-							Utils.sendMessage(msg.getChannel(), builder.toString());
+							MessageSending.sendMessage(msg.getChannel(), builder.toString());
 						}
 
 					} else {
-						Utils.sendMessage(msg.getChannel(), "You need to give me more, please!");
+						MessageSending.sendMessage(msg.getChannel(), "You need to give me more, please!");
 					}
 
 				}
 			} catch (Throwable throwable) {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-					Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 				} else {
 					throwable.printStackTrace();
 					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
@@ -205,7 +208,7 @@ public class CommandRegisterHelper {
 			if (permission.isAllowed(msg) || msg.getGuild().getOwnerLongID() == msg.getAuthor().getLongID()) {
 				command.execute(msg, args, 0);
 			} else {
-				Utils.sendMessage(msg.getChannel(), "No Permission for you!");
+				MessageSending.sendMessage(msg.getChannel(), "No Permission for you!");
 			}
 		}
 	}
@@ -225,7 +228,7 @@ public class CommandRegisterHelper {
 					command.invoke(msg, args);
 				} catch (Throwable throwable) {
 					if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-						Utils.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+						MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
 					} else {
 						throwable.printStackTrace();
 						logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage());
@@ -233,7 +236,7 @@ public class CommandRegisterHelper {
 					}
 				}
 			} else {
-				Utils.sendMessage(msg.getChannel(), "No Permission for you!");
+				MessageSending.sendMessage(msg.getChannel(), "No Permission for you!");
 			}
 		}
 	}
