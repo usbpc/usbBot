@@ -29,7 +29,7 @@ public class PermissionManager {
         logger.debug("This is my command map: {}", commandMap);
     }
 
-    //TODO fix users and roles that no longer exist beeing stuck on the list and producing null pointer exceptions when listing
+    //TODO TEST THIS fix users and roles that no longer exist beeing stuck on the list and producing null pointer exceptions when listing
     private DummyCommand loadPermissionByName(String name) {
         if (!commandMap.containsKey(name)) {
             DummyCommand cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
@@ -37,6 +37,11 @@ public class PermissionManager {
             Config.getConfigByName("permissions").putConfigElement(cmd);
         }
         return commandMap.get(name);
+    }
+
+    public void removePermissions(String commandName) {
+        commandMap.remove(commandName);
+        Config.getConfigByName("permissions").removeConfigElement(commandName);
     }
     public void addUser(String commandName, long userID) {
         DummyCommand command = loadPermissionByName(commandName);
@@ -122,10 +127,11 @@ public class PermissionManager {
             return;
         }
         IUser user = MessageSending.getUser(msg.getGuild(), args[4]);
+        /* This caused users no longer existing to be unremovable from the permissions list
         if (user == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
-        }
+        }*/
         delUser(args[1], user.getLongID());
         MessageSending.sendMessage(msg.getChannel(), "Removed " + user.getDisplayName(msg.getGuild()) + " from the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
     }
@@ -159,8 +165,8 @@ public class PermissionManager {
         builder.append("User ").append(cmdPermission.getUserMode()).append(" contains: ```");
         cmdPermission.getUsers().forEach(x -> {
             IUser user = guild.getUserByID(x);
-            logger.debug("userid: {} user: {} guild: {} builder: {}",x, user, guild, builder);
-            builder.append(user.getDisplayName(guild)).append(": ").append(user.getLongID()).append('\n');
+            //Fixed null pointer exception, hopefully
+            builder.append(user == null ? "USER IS NOT ON THIS SERVER OR DOES NOT EXIST ANYMORE" : user.getDisplayName(guild)).append(": ").append(x).append('\n');
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
@@ -211,10 +217,12 @@ public class PermissionManager {
             return;
         }
         IRole role = MessageSending.getRole(msg.getGuild(), args[4]);
+        /*
+        This caused roles that no longer exist to be stuck on the list forever
         if (role == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
-        }
+        }*/
         delRole(args[1], role.getLongID());
         MessageSending.sendMessage(msg.getChannel(), "Removed " + role.getName() + " from the " + loadPermissionByName(args[1]).permission.getRoleMode() + " for command `" + args[1] + "`.");
     }
@@ -246,7 +254,8 @@ public class PermissionManager {
         builder.append("Roles ").append(cmdPermission.getRoleMode()).append(" contains: ```");
         cmdPermission.getRoles().forEach(x -> {
             IRole role = guild.getRoleByID(x);
-            builder.append(role.getName()).append(": ").append(role.getLongID()).append('\n');
+            //Fixed bug null pointer exceptions for deleted roles
+            builder.append(role == null ? "DOES NOT EXIST ANYMORE" : role.getName()).append(": ").append(x).append('\n');
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 

@@ -62,8 +62,8 @@ public class SimpleTextResponses {
         Config.getConfigByName("commands").putConfigElement(cmd);
         SimpleTextCommand simpleTextCommand = new SimpleTextCommand(args[2], message);
         commandModule.registerCommand(simpleTextCommand);
-        //TODO make something better for permissions stuff, this is just ugly and hacky and not even working anymore
-        //commandModule.addRoleToCommandPermissions(args[2], msg.getGuild().getEveryoneRole().getLongID());
+        //TODO TEST THIS: make something better for permissions stuff, this is just ugly and hacky and not even working anymore
+        commandModule.addRoleToCommandPermission(args[2], msg.getGuild().getEveryoneRole().getLongID());
         commands.put(args[2], simpleTextCommand);
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
@@ -124,6 +124,14 @@ public class SimpleTextResponses {
         @Override
         public void execute(IMessage msg, String... args) {
             //TODO replace placeholders with message writer and args.
+
+            /*
+            * possible placeholders: author, args
+            *
+            *
+            *
+            * */
+            content = content.replaceAll("§§AUTHOR§§", msg.getAuthor().mention(true));
             MessageSending.sendMessage(msg.getChannel(), content);
         }
     }

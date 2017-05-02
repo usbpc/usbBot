@@ -31,9 +31,10 @@ public class CommandModule {
     public void registerCommands(Collection<Command> commands) {
         commands.forEach(this::registerCommand);
     }
-    //TODO removing commands dosen't remove their permissions
+
     public void unregisterCommand(String name) {
         commandHandler.unregisterCommand(name);
+        permissionManager.removePermissions(name);
     }
 
     public void unregisterCommands(Collection<String> commands) {
@@ -48,6 +49,21 @@ public class CommandModule {
         if (getCommand(commandName) == null) throw new IllegalArgumentException(commandName + " is not a valid command");
         permissionManager.addRoleToPermission(commandName, roleID);
     }*/
+    public void addUserToCommandPermission(String commandName, long userID) {
+        if (commandHandler.getCommandByName(commandName) != null) {
+            permissionManager.addUser(commandName, userID);
+        } else {
+            throw new IllegalArgumentException(commandName + " is not a registered command!");
+        }
+    }
+
+    public void addRoleToCommandPermission(String commandName, long roleID) {
+        if (commandHandler.getCommandByName(commandName) != null) {
+            permissionManager.addRole(commandName, roleID);
+        } else {
+            throw new IllegalArgumentException(commandName + " is not a registered command!");
+        }
+    }
 
     public void registerCommandFromObjects(Collection<Object> objs) {
         objs.forEach(this::registerCommandsFromObject);
