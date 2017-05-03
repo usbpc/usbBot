@@ -432,12 +432,11 @@
     "name": "test123",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [],
+      "roles": [
+        104214741601247232
+      ],
       "userMode": "whitelist",
-      "users": [
-        104214741601247232,
-        307700297000812546
-      ]
+      "users": []
     }
   }
 }

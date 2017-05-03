@@ -28,7 +28,6 @@ public class PermissionManager {
         Config.getConfigByName("permissions").getAllObjectsAs(DummyCommand.class).forEach(x -> commandMap.put(x.getUUID(), (DummyCommand) x));
         logger.debug("This is my command map: {}", commandMap);
     }
-    //TODO EVERYTHING HERE IS FUCKED UP AND DOSEN'T WORK ANYMORE, FUUUUUUUUCK
     private DummyCommand loadPermissionByName(String name) {
         if (!commandMap.containsKey(name)) {
             DummyCommand cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
@@ -59,13 +58,13 @@ public class PermissionManager {
 
     public void addRole(String commandName, long roleID) {
         DummyCommand command = loadPermissionByName(commandName);
-        command.permission.getUsers().add(roleID);
+        command.permission.getRoles().add(roleID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
 
     public void delRole(String commandName, long roleID) {
         DummyCommand command = loadPermissionByName(commandName);
-        command.permission.getUsers().remove(roleID);
+        command.permission.getRoles().remove(roleID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
 

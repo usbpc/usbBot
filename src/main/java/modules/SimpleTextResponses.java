@@ -62,7 +62,6 @@ public class SimpleTextResponses {
         Config.getConfigByName("commands").putConfigElement(cmd);
         SimpleTextCommand simpleTextCommand = new SimpleTextCommand(args[2], message);
         commandModule.registerCommand(simpleTextCommand);
-        //TODO TEST THIS: make something better for permissions stuff, this is just ugly and hacky and not even working anymore
         commandModule.addRoleToCommandPermission(args[2], msg.getGuild().getEveryoneRole().getLongID());
         commands.put(args[2], simpleTextCommand);
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");

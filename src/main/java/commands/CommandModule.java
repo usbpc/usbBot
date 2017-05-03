@@ -8,9 +8,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.handle.obj.IIDLinkedObject;
+import sx.blah.discord.handle.obj.IRole;
 import util.MessageSending;
 
 import java.util.Collection;
+import java.util.stream.Collectors;
+
 public class CommandModule {
     private CommandHandler commandHandler;
     private PermissionManager permissionManager;
@@ -86,8 +90,7 @@ public class CommandModule {
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         if (commandHandler.isCommand(event.getMessage().getContent())) {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
-            //FIXME temporary fix, so that has it compiles, dosen't work at all
-            if (permissionManager.hasPermission(0L, null, args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
+            if (permissionManager.hasPermission(event.getAuthor().getLongID(), event.getAuthor().getRolesForGuild(event.getGuild()).stream().map(IRole::getLongID).collect(Collectors.toSet()), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
                 commandHandler.runCommand(event.getMessage(), args);
             } else {
                 MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");
