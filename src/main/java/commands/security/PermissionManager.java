@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 
 public class PermissionManager {
+    //TODO save who created a command
     private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
     private Map<String, DummyCommand> commandMap = new HashMap<>();
     public PermissionManager() {

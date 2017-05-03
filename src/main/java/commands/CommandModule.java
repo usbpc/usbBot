@@ -20,6 +20,8 @@ public class CommandModule {
     private PermissionManager permissionManager;
     private AnnotationRegister annotationRegister;
     private Logger logger = LoggerFactory.getLogger(CommandModule.class);
+    //TODO add more access to permissions stuff
+
     public CommandModule() {
         commandHandler = new CommandHandler();
         permissionManager = new PermissionManager();
