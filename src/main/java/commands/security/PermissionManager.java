@@ -23,6 +23,8 @@ import java.util.regex.Matcher;
 
 public class PermissionManager {
     //TODO save who created a command
+    //TODO make permissions a inner class
+    //TODO make listing of stuff centra
     private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
     private Map<String, DummyCommand> commandMap = new HashMap<>();
     public PermissionManager() {
@@ -125,6 +127,7 @@ public class PermissionManager {
     //TODO give diffrent response if user trying to remove was not on the list
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
+        //TODO move checking of validity of userID out of here
         if (args.length < 5) {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
