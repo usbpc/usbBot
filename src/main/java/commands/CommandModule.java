@@ -18,7 +18,7 @@ public class CommandModule {
     private Logger logger = LoggerFactory.getLogger(CommandModule.class);
     public CommandModule() {
         commandHandler = new CommandHandler();
-        permissionManager = new PermissionManager(commandHandler);
+        permissionManager = new PermissionManager();
         annotationRegister = new AnnotationRegister();
 
         registerCommandsFromObject(commandHandler);
@@ -86,7 +86,8 @@ public class CommandModule {
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         if (commandHandler.isCommand(event.getMessage().getContent())) {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
-            if (permissionManager.hasPermission(event.getMessage(), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
+            //FIXME temporary fix, so that has it compiles, dosen't work at all
+            if (permissionManager.hasPermission(0L, null, args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
                 commandHandler.runCommand(event.getMessage(), args);
             } else {
                 MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");

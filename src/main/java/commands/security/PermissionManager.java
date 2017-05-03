@@ -16,16 +16,15 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 
 public class PermissionManager {
     private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
-    private CommandHandler cmdHandler;
     private Map<String, DummyCommand> commandMap = new HashMap<>();
-    public PermissionManager(CommandHandler cmdHandler) {
-        this.cmdHandler = cmdHandler;
+    public PermissionManager() {
         Config.getConfigByName("permissions").getAllObjectsAs(DummyCommand.class).forEach(x -> commandMap.put(x.getUUID(), (DummyCommand) x));
         logger.debug("This is my command map: {}", commandMap);
     }
@@ -45,39 +44,45 @@ public class PermissionManager {
         commandMap.remove(commandName);
         Config.getConfigByName("permissions").removeConfigElement(commandName);
     }
+
     public void addUser(String commandName, long userID) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.getUsers().add(userID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
+
     public void delUser(String commandName, long userID) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.getUsers().remove(userID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
+
     public void addRole(String commandName, long roleID) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.getUsers().add(roleID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
+
     public void delRole(String commandName, long roleID) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.getUsers().remove(roleID);
         Config.getConfigByName("permissions").putConfigElement(command);
     }
+
     public void setRolesMode(String commandName, boolean whitelist) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.setRoleMode(whitelist ? "whitelist" : "blacklist");
         Config.getConfigByName("permissions").putConfigElement(command);
     }
+
     public void setUsersMode(String commandName, boolean whitelist) {
         DummyCommand command = loadPermissionByName(commandName);
         command.permission.setUserMode(whitelist ? "whitelist" : "blacklist");
         Config.getConfigByName("permissions").putConfigElement(command);
     }
 
-    public boolean hasPermission(IMessage msg, String name) {
-        return loadPermissionByName(name).permission.isAllowed(msg);
+    public boolean hasPermission(long userID, Collection<Long> roleIDs, String name) {
+        return loadPermissionByName(name).permission.isAllowed(userID, roleIDs);
     }
 
     //TODO move duplicate code to private methods
@@ -85,7 +90,7 @@ public class PermissionManager {
     @DiscordCommand("permissions")
     public int permissions(IMessage msg, String...args) {
         if (args.length > 1) {
-            if (cmdHandler.getCommandByName(args[1]) == null) {
+            if (commandMap.get(args[1]) == null) {
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }

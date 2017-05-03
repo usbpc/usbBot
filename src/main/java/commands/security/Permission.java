@@ -2,6 +2,7 @@ package commands.security;
 
 import sx.blah.discord.handle.obj.IMessage;
 
+import java.util.Collection;
 import java.util.List;
 
 public class Permission {
@@ -45,17 +46,17 @@ public class Permission {
         roles = list;
     }
 
-    public boolean isAllowed(IMessage message) {
-        Long user = message.getAuthor().getLongID();
+    public boolean isAllowed(long userID, Collection<Long> roleIDs) {
 
-        if (users.contains(user) && userMode.equals("blacklist")) {
+        if (users.contains(userID) && userMode.equals("blacklist")) {
             return false;
-        } else if (users.contains(user) && userMode.equals("whitelist")) {
+        } else if (users.contains(userID) && userMode.equals("whitelist")) {
             return true;
         }
 
         if (roleMode.equals("blacklist") && userMode.equals("whitelist") && roles.isEmpty() && users.isEmpty()) return false;
-        if (message.getAuthor().getRolesForGuild(message.getGuild()).stream().filter(role -> roles.contains(role.getLongID())).count() > 0) {
+
+        if (roleIDs.stream().filter(roleID -> roles.contains(roleID)).count() > 0) {
             //If the user has any role that is mentioned in the "roles" list and the mode for roles is set to whitelist then the user is allowed to use the command
             if (roleMode.equals("whitelist")) {
                 return true;
