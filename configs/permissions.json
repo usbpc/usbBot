@@ -1,6 +1,7 @@
 {
   "getrolename": {
-    "perrmission": {
+    "name": "getrolename",
+    "permission": {
       "roleMode": "whitelist",
       "roles": [],
       "userMode": "whitelist",
@@ -41,9 +42,7 @@
       "roleMode": "whitelist",
       "roles": [],
       "userMode": "whitelist",
-      "users": [
-        105460792198959104
-      ]
+      "users": []
     }
   },
   "getavatarlink": {
@@ -57,11 +56,10 @@
     }
   },
   "pruneamount": {
+    "name": "pruneamount",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
       "users": []
     }
@@ -428,6 +426,18 @@
       "roles": [],
       "userMode": "whitelist",
       "users": []
+    }
+  },
+  "test123": {
+    "name": "test123",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": [
+        104214741601247232,
+        307700297000812546
+      ]
     }
   }
 }

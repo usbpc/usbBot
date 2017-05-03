@@ -8,6 +8,7 @@ import config.Config;
 import config.ConfigElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MessageParsing;
 import util.MessageSending;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
@@ -28,15 +29,16 @@ public class PermissionManager {
         Config.getConfigByName("permissions").getAllObjectsAs(DummyCommand.class).forEach(x -> commandMap.put(x.getUUID(), (DummyCommand) x));
         logger.debug("This is my command map: {}", commandMap);
     }
-
-    //TODO TEST THIS fix users and roles that no longer exist beeing stuck on the list and producing null pointer exceptions when listing
+    //TODO EVERYTHING HERE IS FUCKED UP AND DOSEN'T WORK ANYMORE, FUUUUUUUUCK
     private DummyCommand loadPermissionByName(String name) {
         if (!commandMap.containsKey(name)) {
             DummyCommand cmd = new DummyCommand(name, new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>()));
             commandMap.put(name, cmd);
             Config.getConfigByName("permissions").putConfigElement(cmd);
+            return cmd;
+        } else {
+            return commandMap.get(name);
         }
-        return commandMap.get(name);
     }
 
     public void removePermissions(String commandName) {
@@ -107,7 +109,7 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IUser user = MessageSending.getUser(msg.getGuild(), args[4]);
+        IUser user = msg.getClient().getUserByID(MessageParsing.getUserID(args[4]));
         if (user == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
@@ -115,7 +117,7 @@ public class PermissionManager {
         addUser(args[1], user.getLongID());
         MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) + " to the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
     }
-
+    //TODO give diffrent response if user trying to remove was not on the list
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
         if (args.length < 5) {
@@ -126,14 +128,16 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IUser user = MessageSending.getUser(msg.getGuild(), args[4]);
+        long userID = MessageParsing.getUserID(args[4]);
         /* This caused users no longer existing to be unremovable from the permissions list
         if (user == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }*/
-        delUser(args[1], user.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Removed " + user.getDisplayName(msg.getGuild()) + " from the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
+        delUser(args[1], userID);
+
+        IUser user = msg.getClient().getUserByID(userID);
+        MessageSending.sendMessage(msg.getChannel(), "Removed " + (user == null ? "The user did not exist anymore" : user.getDisplayName(msg.getGuild())) + " from the " + loadPermissionByName(args[1]).permission.getUserMode() + " for command `" + args[1] + "`.");
     }
 
     //permissions <command> users mode blacklist|whitelist
@@ -190,7 +194,7 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IRole role = MessageSending.getRole(msg.getGuild(), args[4]);
+        IRole role = msg.getClient().getRoleByID(MessageParsing.getGroupID(args[4]));
         if (role == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
@@ -206,6 +210,7 @@ public class PermissionManager {
         Config.getConfigByName("permissions").putConfigElement(new DummyCommand(cmdName, cmdPermission));
     }*/
 
+    //TODO diffrent message, like with users remove
     @DiscordSubCommand(name = "remove", parent = "permissionsRoles")
     private void permissionsRolesRemove(IMessage msg, String...args) {
         if (args.length < 5) {
@@ -216,15 +221,16 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IRole role = MessageSending.getRole(msg.getGuild(), args[4]);
+        long roleID = MessageParsing.getGroupID(args[4]);
+        IRole role = msg.getClient().getRoleByID(roleID);
         /*
         This caused roles that no longer exist to be stuck on the list forever
         if (role == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }*/
-        delRole(args[1], role.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Removed " + role.getName() + " from the " + loadPermissionByName(args[1]).permission.getRoleMode() + " for command `" + args[1] + "`.");
+        delRole(args[1], roleID);
+        MessageSending.sendMessage(msg.getChannel(), "Removed " + (role == null ? "ROLE DID NOT EXIST ANYMORE" : role.getName()) + " from the " + loadPermissionByName(args[1]).permission.getRoleMode() + " for command `" + args[1] + "`.");
     }
 
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")

@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import util.MessageSending;
 
 import java.util.Collection;
 public class CommandModule {
@@ -58,6 +59,7 @@ public class CommandModule {
     }
 
     public void addRoleToCommandPermission(String commandName, long roleID) {
+        logger.debug("[addRoleToCommandPermission] commandName: {} roleID: {}", commandName, roleID);
         if (commandHandler.getCommandByName(commandName) != null) {
             permissionManager.addRole(commandName, roleID);
         } else {
@@ -86,6 +88,8 @@ public class CommandModule {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
             if (permissionManager.hasPermission(event.getMessage(), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
                 commandHandler.runCommand(event.getMessage(), args);
+            } else {
+                MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");
             }
         }
     }

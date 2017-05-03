@@ -4,6 +4,7 @@ import commands.annotations.DiscordCommand;
 import config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import util.MessageParsing;
 import util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
@@ -49,7 +50,7 @@ public class TestCommands {
 	}
 	@DiscordCommand("getavatarlink")
 	public void getavatarlink(IMessage msg, String...args) {
-		MessageSending.sendMessage(msg.getChannel(), MessageSending.getUser(msg.getGuild(), args[1]).getAvatarURL());
+		MessageSending.sendMessage(msg.getChannel(), msg.getClient().getUserByID(MessageParsing.getUserID((args[1]))).getAvatarURL());
 	}
 	@DiscordCommand("pruneamount")
 	public void pruneamount(IMessage msg, String...args) {
@@ -73,7 +74,7 @@ public class TestCommands {
 	}
 	@DiscordCommand("getusername")
 	public void getusername(IMessage msg, String...args) {
-		IUser user = MessageSending.getUser(msg.getGuild(), args[1]);
+		IUser user = msg.getClient().getUserByID(MessageParsing.getUserID(args[1]));
 		if (user == null) {
 			MessageSending.sendMessage(msg.getChannel(), "Couldn't find user <@" + args[1] +">");
 			return;
@@ -82,7 +83,7 @@ public class TestCommands {
 	}
 	@DiscordCommand("getrolename")
 	public void getrolename(IMessage msg, String...args) {
-		IRole role = MessageSending.getRole(msg.getGuild(), args[1]);
+		IRole role = msg.getClient().getRoleByID(MessageParsing.getGroupID(args[1]));
 		if (role == null) {
 			MessageSending.sendMessage(msg.getChannel(), "Couldn't find role `" + args[1] +"`");
 			return;
