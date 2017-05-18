@@ -59,7 +59,7 @@ public class AnnotationExtractor {
 		//System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
 
-		//This regeisters all commands that don't have sub commands and removes them from the commandMap Map
+		//This puts all commands that don't have sub commands into the commands list and removes them from the commandMap Map
 		Set<String> noSubCommands = new HashSet<>();
 		commandMap.entrySet().stream().filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
 				.forEach(x -> {

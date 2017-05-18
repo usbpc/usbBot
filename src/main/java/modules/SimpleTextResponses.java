@@ -51,7 +51,7 @@ public class SimpleTextResponses implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
             return;
         }
-        if (commandModule.getCommand(args[2]) != null) {
+        if (commandModule.discordCommandExists(args[2])) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is already a command!");
             return;
         }
@@ -117,7 +117,6 @@ public class SimpleTextResponses implements DiscordCommands {
 
     }
 
-    //TODO permissions and stuff need to be fixed for this
     private class SimpleTextCommand extends Command {
         private String content;
         private SimpleTextCommand(String name, String content) {
@@ -127,8 +126,7 @@ public class SimpleTextResponses implements DiscordCommands {
         }
         @Override
         public void execute(IMessage msg, String... args) {
-            //TODO replace placeholders with message writer and args.
-
+            //TODO placeholder for args to be replaced by the arguments given when called
             /*
             * possible placeholders: author, args
             *

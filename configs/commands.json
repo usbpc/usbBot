@@ -3,10 +3,6 @@
     "name": "test",
     "message": " This is a test!"
   },
-  "ping": {
-    "name": "ping",
-    "message": "Pong!"
-  },
   "sample": {
     "name": "sample",
     "message": "Ich bin ein beispiel befehl um zu zeigen, dass man jetzt befehle hinzufügen kann!"
@@ -50,5 +46,9 @@
   "test123": {
     "name": "test123",
     "message": "§§AUTHOR§§ just tested something!"
+  },
+  "ping": {
+    "name": "ping",
+    "message": "Pong!"
   }
 }

@@ -1,6 +1,5 @@
 package commands.core;
 
-import commands.security.Permission;
 import sx.blah.discord.handle.obj.IMessage;
 
 public abstract class Command {

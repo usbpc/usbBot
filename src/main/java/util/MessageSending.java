@@ -15,19 +15,25 @@ public class MessageSending {
     private static Logger logger = LoggerFactory.getLogger(MessageSending.class);
 
     public static void sendMessage(IChannel channel, String message) {
-        //TODO deal smarter with exceptions and bundle messages to the same channel if RLE happens
+        //INFO This just buffers the message sending for now, it could be made smarter with bundling messages to the same channel together if a RLE happens
         RequestBuffer.request(() -> {
             try {
                 channel.sendMessage(message);
             } catch (DiscordException e) {
                 logger.debug("I got an error trying to send a message: {}", e.getErrorMessage(), e);
-                //System.out.printf("[MessageSending] I got an error trying to send a message: %s \r\n This is the stacktrace %s", e.getErrorMessage(), Arrays.toString(e.getStackTrace()));
                 throw e;
             }
         });
     }
 
     public static void sendFile(IChannel channel, String message, InputStream inputStream, String fileName) {
-        channel.sendFile(message, inputStream, fileName);
+        RequestBuffer.request(() -> {
+            try {
+                channel.sendFile(message, inputStream, fileName);
+            } catch (DiscordException e) {
+                logger.debug("I got an error trying to send a message: {}", e.getErrorMessage(), e);
+                throw e;
+            }
+        });
     }
 }

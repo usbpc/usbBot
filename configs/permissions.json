@@ -25,17 +25,6 @@
       "users": []
     }
   },
-  "ping": {
-    "name": "ping",
-    "permission": {
-      "roleMode": "whitelist",
-      "roles": [],
-      "userMode": "whitelist",
-      "users": [
-        104214100422180864
-      ]
-    }
-  },
   "permissions": {
     "name": "permissions",
     "permission": {
@@ -436,6 +425,17 @@
       ],
       "userMode": "whitelist",
       "users": []
+    }
+  },
+  "ping": {
+    "name": "ping",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [],
+      "userMode": "whitelist",
+      "users": [
+        306878973961568259
+      ]
     }
   }
 }
