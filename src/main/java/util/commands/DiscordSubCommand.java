@@ -1,4 +1,4 @@
-package commands.annotations;
+package util.commands;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,6 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface DiscordCommand {
-	String value();
+public @interface DiscordSubCommand {
+    String name();
+    String parent();
 }

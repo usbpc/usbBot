@@ -1,9 +1,10 @@
 package commands.security;
 
+import commands.DiscordCommands;
 import commands.core.Command;
-import commands.core.CommandHandler;
-import commands.annotations.DiscordCommand;
-import commands.annotations.DiscordSubCommand;
+import util.commands.AnnotationExtractor;
+import util.commands.DiscordCommand;
+import util.commands.DiscordSubCommand;
 import config.Config;
 import config.ConfigElement;
 import org.slf4j.Logger;
@@ -19,12 +20,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Matcher;
 
-public class PermissionManager {
+public class PermissionManager implements DiscordCommands {
     //TODO save who created a command
     //TODO make permissions a inner class
-    //TODO make listing of stuff centra
+    //TODO make listing of stuff central
     private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
     private Map<String, DummyCommand> commandMap = new HashMap<>();
     public PermissionManager() {
@@ -112,11 +112,12 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
-        if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@!??\\d{18,19}?>"))) {
+        long userID = MessageParsing.getUserID(args[4]);
+        if (userID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IUser user = msg.getClient().getUserByID(MessageParsing.getUserID(args[4]));
+        IUser user = msg.getClient().getUserByID(userID);
         if (user == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
@@ -127,16 +128,16 @@ public class PermissionManager {
     //TODO give diffrent response if user trying to remove was not on the list
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
-        //TODO move checking of validity of userID out of here
-        if (args.length < 5) {
+                if (args.length < 5) {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
-        if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@!??\\d{18,19}?>"))) {
+        long userID = MessageParsing.getUserID(args[4]);
+        if (userID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        long userID = MessageParsing.getUserID(args[4]);
+
         /* This caused users no longer existing to be unremovable from the permissions list
         if (user == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
@@ -198,11 +199,12 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
-        if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@&\\d{18,19}?>"))) {
+        long roleID = MessageParsing.getGroupID(args[4]);
+        if (roleID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        IRole role = msg.getClient().getRoleByID(MessageParsing.getGroupID(args[4]));
+        IRole role = msg.getClient().getRoleByID(roleID);
         if (role == null) {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
@@ -225,11 +227,11 @@ public class PermissionManager {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
-        if (!(args[4].matches("\\d{18,19}+") || args[4].matches("<@&\\d{18,19}?>"))) {
+        long roleID = MessageParsing.getGroupID(args[4]);
+        if (roleID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-        long roleID = MessageParsing.getGroupID(args[4]);
         IRole role = msg.getClient().getRoleByID(roleID);
         /*
         This caused roles that no longer exist to be stuck on the list forever
@@ -274,6 +276,11 @@ public class PermissionManager {
         builder.deleteCharAt(builder.length() - 1).append("```");
 
         MessageSending.sendMessage(msg.getChannel(), builder.toString());
+    }
+
+    @Override
+    public Collection<Command> getDiscordCommands() {
+        return AnnotationExtractor.getCommandList(this);
     }
 
     private class DummyCommand implements ConfigElement {

@@ -1,7 +1,7 @@
 package modules;
 
-import commands.annotations.DiscordCommand;
-import commands.annotations.DiscordSubCommand;
+import util.commands.DiscordCommand;
+import util.commands.DiscordSubCommand;
 import util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 

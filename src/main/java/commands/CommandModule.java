@@ -1,6 +1,6 @@
 package commands;
 
-import commands.annotations.AnnotationRegister;
+import util.commands.AnnotationExtractor;
 import commands.core.Command;
 import commands.core.CommandHandler;
 import commands.security.PermissionManager;
@@ -8,27 +8,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
-import sx.blah.discord.handle.obj.IIDLinkedObject;
 import sx.blah.discord.handle.obj.IRole;
 import util.MessageSending;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
-public class CommandModule {
+public class CommandModule implements DiscordCommands {
     private CommandHandler commandHandler;
     private PermissionManager permissionManager;
-    private AnnotationRegister annotationRegister;
     private Logger logger = LoggerFactory.getLogger(CommandModule.class);
     //TODO add more access to permissions stuff
 
     public CommandModule() {
         commandHandler = new CommandHandler();
         permissionManager = new PermissionManager();
-        annotationRegister = new AnnotationRegister();
 
-        registerCommandsFromObject(commandHandler);
-        registerCommandsFromObject(permissionManager);
     }
 
     public void registerCommand(Command command) {
@@ -37,6 +32,10 @@ public class CommandModule {
 
     public void registerCommands(Collection<Command> commands) {
         commands.forEach(this::registerCommand);
+    }
+
+    public void registerCommands(DiscordCommands obj) {
+        registerCommands(obj.getDiscordCommands());
     }
 
     public void unregisterCommand(String name) {
@@ -48,9 +47,6 @@ public class CommandModule {
         commands.forEach(this::unregisterCommand);
     }
 
-    public void registerCommandsFromObject(Object obj) {
-        registerCommands(annotationRegister.getCommandList(obj));
-    }
 
     /*public void addRoleToCommandPermissions(String commandName, Long roleID) {
         if (getCommand(commandName) == null) throw new IllegalArgumentException(commandName + " is not a valid command");
@@ -71,10 +67,6 @@ public class CommandModule {
         } else {
             throw new IllegalArgumentException(commandName + " is not a registered command!");
         }
-    }
-
-    public void registerCommandFromObjects(Collection<Object> objs) {
-        objs.forEach(this::registerCommandsFromObject);
     }
 
     public Collection<Command> getAllCommands() {
@@ -98,5 +90,12 @@ public class CommandModule {
                 MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");
             }
         }
+    }
+
+    @Override
+    public Collection<Command> getDiscordCommands() {
+        Collection<Command> discordCommands = permissionManager.getDiscordCommands();
+        discordCommands.addAll(commandHandler.getDiscordCommands());
+        return discordCommands;
     }
 }

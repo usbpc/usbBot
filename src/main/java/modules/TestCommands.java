@@ -1,7 +1,9 @@
 package modules;
 
-import commands.annotations.DiscordCommand;
-import config.Config;
+import commands.DiscordCommands;
+import commands.core.Command;
+import util.commands.AnnotationExtractor;
+import util.commands.DiscordCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MessageParsing;
@@ -11,9 +13,9 @@ import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
 import java.io.ByteArrayInputStream;
-import java.util.regex.Pattern;
+import java.util.Collection;
 
-public class TestCommands {
+public class TestCommands implements DiscordCommands {
 	private static Logger logger = LoggerFactory.getLogger(TestCommands.class);
 	@DiscordCommand("regexquote")
 	public void aregexquote(IMessage msg, String...args) {
@@ -89,5 +91,10 @@ public class TestCommands {
 			return;
 		}
 		MessageSending.sendMessage(msg.getChannel(), "Name: " + role.getName());
+	}
+
+	@Override
+	public Collection<Command> getDiscordCommands() {
+		return AnnotationExtractor.getCommandList(this);
 	}
 }

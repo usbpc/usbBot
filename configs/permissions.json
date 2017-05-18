@@ -74,13 +74,12 @@
     }
   },
   "getuserids": {
+    "name": "getuserids",
     "permission": {
       "roleMode": "whitelist",
       "roles": [],
       "userMode": "whitelist",
-      "users": [
-        104214100422180864
-      ]
+      "users": []
     }
   },
   "getroleids": {

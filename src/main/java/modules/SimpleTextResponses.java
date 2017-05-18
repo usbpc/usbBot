@@ -2,9 +2,9 @@ package modules;
 
 import commands.*;
 import commands.core.Command;
-import commands.annotations.DiscordCommand;
-import commands.annotations.DiscordSubCommand;
-import commands.security.Permission;
+import util.commands.AnnotationExtractor;
+import util.commands.DiscordCommand;
+import util.commands.DiscordSubCommand;
 import config.Config;
 import config.ConfigElement;
 import util.MessageSending;
@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by usbpc on 30.04.2017.
  */
-public class SimpleTextResponses {
+public class SimpleTextResponses implements DiscordCommands {
     private Map<String, SimpleTextCommand> commands = new HashMap<>();
     private Logger logger = LoggerFactory.getLogger(SimpleTextResponses.class);
     CommandModule commandModule;
@@ -93,6 +93,11 @@ public class SimpleTextResponses {
             Config.getConfigByName("commands").putConfigElement(new DummyCommand(args[2], content));
             MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
         }
+    }
+
+    @Override
+    public Collection<Command> getDiscordCommands() {
+        return AnnotationExtractor.getCommandList(this);
     }
 
     private class DummyCommand implements ConfigElement {

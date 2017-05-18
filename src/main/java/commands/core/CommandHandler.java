@@ -1,6 +1,8 @@
 package commands.core;
 
-import commands.annotations.DiscordCommand;
+import commands.DiscordCommands;
+import util.commands.AnnotationExtractor;
+import util.commands.DiscordCommand;
 import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -9,7 +11,7 @@ import sx.blah.discord.handle.obj.IMessage;
 import java.util.*;
 import java.util.regex.Pattern;
 
-public class CommandHandler {
+public class CommandHandler implements DiscordCommands{
 	private Map<String, Command> commands = new HashMap<>();
 	//TODO make this a config option
 	private String PREFIX = "!";
@@ -59,10 +61,6 @@ public class CommandHandler {
 
 		}
 	}
-	@DiscordCommand("getcommandregex")
-	private void getCommandRegex(IMessage msg, String...args) {
-		MessageSending.sendMessage(msg.getChannel(), cmdPattern.toString());
-	}
 
 	@DiscordCommand("list")
 	public void list(IMessage msg, String...args) {
@@ -94,5 +92,10 @@ public class CommandHandler {
 	}
 	public String[] getArguments(String input) {
 		return input.substring(input.indexOf(PREFIX) + 1).split(" +");
+	}
+
+	@Override
+	public Collection<Command> getDiscordCommands() {
+		return AnnotationExtractor.getCommandList(this);
 	}
 }

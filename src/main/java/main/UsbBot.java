@@ -1,7 +1,9 @@
 package main;
 
 import commands.*;
-import commands.annotations.DiscordCommand;
+import commands.core.Command;
+import util.commands.AnnotationExtractor;
+import util.commands.DiscordCommand;
 import config.Config;
 import modules.SimpleTextResponses;
 import modules.TestCommands;
@@ -14,17 +16,18 @@ import sx.blah.discord.util.DiscordException;
 import util.MessageSending;
 
 import java.io.*;
+import java.util.Collection;
 import java.util.Properties;
 
-public class UsbBot {
+public class UsbBot implements DiscordCommands {
 	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
 	private IDiscordClient client;
 	private UsbBot(String discordAPIKey) {
-		Logger logger = LoggerFactory.getLogger(UsbBot.class);
 		CommandModule commandModule = new CommandModule();
-		commandModule.registerCommandsFromObject(this);
-		commandModule.registerCommandsFromObject(new TestCommands());
-		commandModule.registerCommandsFromObject(new SimpleTextResponses(commandModule));
+		commandModule.registerCommands(commandModule);
+		commandModule.registerCommands(this);
+		commandModule.registerCommands(new TestCommands());
+		commandModule.registerCommands(new SimpleTextResponses(commandModule));
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(commandModule);
@@ -87,5 +90,10 @@ public class UsbBot {
 			logger.error("Building the client failed ", e);
 			return null;
 		}
+	}
+
+	@Override
+	public Collection<Command> getDiscordCommands() {
+		return AnnotationExtractor.getCommandList(this);
 	}
 }

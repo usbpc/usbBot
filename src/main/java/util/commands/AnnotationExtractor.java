@@ -1,8 +1,6 @@
-package commands.annotations;
+package util.commands;
 
 import commands.core.Command;
-import commands.security.Permission;
-import commands.security.PermissionManager;
 import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,13 +12,10 @@ import java.lang.invoke.MethodHandles;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class AnnotationRegister {
-	private Logger logger = LoggerFactory.getLogger(AnnotationRegister.class);
+public class AnnotationExtractor {
+	private static Logger logger = LoggerFactory.getLogger(AnnotationExtractor.class);
 
-	public AnnotationRegister() {
-	}
-
-	public List<Command> getCommandList(Object obj) {
+	public static List<Command> getCommandList(Object obj) {
 		Class cl = obj.getClass();
 		List<Command> commands = new ArrayList<>();
 
@@ -130,7 +125,7 @@ public class AnnotationRegister {
 
 		return commands;
 	}
-	private class TmpCommandContainer {
+	private static class TmpCommandContainer {
 		Map<String, SubCommand> subCommands = null;
 		boolean hasChildren = false;
 		String name;
@@ -148,7 +143,7 @@ public class AnnotationRegister {
 			return "TmpCommandContainer: hasChildren:" + hasChildren + " name:" + name + " parentCommand:" + parentCommand;
 		}
 	}
-	private class SubCommand {
+	private static class SubCommand {
 		private MethodHandle command;
 		Map<String, SubCommand> subCommandMap;
 
@@ -191,7 +186,7 @@ public class AnnotationRegister {
 			}
 		}
 	}
-	private class SubCommandParent extends Command {
+	private static class SubCommandParent extends Command {
 		SubCommand command;
 
 		SubCommandParent(String name, String description, SubCommand command) {
@@ -205,7 +200,7 @@ public class AnnotationRegister {
 			command.execute(msg, args, 0);
 		}
 	}
-	private class AnnotationCommand extends Command {
+	private static class AnnotationCommand extends Command {
 		private MethodHandle command;
 		AnnotationCommand(String name, String description, MethodHandle command) {
 			this.name = name;
