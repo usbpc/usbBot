@@ -13,9 +13,13 @@ class ConfigFile extends ConfigObject {
     private File configFile;
     private static Logger logger = LoggerFactory.getLogger(ConfigObject.class);
     ConfigFile(File configFile) {
-        try {
-            this.objects = gson.fromJson(new FileReader(configFile), mapType);
-        } catch (FileNotFoundException e) {
+        if (configFile.exists()) {
+            try {
+                this.objects = gson.fromJson(new FileReader(configFile), mapType);
+            } catch (FileNotFoundException e) {
+                logger.error("File {} does not exist. I got {}", configFile.getAbsolutePath(), e.getMessage());
+            }
+        } else {
             this.objects = new HashMap<>();
         }
         this.configFile = configFile;

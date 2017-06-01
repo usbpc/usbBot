@@ -23,14 +23,9 @@ public class UsbBot implements DiscordCommands {
 	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
 	private IDiscordClient client;
 	private UsbBot(String discordAPIKey) {
-		CommandModule commandModule = new CommandModule();
-		commandModule.registerCommands(commandModule);
-		commandModule.registerCommands(this);
-		commandModule.registerCommands(new TestCommands());
-		commandModule.registerCommands(new SimpleTextResponses(commandModule));
 
 		client = createClient(discordAPIKey, false);
-		client.getDispatcher().registerListener(commandModule);
+		client.getDispatcher().registerListener(new EventHandler(this));
 		client.login();
 
 		//while (!client.isReady()) {
@@ -66,7 +61,6 @@ public class UsbBot implements DiscordCommands {
 				FileOutputStream out = new FileOutputStream("keys.properties");
 
 				logger.error("No discord API key found, please enter one in the keys.properties file");
-				//System.out.println("No discord API key found, please enter one in the keys.properties file");
 				keys.setProperty("discord", "404");
 				keys.store(out, "");
 				System.exit(-1);

@@ -121,10 +121,8 @@ public class CommandModule implements DiscordCommands {
         return commandHandler.getCommandByName(name) != null;
     }
 
-    @EventSubscriber
     public void runCommand(MessageReceivedEvent event) {
 
-        logger.debug("#{} @{} : {}", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         if (commandHandler.isCommand(event.getMessage().getContent())) {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
