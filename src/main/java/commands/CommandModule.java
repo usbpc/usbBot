@@ -39,6 +39,9 @@ public class CommandModule implements DiscordCommands {
     public void registerCommand(Command command) {
         commandHandler.registerCommand(command);
     }
+    public void registerCommand(String commandName, Command command) {
+        commandHandler.registerCommand(commandName, command);
+    }
 
     /**
      * Registers the commands so they can be executed from a discord message.

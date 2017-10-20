@@ -2,6 +2,7 @@ package modules;
 
 import commands.*;
 import commands.core.Command;
+import config.SimpleTextCommandsSQL;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
 import util.commands.DiscordSubCommand;
@@ -19,16 +20,18 @@ import java.util.stream.Collectors;
  * Created by usbpc on 30.04.2017.
  */
 public class SimpleTextResponses implements DiscordCommands {
-    private Map<String, SimpleTextCommand> commands = new HashMap<>();
+
     private Logger logger = LoggerFactory.getLogger(SimpleTextResponses.class);
-    CommandModule commandModule;
-    public SimpleTextResponses(CommandModule commandModule) {
+    private SimpleTextCommand simpleTextCommand = new SimpleTextCommand();
+    private CommandModule commandModule;
+    public SimpleTextResponses(CommandModule commandModule, long serverID) {
+        Map<String, SimpleTextCommand> commands = new HashMap<>();
         this.commandModule = commandModule;
-        Collection<DummyCommand> command = Config.getConfigByName("commands").getAllObjectsAs(DummyCommand.class);
-        command.forEach(x -> {
-            logger.debug("name: {} message: {}", x.name, x.message);
+        Map<String, String> command = SimpleTextCommandsSQL.getAllCommandsForServer(serverID);
+        command.forEach((x, y) -> {
+            logger.debug("name: {} message: {}", x, y);
             //System.out.printf("[SimpleTextResponses] name: %s message: %s \r\n", x.name, x.message);
-            commands.put(x.name, new SimpleTextCommand(x.name, x.message));
+            commands.put(x, simpleTextCommand);
         });
 
         Collection<Command> cmds = commands.values().stream().map(simpleTextCommand -> (Command) simpleTextCommand).collect(Collectors.toCollection(HashSet::new));
@@ -58,12 +61,10 @@ public class SimpleTextResponses implements DiscordCommands {
 
 
         String message = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
-        DummyCommand cmd = new DummyCommand(args[2], message);
-        Config.getConfigByName("commands").putConfigElement(cmd);
-        SimpleTextCommand simpleTextCommand = new SimpleTextCommand(args[2], message);
-        commandModule.registerCommand(simpleTextCommand);
+
+        SimpleTextCommandsSQL.insertCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
+        commandModule.registerCommand(args[2], simpleTextCommand);
         commandModule.addRoleToCommandPermission(args[2], msg.getGuild().getEveryoneRole().getLongID());
-        commands.put(args[2], simpleTextCommand);
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
@@ -72,12 +73,11 @@ public class SimpleTextResponses implements DiscordCommands {
     private void commandsRemove(IMessage msg, String...args) {
         if (args.length < 3) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
-        } else if (!commands.containsKey(args[2])) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
-        } else {
-            Config.getConfigByName("commands").removeConfigElement(args[2]);
+        } else if (SimpleTextCommandsSQL.removeCommand(msg.getGuild().getLongID(), args[2])) {
             commandModule.unregisterCommand(args[2]);
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
+        } else {
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
         }
     }
 
@@ -85,13 +85,11 @@ public class SimpleTextResponses implements DiscordCommands {
     private void commandsEdit(IMessage msg, String...args) {
         if (args.length < 4) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
-        } else if (!commands.containsKey(args[2])) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
-        } else {
+        } else if (SimpleTextCommandsSQL.editCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1))) {
             String content = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
-            commands.get(args[2]).content = content;
-            Config.getConfigByName("commands").putConfigElement(new DummyCommand(args[2], content));
             MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
+        } else {
+            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
         }
     }
 
@@ -119,13 +117,12 @@ public class SimpleTextResponses implements DiscordCommands {
 
     private class SimpleTextCommand extends Command {
         private String content;
-        private SimpleTextCommand(String name, String content) {
-            this.name = name;
-            this.content = content;
-            //this.permission = new Permission("whitelist", new ArrayList<>(), "whitelist", new ArrayList<>());
-        }
         @Override
         public void execute(IMessage msg, String... args) {
+            content = SimpleTextCommandsSQL.getCommandText(msg.getGuild().getLongID(), args[0]);
+            if (content == null) {
+                MessageSending.sendMessage(msg.getChannel(), "");
+            }
             //TODO placeholder for args to be replaced by the arguments given when called
             /*
             * possible placeholders: author, args

@@ -137,6 +137,7 @@
     "permission": {
       "roleMode": "whitelist",
       "roles": [
+        104214741601247232,
         104214741601247232
       ],
       "userMode": "whitelist",
@@ -437,6 +438,17 @@
       "users": [
         306878973961568259
       ]
+    }
+  },
+  "mario": {
+    "name": "mario",
+    "permission": {
+      "roleMode": "whitelist",
+      "roles": [
+        104214741601247232
+      ],
+      "userMode": "whitelist",
+      "users": []
     }
   }
 }

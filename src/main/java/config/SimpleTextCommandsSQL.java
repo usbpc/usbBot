@@ -1,8 +1,12 @@
 package config;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class TestingDBStuff {
+public class SimpleTextCommandsSQL {
 	public static void main(String args[]) {
 		insertCommand(104214741601247232L, "test", "This is a Test!");
 		System.out.println(getCommandText(104214741601247232L, "test"));
@@ -11,23 +15,25 @@ public class TestingDBStuff {
 		removeCommand(104214741601247232L, "test");
 		System.out.println(getCommandText(104214741601247232L, "test"));
 	}
-	public static Connection connect() {
-		Connection conn = null;
-		try {
-			String url = "jdbc:sqlite:configs/database.sqlite";
-			conn = DriverManager.getConnection(url);
-
-			System.out.println("Connection to SQLite has been established.");
-		} catch (SQLException e) {
-			System.err.println(e.getMessage());
+	public static Map<String, String> getAllCommandsForServer(long serverID) {
+		String sql = "SELECT name, text FROM text_commands WHERE (server_id = ?)";
+		HashMap<String, String> result = new HashMap<>();
+		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+			pstmt.setLong(1, serverID);
+			ResultSet rs = pstmt.executeQuery();
+			while (rs.next()) {
+				result.put(rs.getString("name"), rs.getString("text"));
+			}
+		} catch (SQLException ex) {
+			System.err.println(ex.getMessage());
 		}
-		return conn;
+		return result;
 	}
 	public static String getCommandText(long serverID, String name) {
 		String result = null;
 
 		String sql = "SELECT text FROM text_commands WHERE (server_id = ?) AND (name = ?)";
-		try (Connection conn = TestingDBStuff.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			pstmt.setString(2, name);
 
@@ -45,7 +51,7 @@ public class TestingDBStuff {
 	public static boolean insertCommand(long serverID, String name, String text) {
 		boolean success = false;
 		String sql = "INSERT INTO text_commands(server_id, name, text) VALUES (?,?,?)";
-		try (Connection conn = TestingDBStuff.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			pstmt.setString(2, name);
 			pstmt.setString(3, text);
@@ -59,7 +65,7 @@ public class TestingDBStuff {
 	public static boolean removeCommand(long serverID, String name) {
 		String sql = "DELETE FROM text_commands WHERE (server_id = ?) AND (name = ?)";
 		boolean success = false;
-		try (Connection conn = TestingDBStuff.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			pstmt.setString(2, name);
 			success = pstmt.executeUpdate() >= 1;
@@ -72,7 +78,7 @@ public class TestingDBStuff {
 	public static boolean editCommand(long serverID, String name, String text) {
 		String sql = "UPDATE text_commands SET text = ? WHERE (server_id = ?) AND (name = ?)";
 		boolean success = false;
-		try (Connection conn = TestingDBStuff.connect(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
 			pstmt.setString(1, text);
 			pstmt.setLong(2, serverID);
 			pstmt.setString(3, name);

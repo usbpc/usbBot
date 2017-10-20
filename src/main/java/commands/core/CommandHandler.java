@@ -28,6 +28,14 @@ public class CommandHandler implements DiscordCommands{
 		cmdPattern.append(Pattern.quote(cmd.getName()));
 	}
 
+	public void registerCommand(String commandName, Command cmd) {
+		commands.put(commandName, cmd);
+		if (cmdPattern.length() > 1) {
+			cmdPattern.append('|');
+		}
+		cmdPattern.append(Pattern.quote(commandName));
+	}
+
 	public void unregisterCommand(String name) {
 		if (!commands.containsKey(name)) throw new IllegalArgumentException(name + " is not a valid command");
 		commands.remove(name);
