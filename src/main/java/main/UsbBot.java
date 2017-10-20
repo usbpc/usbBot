@@ -28,12 +28,6 @@ public class UsbBot implements DiscordCommands {
 		client.getDispatcher().registerListener(new EventHandler(this));
 		client.login();
 
-		//while (!client.isReady()) {
-
-		//}
-
-		//client.getUserByID(271071290692075520L).getOrCreatePMChannel().sendMessage("`Oh, gütige Herrscherin, ihr Freund hat soeben seinen Status geändert.` is what I would write you if <@105306394130968576> changed his status.");
-
 	}
 
 	public static void main(String...args) {

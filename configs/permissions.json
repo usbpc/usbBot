@@ -35,13 +35,14 @@
     }
   },
   "getavatarlink": {
+    "name": "getavatarlink",
     "permission": {
       "roleMode": "whitelist",
-      "roles": [
-        105460792198959104
-      ],
+      "roles": [],
       "userMode": "whitelist",
-      "users": []
+      "users": [
+        125667681910259713
+      ]
     }
   },
   "pruneamount": {

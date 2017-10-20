@@ -54,10 +54,11 @@ public class EventHandler {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        logger.debug("{}({}):#{}({}):@{}({}): {}", event.getGuild().getName(), event.getGuild().getLongID(), event.getChannel().getName(), event.getChannel().getLongID(), event.getAuthor().getDisplayName(event.getGuild()), event.getAuthor().getLongID(), event.getMessage());
         if (event.getChannel().isPrivate()) {
+            logger.debug("PN:#{}({}):@{}({}): {}", event.getChannel().getLongID(), event.getAuthor().getDisplayName(event.getGuild()), event.getAuthor().getLongID(), event.getMessage());
             event.getChannel().sendMessage("Sorry, but I currently don't support any commands in Private messages");
         } else {
+            logger.debug("{}({}):#{}({}):@{}({}): {}", event.getGuild().getName(), event.getGuild().getLongID(), event.getChannel().getName(), event.getChannel().getLongID(), event.getAuthor().getDisplayName(event.getGuild()), event.getAuthor().getLongID(), event.getMessage());
             commandModuleMap.get(event.getGuild().getLongID()).runCommand(event);
         }
     }
