@@ -25,6 +25,7 @@ public class CommandHandler implements DiscordCommands{
 		if (cmdPattern.length() > 1) {
 			cmdPattern.append('|');
 		}
+
 		cmdPattern.append(Pattern.quote(cmd.getName()));
 	}
 

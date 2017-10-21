@@ -1,8 +1,11 @@
 package config;
 
+import org.sqlite.SQLiteConfig;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseConnection {
 	private static Connection conn = null;
@@ -12,8 +15,11 @@ public class DatabaseConnection {
 			return conn;
 		} else {
 			try {
+				SQLiteConfig config = new SQLiteConfig();
+				config.enforceForeignKeys(true);
 				String url = "jdbc:sqlite:configs/database.sqlite";
-				conn = DriverManager.getConnection(url);
+				conn = DriverManager.getConnection(url, config.toProperties());
+				//System.out.println(config.toProperties());
 
 				//System.out.println("Connection to SQLite has been established.");
 			} catch (SQLException e) {

@@ -25,17 +25,14 @@ public class SimpleTextResponses implements DiscordCommands {
     private SimpleTextCommand simpleTextCommand = new SimpleTextCommand();
     private CommandModule commandModule;
     public SimpleTextResponses(CommandModule commandModule, long serverID) {
-        Map<String, SimpleTextCommand> commands = new HashMap<>();
         this.commandModule = commandModule;
         Map<String, String> command = SimpleTextCommandsSQL.getAllCommandsForServer(serverID);
         command.forEach((x, y) -> {
             logger.debug("name: {} message: {}", x, y);
             //System.out.printf("[SimpleTextResponses] name: %s message: %s \r\n", x.name, x.message);
-            commands.put(x, simpleTextCommand);
+            commandModule.registerCommand(x, simpleTextCommand);
         });
 
-        Collection<Command> cmds = commands.values().stream().map(simpleTextCommand -> (Command) simpleTextCommand).collect(Collectors.toCollection(HashSet::new));
-        commandModule.registerCommands(cmds);
     }
 
     @DiscordCommand("commands")
