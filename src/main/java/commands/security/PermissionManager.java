@@ -7,8 +7,6 @@ import config.MiscSQLCommand;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
 import util.commands.DiscordSubCommand;
-import config.Config;
-import config.ConfigElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import util.MessageParsing;

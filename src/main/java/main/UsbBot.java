@@ -5,9 +5,6 @@ import commands.core.Command;
 import config.DatabaseConnection;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
-import config.Config;
-import modules.SimpleTextResponses;
-import modules.TestCommands;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
@@ -40,7 +37,6 @@ public class UsbBot implements DiscordCommands {
 		//Logout the client when everything is done
 
 		MessageSending.sendMessage(msg.getChannel(), "Shutting down...");
-		Runtime.getRuntime().addShutdownHook(new Thread(Config::close));
 		Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::closeConnection));
 		client.logout();
 

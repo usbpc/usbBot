@@ -6,16 +6,12 @@ import config.SimpleTextCommandsSQL;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
 import util.commands.DiscordSubCommand;
-import config.Config;
-import config.ConfigElement;
 import util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
 
 import java.util.*;
-import java.util.stream.Collectors;
-
 /**
  * Created by usbpc on 30.04.2017.
  */
