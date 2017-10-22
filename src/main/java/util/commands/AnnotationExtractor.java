@@ -153,6 +153,7 @@ public class AnnotationExtractor {
 		}
 
 		void execute(IMessage msg, String[] args, int depth) {
+			//TODO: Make error reponses more helpful
 			try {
 				int offset = (int) command.invoke(msg, args);
 				if (subCommandMap != null && offset != -1) {
