@@ -3,6 +3,7 @@ package commands;
 import commands.core.Command;
 import commands.core.CommandHandler;
 import commands.security.PermissionManager;
+import config.CommandPermission;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -23,10 +24,12 @@ import java.util.stream.Collectors;
 public class CommandModule implements DiscordCommands {
     private CommandHandler commandHandler;
     private PermissionManager permissionManager;
+    private long guildID;
     private Logger logger = LoggerFactory.getLogger(CommandModule.class);
 
-    public CommandModule() {
-        commandHandler = new CommandHandler();
+    public CommandModule(long guildID) {
+        this.guildID = guildID;
+        commandHandler = new CommandHandler(guildID);
         permissionManager = new PermissionManager();
 
     }
@@ -68,7 +71,6 @@ public class CommandModule implements DiscordCommands {
      */
     public void unregisterCommand(String name) {
         commandHandler.unregisterCommand(name);
-        permissionManager.removePermissions(name);
     }
 
     /**
@@ -94,7 +96,7 @@ public class CommandModule implements DiscordCommands {
      */
     public void addUserToCommandPermission(String commandName, long userID) {
         if (commandHandler.getCommandByName(commandName) != null) {
-            permissionManager.addUser(commandName, userID);
+            new CommandPermission(guildID, commandName).addUser(userID);
         } else {
             throw new IllegalArgumentException(commandName + " is not a registered command!");
         }
@@ -109,7 +111,7 @@ public class CommandModule implements DiscordCommands {
     public void addRoleToCommandPermission(String commandName, long roleID) {
         logger.debug("[addRoleToCommandPermission] commandName: {} roleID: {}", commandName, roleID);
         if (commandHandler.getCommandByName(commandName) != null) {
-            permissionManager.addRole(commandName, roleID);
+            new CommandPermission(guildID, commandName).addRole(roleID);
         } else {
             throw new IllegalArgumentException(commandName + " is not a registered command!");
         }
@@ -129,7 +131,7 @@ public class CommandModule implements DiscordCommands {
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         if (commandHandler.isCommand(event.getMessage().getContent())) {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
-            if (permissionManager.hasPermission(event.getAuthor().getLongID(), event.getAuthor().getRolesForGuild(event.getGuild()).stream().map(IRole::getLongID).collect(Collectors.toSet()), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
+            if (permissionManager.hasPermission(event.getGuild().getLongID(), event.getAuthor().getLongID(), event.getAuthor().getRolesForGuild(event.getGuild()).stream().map(IRole::getLongID).collect(Collectors.toSet()), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
                 commandHandler.runCommand(event.getMessage(), args);
             } else {
                 MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");

@@ -29,7 +29,6 @@ public class SimpleTextResponses implements DiscordCommands {
         Map<String, String> command = SimpleTextCommandsSQL.getAllCommandsForServer(serverID);
         command.forEach((x, y) -> {
             logger.debug("name: {} message: {}", x, y);
-            //System.out.printf("[SimpleTextResponses] name: %s message: %s \r\n", x.name, x.message);
             commandModule.registerCommand(x, simpleTextCommand);
         });
 
@@ -95,22 +94,6 @@ public class SimpleTextResponses implements DiscordCommands {
         return AnnotationExtractor.getCommandList(this);
     }
 
-    private class DummyCommand implements ConfigElement {
-        String name;
-        String message;
-        private DummyCommand() {
-        }
-        DummyCommand(String name, String message) {
-            this.name = name;
-            this.message = message;
-        }
-
-        @Override
-        public String getUUID() {
-            return name;
-        }
-
-    }
 
     private class SimpleTextCommand extends Command {
         private String content;

@@ -178,7 +178,8 @@ public class AnnotationExtractor {
 				}
 			} catch (Throwable throwable) {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error [1] ... ```" + throwable.getMessage() + "```");
+					logger.error(Arrays.toString(throwable.getStackTrace()));
 				} else {
 					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
 					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());

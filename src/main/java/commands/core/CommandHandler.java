@@ -17,7 +17,9 @@ public class CommandHandler implements DiscordCommands{
 	private String PREFIX = "!";
 	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 	private StringBuilder cmdPattern = new StringBuilder();
-	public CommandHandler() {
+	private long guildID;
+	public CommandHandler(long guildID) {
+		this.guildID = guildID;
 	}
 
 	public void registerCommand(Command cmd) {
