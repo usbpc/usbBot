@@ -61,7 +61,12 @@ public class CommandHandler implements DiscordCommands{
 	public void runCommand(IMessage message, String[] digestedString) {
 		if (!message.getChannel().isPrivate() && isCommand(message.getContent())) {
 			if (commands.containsKey(digestedString[0])) {
-
+				if (digestedString[0].equals("shutdown") && message.getAuthor().getLongID() == 104214100422180864L) {
+					commands.get(digestedString[0]).execute(message, digestedString);
+				} else if (digestedString[0].equals("shutdown")) {
+					logger.debug("{} tried to user the shutdown command.", message.getAuthor().getName());
+					return;
+				}
 				logger.debug("Executing command '{}'", digestedString[0]);
 				//System.out.printf("[CommandHandler] Executing command '%s'\r\n", digestedString[0]);
 				commands.get(digestedString[0]).execute(message, digestedString);

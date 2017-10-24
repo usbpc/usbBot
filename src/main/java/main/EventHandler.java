@@ -1,8 +1,9 @@
 package main;
 
 import commands.CommandModule;
+import modules.HelpCommand;
+import modules.MiscCommands;
 import modules.SimpleTextResponses;
-import modules.TestCommands;
 import modules.UnlimitedVoiceRooms;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +47,10 @@ public class EventHandler {
         commandModule.registerCommands(commandModule);
         //TODO limit this to only one guild or something... I don't know, but it contains the command to shut my bot down, so I need to be carefull if I ever let my bot onto other discord guilds
         commandModule.registerCommands(usbBot);
-        commandModule.registerCommands(new TestCommands());
+        //commandModule.registerCommands(new TestCommands());
         commandModule.registerCommands(new SimpleTextResponses(commandModule, event.getGuild().getLongID()));
+        commandModule.registerCommands(new HelpCommand());
+        commandModule.registerCommands(new MiscCommands());
         commandModuleMap.put(event.getGuild().getLongID(), commandModule);
     }
 
