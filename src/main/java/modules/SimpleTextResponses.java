@@ -92,23 +92,25 @@ public class SimpleTextResponses implements DiscordCommands {
 
 
     private class SimpleTextCommand extends Command {
-        private String content;
         @Override
-        public void execute(IMessage msg, String... args) {
-            content = SimpleTextCommandsSQL.getCommandText(msg.getGuild().getLongID(), args[0]);
-            if (content == null) {
-                MessageSending.sendMessage(msg.getChannel(), "");
-            }
-            //TODO placeholder for args to be replaced by the arguments given when called
+        public void execute(IMessage msg, String...args) {
+            answer(msg, args);
+        }
+    }
+    public static void answer(IMessage msg, String args[]) {
+        String content = SimpleTextCommandsSQL.getCommandText(msg.getGuild().getLongID(), args[0]);
+        if (content == null) {
+            MessageSending.sendMessage(msg.getChannel(), "");
+        }
+        //TODO placeholder for args to be replaced by the arguments given when called
             /*
             * possible placeholders: author, args
             *
             *
             *
             * */
-            content = content.replaceAll("§§AUTHOR§§", msg.getAuthor().mention(true));
-            MessageSending.sendMessage(msg.getChannel(), content);
-        }
+        content = content.replaceAll("§§AUTHOR§§", msg.getAuthor().mention(true));
+        MessageSending.sendMessage(msg.getChannel(), content);
     }
 
 

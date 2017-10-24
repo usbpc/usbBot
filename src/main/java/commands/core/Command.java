@@ -8,7 +8,7 @@ public abstract class Command {
 	protected String description;
 
 
-	abstract public void execute(IMessage msg, String...args);
+	abstract public void execute(IMessage msg, String args[]);
 	public String getName() {
 		return name;
 	}

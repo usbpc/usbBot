@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 
 public class CommandHandler implements DiscordCommands{
 	private Map<String, Command> commands = new HashMap<>();
-	//TODO make this a config option
 	private String PREFIX = "!";
 	private Logger logger = LoggerFactory.getLogger(CommandHandler.class);
 	private StringBuilder cmdPattern = new StringBuilder();

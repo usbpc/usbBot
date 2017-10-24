@@ -22,7 +22,7 @@ public class PermissionManager implements DiscordCommands {
     private static Logger logger = LoggerFactory.getLogger(PermissionManager.class);
 
 
-    public boolean hasPermission(long guildID, long userID, Collection<Long> roleIDs, String name) {
+    public static boolean hasPermission(long guildID, long userID, Collection<Long> roleIDs, String name) {
         CommandPermission permission = new CommandPermission(guildID, name);
         if (permission.isUserModeBlacklist()) {
             if (permission.containsUser(userID)) {
@@ -57,6 +57,8 @@ public class PermissionManager implements DiscordCommands {
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }
+        } else {
+
         }
         return 1;
     }
@@ -249,6 +251,4 @@ public class PermissionManager implements DiscordCommands {
     public Collection<Command> getDiscordCommands() {
         return AnnotationExtractor.getCommandList(this);
     }
-
-
 }

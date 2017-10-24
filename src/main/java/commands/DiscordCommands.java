@@ -16,6 +16,7 @@ public interface DiscordCommands {
      *
      * @return Collection containing all {@link commands.core.Command Commands} provided.
      */
+    //TODO: change Collection to Iterable
     public Collection<Command> getDiscordCommands();
 
 }

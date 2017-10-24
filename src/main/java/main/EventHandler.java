@@ -49,16 +49,26 @@ public class EventHandler {
         commandModule.registerCommands(new TestCommands());
         commandModule.registerCommands(new SimpleTextResponses(commandModule, event.getGuild().getLongID()));
         commandModuleMap.put(event.getGuild().getLongID(), commandModule);
-        //TODO initialize all kinds of stuff here, not on programm start...
     }
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
         if (event.getChannel().isPrivate()) {
-            logger.debug("PN:#{}({}):@{}({}): {}", event.getChannel().getLongID(), event.getAuthor().getDisplayName(event.getGuild()), event.getAuthor().getLongID(), event.getMessage());
+            logger.debug("PN:#{}({}):@{}({}): {}",
+                    event.getChannel().getLongID(),
+                    event.getAuthor().getDisplayName(event.getGuild()),
+                    event.getAuthor().getLongID(),
+                    event.getMessage());
             event.getChannel().sendMessage("Sorry, but I currently don't support any commands in Private messages");
         } else {
-            logger.debug("{}({}):#{}({}):@{}({}): {}", event.getGuild().getName(), event.getGuild().getLongID(), event.getChannel().getName(), event.getChannel().getLongID(), event.getAuthor().getDisplayName(event.getGuild()), event.getAuthor().getLongID(), event.getMessage());
+            logger.debug("{}({}):#{}({}):@{}({}): {}",
+                    event.getGuild().getName(),
+                    event.getGuild().getLongID(),
+                    event.getChannel().getName(),
+                    event.getChannel().getLongID(),
+                    event.getAuthor().getDisplayName(event.getGuild()),
+                    event.getAuthor().getLongID(),
+                    event.getMessage());
             commandModuleMap.get(event.getGuild().getLongID()).runCommand(event);
         }
     }
