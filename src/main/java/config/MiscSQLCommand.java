@@ -3,6 +3,7 @@ package config;
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -12,7 +13,7 @@ public class MiscSQLCommand {
 	private static Logger logger = LoggerFactory.getLogger(MiscSQLCommand.class);
 	public static boolean commandExists(long guildID, String name) {
 		String sql = "SELECT * FROM commands WHERE (guildID = ?) AND (name = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 		pstmt.setLong(1, guildID);
 		pstmt.setString(2, name);
 		ResultSet rs = pstmt.executeQuery();
@@ -29,7 +30,7 @@ public class MiscSQLCommand {
 	public static @Nullable String getHelpText(String name) {
 		String retVal = null;
 		String sql = "SELECT helptext FROM command_helptext WHERE (name = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, name);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {

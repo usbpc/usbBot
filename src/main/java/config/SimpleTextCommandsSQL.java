@@ -22,7 +22,7 @@ public class SimpleTextCommandsSQL {
 	public static Map<String, String> getAllCommandsForServer(long serverID) {
 		String sql = "SELECT commands.name, text_commands.text FROM text_commands, commands WHERE (guildID = ?) AND (text_commands.commandID = commands.ID)";
 		HashMap<String, String> result = new HashMap<>();
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -45,7 +45,7 @@ public class SimpleTextCommandsSQL {
 
 		String sql = "SELECT text_commands.text FROM text_commands, commands WHERE (commands.guildID = ?) AND " +
 				"(commands.name = ?) AND (text_commands.commandID = commands.ID)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			pstmt.setString(2, name);
 
@@ -71,7 +71,7 @@ public class SimpleTextCommandsSQL {
 	public static boolean insertCommand(long serverID, String name, String text) {
 		boolean success = false;
 		String sql = "INSERT INTO commands (guildID, name) VALUES (?,?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(2, name);
 			pstmt.setLong(1, serverID);
 			success = pstmt.executeUpdate() >= 1;
@@ -82,7 +82,7 @@ public class SimpleTextCommandsSQL {
 		int id = 0;
 		if (success) {
 			sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)";
-			try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+			try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 				pstmt.setLong(1, serverID);
 				pstmt.setString(2, name);
 				ResultSet rs = pstmt.executeQuery();
@@ -99,7 +99,7 @@ public class SimpleTextCommandsSQL {
 
 		if (success) {
 			sql = "INSERT INTO text_commands (commandID, text) VALUES (?, ?)";
-			try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+			try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 				pstmt.setInt(1, id);
 				pstmt.setString(2, text);
 				success = pstmt.executeUpdate() >= 1;
@@ -119,7 +119,7 @@ public class SimpleTextCommandsSQL {
 	public static boolean removeCommand(long serverID, String name) {
 		String sql = "DELETE FROM commands WHERE (guildID = ?) AND (name = ?)";
 		boolean success = false;
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setLong(1, serverID);
 			pstmt.setString(2, name);
 			success = pstmt.executeUpdate() >= 1;
@@ -139,7 +139,7 @@ public class SimpleTextCommandsSQL {
 	public static boolean editCommand(long serverID, String name, String text) {
 		String sql = "UPDATE text_commands SET text = ? WHERE (commandID = (SELECT ID FROM commands WHERE guildID = ? AND name = ?))";
 		boolean success = false;
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, text);
 			pstmt.setLong(2, serverID);
 			pstmt.setString(3, name);

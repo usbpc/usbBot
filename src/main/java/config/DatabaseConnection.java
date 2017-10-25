@@ -1,39 +1,41 @@
 package config;
 
+import com.mchange.v2.c3p0.ComboPooledDataSource;
 import org.sqlite.SQLiteConfig;
 
+import javax.sql.DataSource;
+import java.beans.PropertyVetoException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
 public class DatabaseConnection {
-	private static Connection conn = null;
+	private static ComboPooledDataSource dataSource;
 	public static Connection getConnection() {
-		if (conn != null) {
-			//System.out.println("Connection returned from cache!");
-			return conn;
-		} else {
+		Connection con = null;
+		if (dataSource == null)  {
 			try {
-				SQLiteConfig config = new SQLiteConfig();
-				config.enforceForeignKeys(true);
-				String url = "jdbc:sqlite:configs/database.sqlite";
-				conn = DriverManager.getConnection(url, config.toProperties());
-				//System.out.println(config.toProperties());
-
-				//System.out.println("Connection to SQLite has been established.");
-			} catch (SQLException e) {
-				System.err.println(e.getMessage());
+				dataSource = new ComboPooledDataSource();
+				dataSource.setJdbcUrl("jdbc:sqlite:configs/database.sqlite");
+			} catch (Exception ex) {
+				ex.printStackTrace();
 			}
-			return conn;
+
 		}
+		try {
+			con = dataSource.getConnection();
+		} catch (SQLException ex) {
+			ex.printStackTrace();
+		}
+		return con;
 	}
 	public static void closeConnection() {
-		if (conn == null) return;
+		if (dataSource == null) return;
 		try {
-			conn.close();
-			conn = null;
-		} catch (SQLException e) {
+			dataSource.close();
+			dataSource = null;
+		} catch (Exception e) {
 			System.err.println(e.getMessage());
 		}
 	}

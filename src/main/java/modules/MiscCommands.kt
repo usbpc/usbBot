@@ -18,6 +18,7 @@ class MiscCommands : DiscordCommands {
         val first = args[1].toLongOrNull()
         val second = args[2].toLongOrNull()
         if (first != null && second != null) {
+            //TODO implement better sanity checks... messages in same channel, both exist and so on
             val history = if (first < second) {
                 msg.channel.getMessageHistoryIn(second, first)
             } else {
