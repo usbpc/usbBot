@@ -166,7 +166,12 @@ public class PermissionManager implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
-        long roleID = MessageParsing.getGroupID(args[4]);
+        long roleID;
+        if (args[4].equals("@everyone")) {
+            roleID = msg.getGuild().getEveryoneRole().getLongID();
+        } else {
+            roleID = MessageParsing.getGroupID(args[4]);
+        }
         if (roleID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
@@ -194,7 +199,12 @@ public class PermissionManager implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
-        long roleID = MessageParsing.getGroupID(args[4]);
+        long roleID;
+        if (args[4].equals("@everyone")) {
+            roleID = msg.getGuild().getEveryoneRole().getLongID();
+        } else {
+            roleID = MessageParsing.getGroupID(args[4]);
+        }
         if (roleID == -1) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;

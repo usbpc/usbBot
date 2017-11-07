@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.xml.crypto.Data;
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,8 +41,8 @@ public class CommandPermission {
 	 */
 	private boolean getCommandId() {
 		String sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)" ;
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
-			pstmt.setLong(1, guildID);
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
+				pstmt.setLong(1, guildID);
 			pstmt.setString(2, name);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -59,7 +60,7 @@ public class CommandPermission {
 	}
 	private void getListModes() {
 		String sql = "SELECT roleMode, userMode FROM permissions  WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -77,7 +78,7 @@ public class CommandPermission {
 
 	private void createDefaultEntry() {
 		String sql = "INSERT INTO commands (guildID, name) VALUES (?, ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setLong(1, guildID);
 			pstmt.setString(2, name);
 			pstmt.executeUpdate();
@@ -85,7 +86,7 @@ public class CommandPermission {
 			logger.error(ex.getMessage());
 		}
 		sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setLong(1, guildID);
 			pstmt.setString(2, name);
 			ResultSet rs = pstmt.executeQuery();
@@ -97,7 +98,7 @@ public class CommandPermission {
 		}
 		sql = "INSERT INTO permissions (commandID, roleMode, userMode) VALUES (?, ?, ?)";
 		userModeIsBlacklist = roleModeIsBlacklist = false;
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setString(2, "whitelist");
 			pstmt.setString(3, "whitelist");
@@ -109,7 +110,7 @@ public class CommandPermission {
 
 	public void setRoleMode(boolean toBlacklist) {
 		String sql = "UPDATE permissions SET roleMode = ? WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, (toBlacklist ? "blacklist" : "whitelist"));
 			pstmt.setInt(2, commandID);
 			pstmt.executeUpdate();
@@ -120,7 +121,7 @@ public class CommandPermission {
 
 	public void setUserMode(boolean toBlacklist) {
 		String sql = "UPDATE permissions SET userMode =  ? WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, (toBlacklist ? "blacklist" : "whitelist"));
 			pstmt.setInt(2, commandID);
 			pstmt.executeUpdate();
@@ -131,7 +132,7 @@ public class CommandPermission {
 
 	public void addUser(long userID) {
 		String sql = "INSERT INTO permissionUsers (commandID, userID) VALUES (?, ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, userID);
 			pstmt.executeUpdate();
@@ -141,7 +142,7 @@ public class CommandPermission {
 	}
 	public void addRole(long roleID) {
 		String sql = "INSERT INTO permissionRoles (commandID, roleID) VALUES (?, ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, roleID);
 			pstmt.executeUpdate();
@@ -152,7 +153,7 @@ public class CommandPermission {
 	public boolean delUser(long userID) {
 		boolean success = false;
 		String sql = "DELETE FROM permissionUsers WHERE (commandID = ?) AND (userID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, userID);
 			success = pstmt.executeUpdate() >= 1;
@@ -164,7 +165,7 @@ public class CommandPermission {
 	public boolean delRole(long roleID) {
 		boolean success = false;
 		String sql = "DELETE FROM permissionRoles WHERE (commandID = ?) AND (roleID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, roleID);
 			success = pstmt.executeUpdate() >= 1;
@@ -175,7 +176,7 @@ public class CommandPermission {
 	}
 	public boolean containsUser(long userID) {
 		String sql = "SELECT * FROM permissionUsers WHERE (commandID = ?) AND (userID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, userID);
 			ResultSet rs = pstmt.executeQuery();
@@ -191,7 +192,7 @@ public class CommandPermission {
 	}
 	public boolean containsAnyRole(Collection<Long> roleIDs) {
 		String sql = "SELECT roleID FROM permissionRoles WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -208,7 +209,7 @@ public class CommandPermission {
 	public Collection<Long> getAllUserIDs() {
 		HashSet<Long> userIDs = new HashSet<>();
 		String sql = "SELECT userID FROM permissionUsers WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -223,7 +224,7 @@ public class CommandPermission {
 	public Collection<Long> getAllRoleIDs() {
 		HashSet<Long> roleIDs = new HashSet<>();
 		String sql = "SELECT roleID FROM permissionRoles WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			while (rs.next()) {
@@ -237,7 +238,7 @@ public class CommandPermission {
 
 	public boolean anyListPopulated() {
 		String sql = "SELECT * FROM permissionRoles WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -247,7 +248,7 @@ public class CommandPermission {
 			logger.error(ex.getMessage());
 		}
 		sql = "SELECT * FROM permissionUsers WHERE (commandID = ?)";
-		try (PreparedStatement pstmt = DatabaseConnection.getConnection().prepareStatement(sql)) {
+		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
