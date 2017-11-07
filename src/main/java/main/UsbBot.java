@@ -14,11 +14,14 @@ import sx.blah.discord.util.DiscordException;
 import util.MessageSending;
 
 import java.io.*;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 
 public class UsbBot implements DiscordCommands {
 	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
+	private static String keysFile = "keys.properties";
+	public static String sqlFile = "configs/database.sqlite";
 	private IDiscordClient client;
 	private UsbBot(String discordAPIKey) {
 
@@ -29,6 +32,13 @@ public class UsbBot implements DiscordCommands {
 	}
 
 	public static void main(String...args) {
+		if (args.length == 1) {
+			keysFile = args[0];
+		} else if (args.length == 2) {
+			keysFile = args[0];
+			sqlFile = args[1];
+		}
+		logger.debug("The current path is {}", System.getProperty("user.dir"));
 		new UsbBot(getDiscordAPIKey());
 	}
 
@@ -46,11 +56,11 @@ public class UsbBot implements DiscordCommands {
 		Properties keys = new Properties();
 		String discordApiKey = "404";
 		try {
-			FileInputStream in = new FileInputStream("keys.properties");
+			FileInputStream in = new FileInputStream(keysFile);
 			keys.load(in);
 			discordApiKey = keys.getProperty("discord", "404");
 			if (discordApiKey.equals("404")) {
-				FileOutputStream out = new FileOutputStream("keys.properties");
+				FileOutputStream out = new FileOutputStream(keysFile);
 
 				logger.error("No discord API key found, please enter one in the keys.properties file");
 				keys.setProperty("discord", "404");

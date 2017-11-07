@@ -65,7 +65,8 @@ fun someoneJoined(event: UserVoiceChannelJoinEvent) {
 fun someoneMoved(event: UserVoiceChannelMoveEvent) {
     if (config.isWatched(event.oldChannel.category)) {
         checkCategorieForEmptyRooms(event.oldChannel.category)
-    } else if (config.isWatched(event.newChannel.category)) {
+    }
+    if (config.isWatched(event.newChannel.category)) {
         checkCategorieForRoom(event.newChannel.category)
     }
 }

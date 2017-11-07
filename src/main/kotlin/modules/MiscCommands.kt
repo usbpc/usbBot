@@ -12,7 +12,8 @@ class MiscCommands : DiscordCommands {
     val logger = LoggerFactory.getLogger(MiscCommands::class.java)
     override fun getDiscordCommands(): MutableCollection<Command> = AnnotationExtractor.getCommandList(this)
 
-
+    //TODO: delete last x messages
+    //TODO: delete last x messages by user
     @DiscordCommand("bulkdelete")
     fun bulkdelete(msg: IMessage, args: Array<String>) {
         val first = args[1].toLongOrNull()
