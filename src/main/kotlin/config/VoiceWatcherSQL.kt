@@ -1,5 +1,7 @@
 package config
 
+import modules.MiscCommands
+import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.ICategory
 import java.sql.Connection
 import java.sql.PreparedStatement
@@ -22,7 +24,7 @@ fun isWatched(category: ICategory?) : Boolean {
     return false
 }
 
-fun addWatched(category: ICategory) : Int {
+fun addWatched(category: ICategory) : Boolean {
     val sql = "INSERT INTO watched_categories (guildID, channelID) VALUES (?, ?)"
     DatabaseConnection.getConnection().use { con ->
         con.prepareStatement(sql).use {
@@ -31,9 +33,26 @@ fun addWatched(category: ICategory) : Int {
             try {
                 it.execute()
             } catch (ex: SQLException) {
-                return ex.errorCode
+                if (ex.errorCode == 19) {
+                    return false
+                } else {
+                    throw ex
+                }
             }
+            return true
         }
     }
-    return -1337
+}
+
+fun delWatched(category: ICategory) : Boolean {
+    val sql = "DELETE FROM watched_categories WHERE guildID = ? AND channelID = ?"
+    DatabaseConnection.getConnection().use { con ->
+        con.prepareStatement(sql).use {
+            it.setLong(1, category.guild.longID)
+            it.setLong(2, category.longID)
+
+            return 1 == it.executeUpdate()
+
+        }
+    }
 }

@@ -2,6 +2,7 @@ package modules
 
 import commands.DiscordCommands
 import commands.core.Command
+import sun.plugin2.message.Message
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent
@@ -12,6 +13,10 @@ import util.commands.AnnotationExtractor
 import util.commands.DiscordCommand
 import util.commands.DiscordSubCommand
 
+//TODO: Add help lines for this
+//TODO: Make responses more clear
+//TODO: Allow more than just categories growing, maybe multiple channels in categorie or something
+//TODO: Add master slave channel system (Streaming -> Warteraum Stream)
 class MoreVoiceChannel : DiscordCommands {
     override fun getDiscordCommands(): MutableCollection<Command> {
         return AnnotationExtractor.getCommandList(this)
@@ -26,8 +31,11 @@ class MoreVoiceChannel : DiscordCommands {
     fun voiceAdd(msg: IMessage, args: Array<String>) {
         val categoryID = args[2].toLong()
         msg.guild.getCategoryByID(categoryID)?.let {
-            val blah = config.addWatched(it)
-            MessageSending.sendMessage(msg.channel, "That got me SQL error: " + blah)
+            if (config.addWatched(it)) {
+                MessageSending.sendMessage(msg.channel, "Okay, am now watching " + it.name)
+            } else {
+                MessageSending.sendMessage(msg.channel, "Am already watching " + it.name)
+            }
             return
         }
         MessageSending.sendMessage(msg.channel, "That is not a Categorie!")
@@ -35,7 +43,16 @@ class MoreVoiceChannel : DiscordCommands {
 
     @DiscordSubCommand(name = "remove", parent = "voice")
     fun voiceRemove(msg: IMessage, args: Array<String>) {
-
+        val categoryID = args[2].toLong()
+        msg.guild.getCategoryByID(categoryID)?.let {
+            if (config.delWatched(it)) {
+                MessageSending.sendMessage(msg.channel, "Okay, am no longer watching " + it.name)
+            } else {
+                MessageSending.sendMessage(msg.channel, "Was never watching " + it.name)
+            }
+            return
+        }
+        MessageSending.sendMessage(msg.channel, "That is not a Categorie!")
     }
 }
 

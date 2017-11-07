@@ -1,10 +1,7 @@
 package main;
 
 import commands.CommandModule;
-import modules.HelpCommand;
-import modules.MiscCommands;
-import modules.SimpleTextResponses;
-import modules.UnlimitedVoiceRooms;
+import modules.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -12,6 +9,7 @@ import sx.blah.discord.handle.impl.events.guild.GuildCreateEvent;
 import sx.blah.discord.handle.impl.events.guild.GuildLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
+import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 
 import java.util.HashMap;
@@ -30,14 +28,20 @@ public class EventHandler {
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
     @EventSubscriber
     public void onUserVoiceChannelJoinEvent(UserVoiceChannelJoinEvent event) {
-        logger.debug("I got {}", event);
-        UnlimitedVoiceRooms.someoneEntered(event.getVoiceChannel());
+        logger.debug("Someone joined: {}", event);
+        MoreVoiceChannelsKt.someoneJoined(event);
     }
 
     @EventSubscriber
     public void onUserVoiceChannelMoveEvent(UserVoiceChannelMoveEvent event) {
-        logger.debug("I got {}", event);
-        UnlimitedVoiceRooms.someoneEntered(event.getNewChannel());
+        logger.debug("Someone moved: {}", event);
+        MoreVoiceChannelsKt.someoneMoved(event);
+    }
+
+    @EventSubscriber
+    public void onUserVoiceChannelLeaveEvent(UserVoiceChannelLeaveEvent event) {
+        logger.debug("Someone left: {}", event);
+        MoreVoiceChannelsKt.someoneLeft(event);
     }
 
     @EventSubscriber
@@ -51,6 +55,7 @@ public class EventHandler {
         commandModule.registerCommands(new SimpleTextResponses(commandModule, event.getGuild().getLongID()));
         commandModule.registerCommands(new HelpCommand());
         commandModule.registerCommands(new MiscCommands());
+        commandModule.registerCommands(new MoreVoiceChannel());
         commandModuleMap.put(event.getGuild().getLongID(), commandModule);
     }
 

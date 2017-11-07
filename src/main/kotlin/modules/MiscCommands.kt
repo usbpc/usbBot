@@ -9,7 +9,7 @@ import util.commands.AnnotationExtractor
 import util.commands.DiscordCommand
 
 class MiscCommands : DiscordCommands {
-    var logger = LoggerFactory.getLogger(MiscCommands::class.java)
+    val logger = LoggerFactory.getLogger(MiscCommands::class.java)
     override fun getDiscordCommands(): MutableCollection<Command> = AnnotationExtractor.getCommandList(this)
 
 
