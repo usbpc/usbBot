@@ -131,7 +131,11 @@ public class CommandModule implements DiscordCommands {
         //System.out.printf("[CommandModule] #%s @%s : %s\r\n", event.getChannel().getName(), event.getAuthor().getName(), event.getMessage().getContent());
         if (commandHandler.isCommand(event.getMessage().getContent())) {
             String[] args = commandHandler.getArguments(event.getMessage().getContent());
-            if (permissionManager.hasPermission(event.getGuild().getLongID(), event.getAuthor().getLongID(), event.getAuthor().getRolesForGuild(event.getGuild()).stream().map(IRole::getLongID).collect(Collectors.toSet()), args[0]) || event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
+            if (PermissionManager.hasPermission(event.getGuild().getLongID(),
+                    event.getAuthor().getLongID(),
+                    event.getAuthor().getRolesForGuild(event.getGuild()).stream().map(IRole::getLongID).collect(Collectors.toSet()), args[0])
+                    ||
+                    event.getMessage().getGuild().getOwnerLongID() == event.getMessage().getAuthor().getLongID()) {
                 commandHandler.runCommand(event.getMessage(), args);
             } else {
                 MessageSending.sendMessage(event.getMessage().getChannel(), "You don't have permissions!");

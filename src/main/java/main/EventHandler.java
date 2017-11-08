@@ -50,7 +50,6 @@ public class EventHandler {
         CommandModule commandModule = new CommandModule(event.getGuild().getLongID());
         commandModule.registerCommands(commandModule);
         //TODO limit this to only one guild or something... I don't know, but it contains the command to shut my bot down, so I need to be carefull if I ever let my bot onto other discord guilds
-        commandModule.registerCommands(usbBot);
         //commandModule.registerCommands(new TestCommands());
         commandModule.registerCommands(new SimpleTextResponses(commandModule, event.getGuild().getLongID()));
         commandModule.registerCommands(new HelpCommand());

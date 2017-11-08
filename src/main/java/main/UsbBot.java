@@ -27,6 +27,7 @@ public class UsbBot implements DiscordCommands {
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(new EventHandler(this));
+		Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::closeConnection));
 		client.login();
 
 	}
@@ -38,21 +39,11 @@ public class UsbBot implements DiscordCommands {
 			keysFile = args[0];
 			sqlFile = args[1];
 		}
-		logger.debug("The current path is {}", System.getProperty("user.dir"));
 		new UsbBot(getDiscordAPIKey());
 	}
 
-	@DiscordCommand("shutdown")
-	public void shutdown(IMessage msg, String...args) {
-		//Logout the client when everything is done
-
-		MessageSending.sendMessage(msg.getChannel(), "Shutting down...");
-		Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::closeConnection));
-		client.logout();
-
-	}
-
 	private static String getDiscordAPIKey() {
+		//TODO the get property throws an exeption when it dosen't finde the file... fix that and stuff
 		Properties keys = new Properties();
 		String discordApiKey = "404";
 		try {
