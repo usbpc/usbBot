@@ -2,7 +2,6 @@ package modules
 
 import commands.DiscordCommands
 import commands.core.Command
-import sun.plugin2.message.Message
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent

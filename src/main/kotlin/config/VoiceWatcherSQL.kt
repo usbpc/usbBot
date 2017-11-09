@@ -56,3 +56,13 @@ fun delWatched(category: ICategory) : Boolean {
         }
     }
 }
+
+fun getGuildCmdPrefix(guildID: Long) : String {
+    val sql = "SELECT cmdPrefix FROM guilds WHERE guildID = ?"
+    DatabaseConnection.getConnection().use { con ->
+        con.prepareStatement(sql).use {
+            it.setLong(1, guildID)
+            it.executeQuery();
+        }
+    }
+}
