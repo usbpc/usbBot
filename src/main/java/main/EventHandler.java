@@ -37,18 +37,18 @@ public class EventHandler {
     public void onUserVoiceChannelJoinEvent(UserVoiceChannelJoinEvent event) {
         logger.debug("Someone joined: {}", event);
         MoreVoiceChannelsKt.someoneJoined(event);
-        if (event.getUser().getLongID() == 315264591867281408L && event.getVoiceChannel().getLongID() != CHANNEL) {
+        /*if (event.getUser().getLongID() == 315264591867281408L && event.getVoiceChannel().getLongID() != CHANNEL) {
             RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
-        }
+        }*/
     }
 
     @EventSubscriber
     public void onUserVoiceChannelMoveEvent(UserVoiceChannelMoveEvent event) {
         logger.debug("Someone moved: {}", event);
         MoreVoiceChannelsKt.someoneMoved(event);
-        if (event.getUser().getLongID() == 315264591867281408L && event.getNewChannel().getLongID() != CHANNEL) {
+        /*if (event.getUser().getLongID() == 315264591867281408L && event.getNewChannel().getLongID() != CHANNEL) {
             RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
-        }
+        }*/
     }
 
     @EventSubscriber

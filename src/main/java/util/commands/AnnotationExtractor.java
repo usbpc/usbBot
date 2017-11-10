@@ -179,10 +179,10 @@ public class AnnotationExtractor {
 				}
 			} catch (Throwable throwable) {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error [1] ... ```" + throwable.getMessage() + "```");
-					logger.error(Arrays.toString(throwable.getStackTrace()));
+					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error [1] ... ```" + Arrays.toString(throwable.getStackTrace()) + "```");
+					logger.error("I got an throwable [1]", throwable);
 				} else {
-					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
+					logger.error("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
 					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
 			}
@@ -217,9 +217,10 @@ public class AnnotationExtractor {
 				command.invoke(msg, args);
 			} catch (Throwable throwable) {
 				if (msg.getChannel().getModifiedPermissions(msg.getClient().getOurUser()).contains(Permissions.SEND_MESSAGES)) {
-					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + throwable.getMessage() + "```");
+					MessageSending.sendMessage(msg.getChannel(), "Well that sure got me an Error... ```" + Arrays.toString(throwable.getStackTrace()) + "```");
+					logger.error("I got an throwable [2]", throwable);
 				} else {
-					logger.debug("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
+					logger.error("Well I got an Error AND don't have permission to write in the channel I wanna write to... {}", throwable.getMessage(), throwable);
 					//System.out.println("Well I got an Error AND don't have permission to write in the channel I wanna write to... " + throwable.getMessage());
 				}
 			}

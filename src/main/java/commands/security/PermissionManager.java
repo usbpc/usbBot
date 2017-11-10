@@ -57,8 +57,6 @@ public class PermissionManager implements DiscordCommands {
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }
-        } else {
-
         }
         return 1;
     }
