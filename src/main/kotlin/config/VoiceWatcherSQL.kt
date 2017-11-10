@@ -71,3 +71,14 @@ fun getGuildCmdPrefix(guildID: Long) : String {
         }
     }
 }
+
+fun setGuildCmdPrefix(guildID: Long, newPrefix: String) : Boolean {
+    val sql = "UPDATE guilds SET cmdPrefix = ? WHERE guildID = ?"
+    DatabaseConnection.getConnection().use { con ->
+        con.prepareStatement(sql).use {
+            it.setString(1, newPrefix)
+            it.setLong(2, guildID)
+            return 1 == it.executeUpdate()
+        }
+    }
+}

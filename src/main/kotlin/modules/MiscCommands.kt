@@ -4,6 +4,7 @@ import commands.DiscordCommands
 import commands.core.Command
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.util.RequestBuffer
 import util.MessageParsing
 import util.MessageSending
 import util.commands.AnnotationExtractor
@@ -64,5 +65,14 @@ class MiscCommands : DiscordCommands {
         //msg.getChannel().sendFile("List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
         MessageSending.sendFile(msg.channel, "List of all users: ", ByteArrayInputStream(builder.toString().toByteArray()), "users.txt")
 
+    }
+
+    @DiscordCommand("prefix")
+    fun prefix(msg: IMessage, vararg args: String) {
+        if (args.size < 2) MessageSending.sendMessage(msg.channel, "You need to specify a new prefix!")
+        else {
+            config.setGuildCmdPrefix(msg.guild.longID, args[1])
+            MessageSending.sendMessage(msg.channel, "The Command prefix is now " + args[1])
+        }
     }
 }
