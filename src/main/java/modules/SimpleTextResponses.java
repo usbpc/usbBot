@@ -1,7 +1,9 @@
 package modules;
 
-import commands.*;
+import commands.CommandHandler;
+import commands.DiscordCommands;
 import commands.core.Command;
+import config.CommandPermission;
 import config.SimpleTextCommandsSQL;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
@@ -19,15 +21,9 @@ public class SimpleTextResponses implements DiscordCommands {
 
     private Logger logger = LoggerFactory.getLogger(SimpleTextResponses.class);
     private SimpleTextCommand simpleTextCommand = new SimpleTextCommand();
-    private CommandModule commandModule;
-    public SimpleTextResponses(CommandModule commandModule, long serverID) {
+    private CommandHandler commandModule;
+    public SimpleTextResponses(CommandHandler commandModule) {
         this.commandModule = commandModule;
-        Map<String, String> command = SimpleTextCommandsSQL.getAllCommandsForServer(serverID);
-        command.forEach((x, y) -> {
-            logger.debug("name: {} message: {}", x, y);
-            commandModule.registerCommand(x, simpleTextCommand);
-        });
-
     }
 
     @DiscordCommand("commands")
@@ -46,7 +42,7 @@ public class SimpleTextResponses implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
             return;
         }
-        if (commandModule.discordCommandExists(args[2])) {
+        if (commandModule.discordCommandExists(args[2], msg.getGuild().getLongID())) {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is already a command!");
             return;
         }
@@ -55,8 +51,7 @@ public class SimpleTextResponses implements DiscordCommands {
         String message = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
 
         SimpleTextCommandsSQL.insertCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
-        commandModule.registerCommand(args[2], simpleTextCommand);
-        commandModule.addRoleToCommandPermission(args[2], msg.getGuild().getEveryoneRole().getLongID());
+        new CommandPermission(msg.getGuild().getLongID(), args[2]).addRole(msg.getGuild().getEveryoneRole().getLongID());
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
@@ -66,7 +61,6 @@ public class SimpleTextResponses implements DiscordCommands {
         if (args.length < 3) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
         } else if (SimpleTextCommandsSQL.removeCommand(msg.getGuild().getLongID(), args[2])) {
-            commandModule.unregisterCommand(args[2]);
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
         } else {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
@@ -101,6 +95,7 @@ public class SimpleTextResponses implements DiscordCommands {
         String content = SimpleTextCommandsSQL.getCommandText(msg.getGuild().getLongID(), args[0]);
         if (content == null) {
             MessageSending.sendMessage(msg.getChannel(), "");
+            return;
         }
         //TODO placeholder for args to be replaced by the arguments given when called
             /*

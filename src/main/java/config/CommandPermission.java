@@ -42,7 +42,7 @@ public class CommandPermission {
 	private boolean getCommandId() {
 		String sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)" ;
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-				pstmt.setLong(1, guildID);
+			pstmt.setLong(1, guildID);
 			pstmt.setString(2, name);
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
@@ -180,11 +180,7 @@ public class CommandPermission {
 			pstmt.setInt(1, commandID);
 			pstmt.setLong(2, userID);
 			ResultSet rs = pstmt.executeQuery();
-			if (rs.next()) {
-				return true;
-			} else {
-				return false;
-			}
+			return rs.next();
 		} catch (SQLException ex) {
 			logger.error(ex.getMessage());
 		}

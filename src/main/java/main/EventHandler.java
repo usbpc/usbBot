@@ -1,6 +1,7 @@
 package main;
 
-import commands.CommandModule;
+import commands.CommandHandler;
+import commands.security.PermissionManager;
 import modules.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
+import sx.blah.discord.util.RequestBuffer;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,22 +22,33 @@ import java.util.Map;
  * @since 2017-05-18
  */
 public class EventHandler {
-    private UsbBot usbBot;
-    private Map<Long, CommandModule> commandModuleMap = new HashMap<>();
-    public EventHandler(UsbBot usbBot) {
-        this.usbBot = usbBot;
+    private static long CHANNEL = 271761138067177472L;
+    private CommandHandler cmdHandler = new CommandHandler();
+    EventHandler() {
+        //cmdHandler.registerCommands(new TestCommands());
+        cmdHandler.registerCommands(new SimpleTextResponses(cmdHandler));
+        cmdHandler.registerCommands(new HelpCommand());
+        cmdHandler.registerCommands(new MiscCommands());
+        cmdHandler.registerCommands(new MoreVoiceChannel());
+        cmdHandler.registerCommands(new PermissionManager());
     }
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
     @EventSubscriber
     public void onUserVoiceChannelJoinEvent(UserVoiceChannelJoinEvent event) {
         logger.debug("Someone joined: {}", event);
         MoreVoiceChannelsKt.someoneJoined(event);
+        if (event.getUser().getLongID() == 315264591867281408L && event.getVoiceChannel().getLongID() != CHANNEL) {
+            RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
+        }
     }
 
     @EventSubscriber
     public void onUserVoiceChannelMoveEvent(UserVoiceChannelMoveEvent event) {
         logger.debug("Someone moved: {}", event);
         MoreVoiceChannelsKt.someoneMoved(event);
+        if (event.getUser().getLongID() == 315264591867281408L && event.getNewChannel().getLongID() != CHANNEL) {
+            RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
+        }
     }
 
     @EventSubscriber
@@ -44,10 +57,11 @@ public class EventHandler {
         MoreVoiceChannelsKt.someoneLeft(event);
     }
 
+
     @EventSubscriber
     public void onGuildCreateEvent(GuildCreateEvent event) {
         logger.debug("I'm connected to {}", event.getGuild().getName());
-        CommandModule commandModule = new CommandModule(event.getGuild().getLongID());
+                /*CommandModule commandModule = new CommandModule(event.getGuild().getLongID());
         commandModule.registerCommands(commandModule);
         //TODO limit this to only one guild or something... I don't know, but it contains the command to shut my bot down, so I need to be carefull if I ever let my bot onto other discord guilds
         //commandModule.registerCommands(new TestCommands());
@@ -55,29 +69,12 @@ public class EventHandler {
         commandModule.registerCommands(new HelpCommand());
         commandModule.registerCommands(new MiscCommands());
         commandModule.registerCommands(new MoreVoiceChannel());
-        commandModuleMap.put(event.getGuild().getLongID(), commandModule);
+        commandModuleMap.put(event.getGuild().getLongID(), commandModule);*/
     }
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
-        if (event.getChannel().isPrivate()) {
-            logger.debug("PN:#{}({}):@{}({}): {}",
-                    event.getChannel().getLongID(),
-                    event.getAuthor().getDisplayName(event.getGuild()),
-                    event.getAuthor().getLongID(),
-                    event.getMessage());
-            event.getChannel().sendMessage("Sorry, but I currently don't support any commands in Private messages");
-        } else {
-            logger.debug("{}({}):#{}({}):@{}({}): {}",
-                    event.getGuild().getName(),
-                    event.getGuild().getLongID(),
-                    event.getChannel().getName(),
-                    event.getChannel().getLongID(),
-                    event.getAuthor().getDisplayName(event.getGuild()),
-                    event.getAuthor().getLongID(),
-                    event.getMessage());
-            commandModuleMap.get(event.getGuild().getLongID()).runCommand(event);
-        }
+        cmdHandler.onMessageRecivedEvent(event);
     }
 
     @EventSubscriber

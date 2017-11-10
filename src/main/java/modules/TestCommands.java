@@ -44,35 +44,9 @@ public class TestCommands implements DiscordCommands {
 		msg.delete();
 	}
 
-	@DiscordCommand("getroleids")
-	public void getroleids(IMessage msg, String...args) {
-		StringBuilder builder = new StringBuilder();
-		msg.getGuild().getRoles().forEach(role -> builder.append(role.getName()).append(": ").append(role.getLongID()).append('\n'));
-		MessageSending.sendMessage(msg.getChannel(), "There are the IDs I found: ```" + builder.toString() + "```");
-	}
-	@DiscordCommand("getavatarlink")
-	public void getavatarlink(IMessage msg, String...args) {
-		MessageSending.sendMessage(msg.getChannel(), msg.getClient().getUserByID(MessageParsing.getUserID((args[1]))).getAvatarURL());
-	}
 	@DiscordCommand("pruneamount")
 	public void pruneamount(IMessage msg, String...args) {
 		MessageSending.sendMessage(msg.getChannel(), "Amount of members to be pruned: " + msg.getGuild().getUsersToBePruned(Integer.valueOf(args[1])));
-	}
-
-	@DiscordCommand("getuserids")
-	public void getuserids(IMessage msg, String...args) {
-
-		StringBuilder builder = new StringBuilder();
-		msg.getGuild().getUsers().forEach(user -> builder.append(user.getName()).append(": ").append(user.getLongID()).append("\r\n"));
-		builder.deleteCharAt(builder.length() - 1);
-		builder.deleteCharAt(builder.length() - 1);
-		//MessageBuilder msgBuilder = new MessageBuilder(msg.getClient());
-
-		//msgBuilder.withChannel(msg.getChannel()).withFile(new ByteArrayInputStream(builder.toString().getBytes()), "test.txt").build();
-
-		//msg.getChannel().sendFile("List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
-		MessageSending.sendFile(msg.getChannel(), "List of all users: ", new ByteArrayInputStream(builder.toString().getBytes()), "users.txt");
-
 	}
 	@DiscordCommand("getusername")
 	public void getusername(IMessage msg, String...args) {

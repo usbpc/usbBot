@@ -62,7 +62,12 @@ fun getGuildCmdPrefix(guildID: Long) : String {
     DatabaseConnection.getConnection().use { con ->
         con.prepareStatement(sql).use {
             it.setLong(1, guildID)
-            it.executeQuery();
+            val rs = it.executeQuery()
+            if (rs.next()) {
+                return rs.getString(1)
+            } else {
+                throw IllegalStateException("That guild dosen't exist in the database yet?")
+            }
         }
     }
 }
