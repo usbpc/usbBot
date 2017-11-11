@@ -3,6 +3,7 @@ package main;
 import commands.*;
 import commands.core.Command;
 import config.DatabaseConnection;
+import sx.blah.discord.util.RequestBuffer;
 import util.commands.AnnotationExtractor;
 import util.commands.DiscordCommand;
 import org.slf4j.Logger;
@@ -39,22 +40,23 @@ public class UsbBot implements DiscordCommands {
 			keysFile = args[0];
 			sqlFile = args[1];
 		}
-		new UsbBot(getDiscordAPIKey());
+		new UsbBot(getAPIKey("discord"));
 	}
 
-	private static String getDiscordAPIKey() {
+
+	public static String getAPIKey(String name) {
 		//TODO the get property throws an exeption when it dosen't finde the file... fix that and stuff
 		Properties keys = new Properties();
 		String discordApiKey = "404";
 		try {
 			FileInputStream in = new FileInputStream(keysFile);
 			keys.load(in);
-			discordApiKey = keys.getProperty("discord", "404");
+			discordApiKey = keys.getProperty(name, "404");
 			if (discordApiKey.equals("404")) {
 				FileOutputStream out = new FileOutputStream(keysFile);
 
 				logger.error("No discord API key found, please enter one in the keys.properties file");
-				keys.setProperty("discord", "404");
+				keys.setProperty(name, "404");
 				keys.store(out, "");
 				System.exit(-1);
 			}

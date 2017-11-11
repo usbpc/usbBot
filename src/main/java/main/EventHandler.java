@@ -22,9 +22,10 @@ import java.util.Map;
  * @since 2017-05-18
  */
 public class EventHandler {
-    private static long CHANNEL = 271761138067177472L;
+    private static long CHANNEL = 378509902009597965L;
     private CommandHandler cmdHandler = new CommandHandler();
     EventHandler() {
+
         //cmdHandler.registerCommands(new TestCommands());
         cmdHandler.registerCommands(new SimpleTextResponses(cmdHandler));
         cmdHandler.registerCommands(new HelpCommand());

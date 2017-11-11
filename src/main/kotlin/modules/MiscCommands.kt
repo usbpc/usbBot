@@ -1,11 +1,13 @@
 package modules
 
+import at.mukprojects.giphy4j.Giphy
 import commands.DiscordCommands
 import commands.core.Command
 import main.UsbBot
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.impl.obj.Message
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.RequestBuffer
 import util.MessageParsing
@@ -13,11 +15,14 @@ import util.MessageSending
 import util.commands.AnnotationExtractor
 import util.commands.DiscordCommand
 import util.commands.DiscordSubCommand
+import java.awt.Color
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
 
 class MiscCommands : DiscordCommands {
+    val giphy = Giphy(UsbBot.getAPIKey("giphy"))
     val logger = LoggerFactory.getLogger(MiscCommands::class.java)
+
     override fun getDiscordCommands(): MutableCollection<Command> = AnnotationExtractor.getCommandList(this)
 
     @DiscordCommand("bulkdelete")
@@ -203,5 +208,32 @@ class MiscCommands : DiscordCommands {
             config.setGuildCmdPrefix(msg.guild.longID, args[1])
             MessageSending.sendMessage(msg.channel, "The Command prefix is now " + args[1])
         }
+    }
+
+    @DiscordCommand("cat")
+    fun cat(msg: IMessage, args: Array<String>) {
+        val embed = EmbedBuilder()
+                .withImage(giphy.searchRandom("cute cat").data.imageOriginalUrl)
+                .withColor(Color.RED)
+                //.withTitle("A cute cat:")
+                //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
+                //.withAuthorIcon(msg.client.ourUser.avatarURL)
+                .withFooterText("Powered By GIPHY")
+        msg.channel.sendMessage(embed.build())
+    }
+
+    @DiscordCommand("giphy")
+    fun giphy(msg: IMessage, args: Array<String>) {
+        if (args.size < 2) return
+        val builder = StringBuilder()
+        args.drop(1).forEach { builder.append(it).append(" ") }
+        val embed = EmbedBuilder()
+                .withImage(giphy.searchRandom(builder.toString()).data.imageOriginalUrl)
+                .withColor(Color.RED)
+                //.withTitle("A cute cat:")
+                //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
+                //.withAuthorIcon(msg.client.ourUser.avatarURL)
+                .withFooterText("Powered By GIPHY")
+        msg.channel.sendMessage(embed.build())
     }
 }

@@ -61,7 +61,8 @@ public class AnnotationExtractor {
 
 		//This puts all commands that don't have sub commands into the commands list and removes them from the commandMap Map
 		Set<String> noSubCommands = new HashSet<>();
-		commandMap.entrySet().stream().filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
+		commandMap.entrySet().stream()
+				.filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
 				.forEach(x -> {
 					noSubCommands.add(x.getKey());
 					commands.add(new AnnotationCommand(x.getValue().name, "", x.getValue().command));
