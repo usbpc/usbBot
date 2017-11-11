@@ -1,7 +1,7 @@
-package util.commands;
+package usbbot.util.commands;
 
-import commands.core.Command;
-import util.MessageSending;
+import usbbot.commands.core.Command;
+import usbbot.util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
@@ -43,7 +43,7 @@ public class AnnotationExtractor {
 			}
 		});
 
-		//This sets the hasChildren of the Commands in the commandMap to true that have sub commands
+		//This sets the hasChildren of the Commands in the commandMap to true that have sub usbbot.commands
 		commandMap.entrySet().stream()
 				//filters all the Top Level Commands out
 				.filter(x -> x.getValue().parentCommand != null)
@@ -59,7 +59,7 @@ public class AnnotationExtractor {
 		//System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
 
-		//This puts all commands that don't have sub commands into the commands list and removes them from the commandMap Map
+		//This puts all usbbot.commands that don't have sub usbbot.commands into the usbbot.commands list and removes them from the commandMap Map
 		Set<String> noSubCommands = new HashSet<>();
 		commandMap.entrySet().stream()
 				.filter(x -> !x.getValue().hasChildren && x.getValue().parentCommand == null)
@@ -75,7 +75,7 @@ public class AnnotationExtractor {
 
 			//This gets the current deepest sub command
 			for (TmpCommandContainer x : commandMap.values().stream()
-					//this filters everything but the bottom most commands out that have a parent command
+					//this filters everything but the bottom most usbbot.commands out that have a parent command
 					.filter(x -> x.parentCommand != null && !x.hasChildren)
 					.collect(Collectors.toCollection(HashSet::new)))
 			{
@@ -120,7 +120,7 @@ public class AnnotationExtractor {
 			currParent.hasChildren = false;
 		}
 
-		//adds all the top level command to the returned commands list
+		//adds all the top level command to the returned usbbot.commands list
 		commandMap.values().forEach(x -> commands.add(new SubCommandParent(x.name, "", new SubCommand(x.command, x.subCommands))));
 
 

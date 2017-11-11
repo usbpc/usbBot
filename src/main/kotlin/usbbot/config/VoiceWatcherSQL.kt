@@ -1,10 +1,6 @@
-package config
+package usbbot.config
 
-import modules.MiscCommands
-import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.ICategory
-import java.sql.Connection
-import java.sql.PreparedStatement
 import java.sql.SQLException
 
 fun isWatched(category: ICategory?) : Boolean {

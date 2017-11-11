@@ -1,21 +1,16 @@
-package main;
+package usbbot.main;
 
-import commands.*;
-import commands.core.Command;
-import config.DatabaseConnection;
-import sx.blah.discord.util.RequestBuffer;
-import util.commands.AnnotationExtractor;
-import util.commands.DiscordCommand;
+import usbbot.commands.*;
+import usbbot.commands.core.Command;
+import usbbot.config.DatabaseConnection;
+import usbbot.util.commands.AnnotationExtractor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.util.DiscordException;
-import util.MessageSending;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Properties;
 

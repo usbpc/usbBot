@@ -1,4 +1,4 @@
-package util;
+package usbbot.util;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -7,7 +7,6 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.io.InputStream;
-import java.util.List;
 
 public class MessageSending {
     private static Logger logger = LoggerFactory.getLogger(MessageSending.class);

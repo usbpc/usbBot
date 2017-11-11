@@ -1,4 +1,4 @@
-package config;
+package usbbot.config;
 
 import org.jetbrains.annotations.Nullable;
 import org.slf4j.LoggerFactory;

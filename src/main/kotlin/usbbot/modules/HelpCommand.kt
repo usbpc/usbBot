@@ -1,13 +1,13 @@
-package modules
+package usbbot.modules
 
-import commands.DiscordCommands
-import commands.core.Command
-import config.MiscSQLCommand
-import config.SimpleTextCommandsSQL
+import usbbot.commands.DiscordCommands
+import usbbot.commands.core.Command
+import usbbot.config.MiscSQLCommand
+import usbbot.config.SimpleTextCommandsSQL
 import sx.blah.discord.handle.obj.IMessage
-import util.MessageSending
-import util.commands.AnnotationExtractor
-import util.commands.DiscordCommand
+import usbbot.util.MessageSending
+import usbbot.util.commands.AnnotationExtractor
+import usbbot.util.commands.DiscordCommand
 
 class HelpCommand : DiscordCommands {
     override fun getDiscordCommands(): MutableCollection<Command> {
@@ -30,7 +30,7 @@ class HelpCommand : DiscordCommands {
                 }
             }
         } else {
-            MessageSending.sendMessage(msg.channel, "To see all available commands use the `list` command.\n" +
+            MessageSending.sendMessage(msg.channel, "To see all available usbbot.commands use the `list` command.\n" +
                     "For more information about a command use `help <command>`")
         }
     }

@@ -1,14 +1,14 @@
-package modules;
+package usbbot.modules;
 
-import commands.CommandHandler;
-import commands.DiscordCommands;
-import commands.core.Command;
-import config.CommandPermission;
-import config.SimpleTextCommandsSQL;
-import util.commands.AnnotationExtractor;
-import util.commands.DiscordCommand;
-import util.commands.DiscordSubCommand;
-import util.MessageSending;
+import usbbot.commands.CommandHandler;
+import usbbot.commands.DiscordCommands;
+import usbbot.commands.core.Command;
+import usbbot.config.CommandPermission;
+import usbbot.config.SimpleTextCommandsSQL;
+import usbbot.util.commands.AnnotationExtractor;
+import usbbot.util.commands.DiscordCommand;
+import usbbot.util.commands.DiscordSubCommand;
+import usbbot.util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
@@ -35,7 +35,7 @@ public class SimpleTextResponses implements DiscordCommands {
         return 0;
     }
 
-    //commands add <commandName> <Message>
+    //usbbot.commands add <commandName> <Message>
     @DiscordSubCommand(parent = "commands", name = "add")
     private void commandsAdd(IMessage msg, String...args) {
         if (args.length < 4) {
@@ -55,7 +55,7 @@ public class SimpleTextResponses implements DiscordCommands {
         MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
-    //commands remove <commandName>
+    //usbbot.commands remove <commandName>
     @DiscordSubCommand(parent = "commands", name = "remove")
     private void commandsRemove(IMessage msg, String...args) {
         if (args.length < 3) {

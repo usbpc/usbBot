@@ -1,4 +1,4 @@
-package util;
+package usbbot.util;
 
 /**
  * Created by usbpc on 02.05.2017.

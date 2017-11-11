@@ -1,16 +1,16 @@
-package commands.security;
+package usbbot.commands.security;
 
-import commands.DiscordCommands;
-import commands.core.Command;
-import config.CommandPermission;
-import config.MiscSQLCommand;
-import util.commands.AnnotationExtractor;
-import util.commands.DiscordCommand;
-import util.commands.DiscordSubCommand;
+import usbbot.commands.DiscordCommands;
+import usbbot.commands.core.Command;
+import usbbot.config.CommandPermission;
+import usbbot.config.MiscSQLCommand;
+import usbbot.util.commands.AnnotationExtractor;
+import usbbot.util.commands.DiscordCommand;
+import usbbot.util.commands.DiscordSubCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.MessageParsing;
-import util.MessageSending;
+import usbbot.util.MessageParsing;
+import usbbot.util.MessageSending;
 import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;

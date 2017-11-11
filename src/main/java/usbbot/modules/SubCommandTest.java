@@ -1,8 +1,8 @@
-package modules;
+package usbbot.modules;
 
-import util.commands.DiscordCommand;
-import util.commands.DiscordSubCommand;
-import util.MessageSending;
+import usbbot.util.commands.DiscordCommand;
+import usbbot.util.commands.DiscordSubCommand;
+import usbbot.util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 
 public class SubCommandTest {

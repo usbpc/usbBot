@@ -1,13 +1,13 @@
-package commands
+package usbbot.commands
 
-import commands.core.Command
-import commands.security.PermissionManager
-import config.SimpleTextCommandsSQL
-import modules.SimpleTextResponses
+import usbbot.commands.core.Command
+import usbbot.commands.security.PermissionManager
+import usbbot.config.SimpleTextCommandsSQL
+import usbbot.modules.SimpleTextResponses
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.Permissions
-import util.MessageSending
+import usbbot.util.MessageSending
 
 class CommandHandler {
 
@@ -48,7 +48,7 @@ class CommandHandler {
         if (!event.channel.isPrivate) {
             //TODO: Check if the message is on the word/regex blacklist, remove it if it is (blacklist may not apply to all users)
             //Check if the message starts with the server command prefix, if not ignore it
-            val prefix = config.getGuildCmdPrefix(event.guild.longID)
+            val prefix = usbbot.config.getGuildCmdPrefix(event.guild.longID)
             if (event.message.content.startsWith(prefix)) {
                 val args = getArguments(event.message.content, prefix)
                 //check if the message contains a valid command for that guild and check permissions
@@ -66,6 +66,8 @@ class CommandHandler {
                         } else {
                             SimpleTextResponses.answer(event.message, args)
                         }
+                    } else {
+                        MessageSending.sendMessage(event.channel, "You don't have permissions required to use this command!")
                     }
                 }
 

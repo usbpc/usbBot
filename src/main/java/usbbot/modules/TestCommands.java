@@ -1,18 +1,17 @@
-package modules;
+package usbbot.modules;
 
-import commands.DiscordCommands;
-import commands.core.Command;
-import util.commands.AnnotationExtractor;
-import util.commands.DiscordCommand;
+import usbbot.commands.DiscordCommands;
+import usbbot.commands.core.Command;
+import usbbot.util.commands.AnnotationExtractor;
+import usbbot.util.commands.DiscordCommand;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import util.MessageParsing;
-import util.MessageSending;
+import usbbot.util.MessageParsing;
+import usbbot.util.MessageSending;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
 
-import java.io.ByteArrayInputStream;
 import java.util.Collection;
 
 public class TestCommands implements DiscordCommands {
@@ -24,8 +23,8 @@ public class TestCommands implements DiscordCommands {
 	}
 	@DiscordCommand("compare")
 	public void compare(IMessage msg, String...args) {
-		//MessageSending.sendMessage(msg.getChannel(), "This command just exists you you can't break my commands add command! :P");
-		//MessageSending.sendMessage(msg.getChannel(), "The first index: " + "commands add".indexOf("add"));
+		//MessageSending.sendMessage(msg.getChannel(), "This command just exists you you can't break my usbbot.commands add command! :P");
+		//MessageSending.sendMessage(msg.getChannel(), "The first index: " + "usbbot.commands add".indexOf("add"));
 
 		logger.debug("First arg: '{}' second arg: '{}'", args[1], args[2]);
 		MessageSending.sendMessage(msg.getChannel(), "Does it match? " + args[1].matches(args[2]));

@@ -1,8 +1,8 @@
-package main;
+package usbbot.main;
 
-import commands.CommandHandler;
-import commands.security.PermissionManager;
-import modules.*;
+import usbbot.commands.CommandHandler;
+import usbbot.commands.security.PermissionManager;
+import usbbot.modules.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.api.events.EventSubscriber;
@@ -12,10 +12,6 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
-import sx.blah.discord.util.RequestBuffer;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author usbpc

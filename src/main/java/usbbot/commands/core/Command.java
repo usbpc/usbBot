@@ -1,4 +1,4 @@
-package commands.core;
+package usbbot.commands.core;
 
 import sx.blah.discord.handle.obj.IMessage;
 

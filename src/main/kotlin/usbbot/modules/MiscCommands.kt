@@ -1,22 +1,20 @@
-package modules
+package usbbot.modules
 
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
-import com.google.gson.JsonSyntaxException
-import commands.DiscordCommands
-import commands.core.Command
-import main.UsbBot
+import usbbot.commands.DiscordCommands
+import usbbot.commands.core.Command
+import usbbot.main.UsbBot
 import org.slf4j.LoggerFactory
-import sx.blah.discord.handle.impl.obj.Message
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.RequestBuffer
-import util.MessageParsing
-import util.MessageSending
-import util.commands.AnnotationExtractor
-import util.commands.DiscordCommand
-import util.commands.DiscordSubCommand
+import usbbot.util.MessageParsing
+import usbbot.util.MessageSending
+import usbbot.util.commands.AnnotationExtractor
+import usbbot.util.commands.DiscordCommand
+import usbbot.util.commands.DiscordSubCommand
 import java.awt.Color
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
@@ -44,6 +42,7 @@ class MiscCommands : DiscordCommands {
                         MessageHistory(it.map { it.value }.toList())
                                 .bulkDelete()
                     }.get().size
+                    logger.debug("Deleted {} of {} messages so far.", numDeleted, history.size)
                 }
         return numDeleted
     }
@@ -72,7 +71,7 @@ class MiscCommands : DiscordCommands {
                     msg.channel.getMessageHistoryIn(second, first)
                 }
 
-                MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.")
+                thread (start = true) { MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.") }
             }
         } else {
             MessageSending.sendMessage(msg.channel, "Invalid Arguments")
@@ -233,7 +232,7 @@ class MiscCommands : DiscordCommands {
     fun prefix(msg: IMessage, vararg args: String) {
         if (args.size < 2) MessageSending.sendMessage(msg.channel, "You need to specify a new prefix!")
         else {
-            config.setGuildCmdPrefix(msg.guild.longID, args[1])
+            usbbot.config.setGuildCmdPrefix(msg.guild.longID, args[1])
             MessageSending.sendMessage(msg.channel, "The Command prefix is now " + args[1])
         }
     }
