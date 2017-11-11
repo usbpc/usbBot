@@ -19,7 +19,7 @@ class HelpCommand : DiscordCommands {
         if (args.size > 1) {
             val helpText = MiscSQLCommand.getHelpText(args[1])
             if (helpText != null) {
-                MessageSending.sendMessage(msg.channel, "Syntax for command `" + args[1] + "`\n```" + helpText + "```")
+                MessageSending.sendMessage(msg.channel, "Syntax for command `" + args[1] + "`\n```\n" + helpText + "```")
             } else {
                 val responseText = SimpleTextCommandsSQL.getCommandText(msg.guild.longID, args[1]);
                 if ( responseText != null) {

@@ -157,6 +157,7 @@ public class AnnotationExtractor {
 			//TODO: Make error reponses more helpful
 			try {
 				int offset = (int) command.invoke(msg, args);
+				logger.trace("offset: {}, subCommandMap: {}", offset, subCommandMap.keySet().toString());
 				if (subCommandMap != null && offset != -1) {
 					depth += offset;
 					if (args.length > depth + 1) {

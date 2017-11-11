@@ -31,6 +31,7 @@ class MiscCommands : DiscordCommands {
         return 0
     }
     private fun workingBulkdelete(history: MessageHistory) : Int {
+        if (history.isEmpty()) return 0
         var numDeleted = 0
         history.spliterator()
         var deleted = history.bulkDelete()
@@ -47,8 +48,6 @@ class MiscCommands : DiscordCommands {
         return numDeleted
     }
 
-    //TODO: Deal if more messages than 100 are provided
-    //TODO: Deal if messages older than 2 week are provided
     @DiscordSubCommand(name = "range", parent = "bulkdelete")
     fun bulkdeleteRange(msg: IMessage, args: Array<String>) {
         MessageSending.sendMessage(msg.channel, "Trying to delete messages")
@@ -70,8 +69,8 @@ class MiscCommands : DiscordCommands {
                 } else {
                     msg.channel.getMessageHistoryIn(second, first)
                 }
-
-                thread (start = true) { MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.") }
+                history = MessageHistory(history.filter { it.timestamp.isAfter(LocalDateTime.now().minusWeeks(2)) })
+                thread (start = true, name = "Bulkdelete on guild ${msg.guild.name}") { MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.") }
             }
         } else {
             MessageSending.sendMessage(msg.channel, "Invalid Arguments")
@@ -269,8 +268,22 @@ class MiscCommands : DiscordCommands {
 
 
     }
-
-    @DiscordCommand("spam")
+    @DiscordCommand("hug")
+    fun hug(msg: IMessage, args: Array<String>) {
+        msg.delete()
+        val userID = if (args.size > 1) {
+            var tmp = MessageParsing.getUserID(args[1])
+            if (tmp == -1L) {
+                msg.author.longID
+            } else {
+                tmp
+            }
+        } else {
+            msg.author.longID
+        }
+        MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
+    }
+    //@DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {
         thread (start = true) {
             var msgCount = args[1].toInt()
