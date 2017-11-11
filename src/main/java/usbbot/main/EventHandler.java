@@ -75,6 +75,7 @@ public class EventHandler {
 
     @EventSubscriber
     public void onMessageReceivedEvent(MessageReceivedEvent event) {
+        logger.debug("I got a message, content: {}", event.getMessage().getContent());
         cmdHandler.onMessageRecivedEvent(event);
     }
 

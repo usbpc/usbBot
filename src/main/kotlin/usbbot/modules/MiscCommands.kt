@@ -1,6 +1,8 @@
 package modules
 
 import at.mukprojects.giphy4j.Giphy
+import at.mukprojects.giphy4j.exception.GiphyException
+import com.google.gson.JsonSyntaxException
 import commands.DiscordCommands
 import commands.core.Command
 import main.UsbBot
@@ -18,6 +20,7 @@ import util.commands.DiscordSubCommand
 import java.awt.Color
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
+import kotlin.concurrent.thread
 
 class MiscCommands : DiscordCommands {
     val giphy = Giphy(UsbBot.getAPIKey("giphy"))
@@ -29,16 +32,33 @@ class MiscCommands : DiscordCommands {
     fun bulkdelete(msg: IMessage, args: Array<String>) : Int {
         return 0
     }
+    private fun workingBulkdelete(history: MessageHistory) : Int {
+        var numDeleted = 0
+        history.spliterator()
+        var deleted = history.bulkDelete()
+        numDeleted += deleted.size
+        history.withIndex().groupBy { Math.floor(it.index / 100.0) }
+                .map { it.value }
+                .forEach {
+                    numDeleted += RequestBuffer.request <List<IMessage>> {
+                        MessageHistory(it.map { it.value }.toList())
+                                .bulkDelete()
+                    }.get().size
+                }
+        return numDeleted
+    }
+
     //TODO: Deal if more messages than 100 are provided
     //TODO: Deal if messages older than 2 week are provided
     @DiscordSubCommand(name = "range", parent = "bulkdelete")
     fun bulkdeleteRange(msg: IMessage, args: Array<String>) {
+        MessageSending.sendMessage(msg.channel, "Trying to delete messages")
         if (args.size < 4) {
             MessageSending.sendMessage(msg.channel, "Invalid Syntax.")
             return
         }
-        val first = args[1].toLongOrNull()
-        val second = args[2].toLongOrNull()
+        val first = args[2].toLongOrNull()
+        val second = args[3].toLongOrNull()
         if (first != null && second != null) {
             val firstMsg : IMessage? = msg.channel.getMessageByID(first)
             val secondMsg : IMessage? = msg.channel.getMessageByID(second)
@@ -46,14 +66,16 @@ class MiscCommands : DiscordCommands {
             if (firstMsg == null || secondMsg == null) {
                 MessageSending.sendMessage(msg.channel, "Both messages need to be in the same channel, and it has to be the channel where you execute this command!")
             } else {
-                val history = if (firstMsg.timestamp.isAfter(secondMsg.timestamp)) {
+                var history = if (firstMsg.timestamp.isAfter(secondMsg.timestamp)) {
                     msg.channel.getMessageHistoryIn(first, second)
                 } else {
                     msg.channel.getMessageHistoryIn(second, first)
                 }
-                MessageSending.sendMessage(msg.channel, "Deleted " + history.size + " messages.")
-                history.bulkDelete()
+
+                MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.")
             }
+        } else {
+            MessageSending.sendMessage(msg.channel, "Invalid Arguments")
         }
     }
 
@@ -66,6 +88,12 @@ class MiscCommands : DiscordCommands {
         val number : Int? = args[2].toIntOrNull()
         if (number != null) {
             var messageList = msg.channel.getMessageHistoryTo(LocalDateTime.now().minusWeeks(2), number).toList()
+            logger.debug("Tried to get {} messages got {} messages", number, messageList.size)
+            //TODO: This is a workaroung because getMessageHistoryTo is broken.
+            if (messageList.size > number) {
+                logger.debug("Dropping the last {} messages...", messageList.size - number)
+                messageList = messageList.dropLast(messageList.size - number)
+            }
             var deletedLast = RequestBuffer.request <List<IMessage>>{ MessageHistory(messageList).bulkDelete()}.get()
             var messagesDeleted = deletedLast.size
             messageList = messageList.minus(deletedLast)
@@ -219,7 +247,7 @@ class MiscCommands : DiscordCommands {
                 //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
                 //.withAuthorIcon(msg.client.ourUser.avatarURL)
                 .withFooterText("Powered By GIPHY")
-        msg.channel.sendMessage(embed.build())
+        RequestBuffer.request { msg.channel.sendMessage(embed.build()) }
     }
 
     @DiscordCommand("giphy")
@@ -227,13 +255,29 @@ class MiscCommands : DiscordCommands {
         if (args.size < 2) return
         val builder = StringBuilder()
         args.drop(1).forEach { builder.append(it).append(" ") }
-        val embed = EmbedBuilder()
-                .withImage(giphy.searchRandom(builder.toString()).data.imageOriginalUrl)
-                .withColor(Color.RED)
-                //.withTitle("A cute cat:")
-                //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
-                //.withAuthorIcon(msg.client.ourUser.avatarURL)
-                .withFooterText("Powered By GIPHY")
-        msg.channel.sendMessage(embed.build())
+        try {
+            val embed = EmbedBuilder()
+                    .withImage(giphy.searchRandom(builder.toString()).data.imageOriginalUrl)
+                    .withColor(Color.RED)
+                    //.withTitle("A cute cat:")
+                    //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
+                    //.withAuthorIcon(msg.client.ourUser.avatarURL)
+                    .withFooterText("Powered By GIPHY")
+            RequestBuffer.request { msg.channel.sendMessage(embed.build()) }
+        } catch (ex: GiphyException) {
+           MessageSending.sendMessage(msg.channel, "Couldn't find anything for `$builder` :(")
+        }
+
+
+    }
+
+    @DiscordCommand("spam")
+    fun spam(msg: IMessage, args: Array<String>) {
+        thread (start = true) {
+            var msgCount = args[1].toInt()
+            while (msgCount-- > 0) {
+                MessageSending.sendMessage(msg.channel, msgCount.toString())
+            }
+        }
     }
 }
