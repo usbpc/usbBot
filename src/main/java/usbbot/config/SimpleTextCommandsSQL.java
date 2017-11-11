@@ -1,9 +1,7 @@
-package config;
+package usbbot.config;
 
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class SimpleTextCommandsSQL {
@@ -15,8 +13,8 @@ public class SimpleTextCommandsSQL {
 		//removeCommand(104214741601247232L, "test");
 	}
 	/**
-	 * Gets all of the simple text commands for a specified discord guild
-	 * @param serverID id of the discord guild to get the commands for
+	 * Gets all of the simple text usbbot.commands for a specified discord guild
+	 * @param serverID id of the discord guild to get the usbbot.commands for
 	 * @return a Map of name to command Text
 	 */
 	public static Map<String, String> getAllCommandsForServer(long serverID) {
@@ -66,48 +64,17 @@ public class SimpleTextCommandsSQL {
 	 * @param serverID the guildID
 	 * @param name the command name to create
 	 * @param text the text to add
-	 * @return true if successful, false otherwise
 	 */
-	public static boolean insertCommand(long serverID, String name, String text) {
-		boolean success = false;
-		String sql = "INSERT INTO commands (guildID, name) VALUES (?,?)";
+	public static void insertCommand(long serverID, String name, String text) {
+		int id = new CommandPermission(serverID, name).getCommandID();
+		String sql = "INSERT INTO text_commands (commandID, text) VALUES (?, ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-			pstmt.setString(2, name);
-			pstmt.setLong(1, serverID);
-			success = pstmt.executeUpdate() >= 1;
-
+			pstmt.setInt(1, id);
+			pstmt.setString(2, text);
+			pstmt.execute();
 		} catch (SQLException ex) {
 			System.err.println(ex.getMessage());
 		}
-		int id = 0;
-		if (success) {
-			sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)";
-			try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-				pstmt.setLong(1, serverID);
-				pstmt.setString(2, name);
-				ResultSet rs = pstmt.executeQuery();
-				if (rs.next()) {
-					id = rs.getInt("ID");
-				} else {
-					success = false;
-				}
-			} catch (SQLException ex) {
-				System.err.println(ex.getMessage());
-			}
-		}
-		System.out.println("The id was:" + id);
-
-		if (success) {
-			sql = "INSERT INTO text_commands (commandID, text) VALUES (?, ?)";
-			try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-				pstmt.setInt(1, id);
-				pstmt.setString(2, text);
-				success = pstmt.executeUpdate() >= 1;
-			} catch (SQLException ex) {
-				System.err.println(ex.getMessage());
-			}
-		}
-		return success;
 	}
 
 	/**

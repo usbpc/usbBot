@@ -1,9 +1,8 @@
-package config;
+package usbbot.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,6 +28,7 @@ public class CommandPermission {
 			createDefaultEntry();
 		}
 	}
+	public int getCommandID() {return commandID; }
 	public boolean isUserModeBlacklist() {
 		return userModeIsBlacklist;
 	}
@@ -59,7 +59,7 @@ public class CommandPermission {
 		return false;
 	}
 	private void getListModes() {
-		String sql = "SELECT roleMode, userMode FROM permissions  WHERE (commandID = ?)";
+		String sql = "SELECT roleMode, userMode FROM permissions WHERE (commandID = ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
@@ -69,7 +69,7 @@ public class CommandPermission {
 				logger.debug("Command: {} for Guild {} has internal id {} roleMode: {} userMode {}",
 						name, guildID, commandID, rs.getString(1), rs.getString(2));
 			} else {
-				logger.debug("Command: {} for Guild {} dosen't have permissions yet.", name, guildID);
+				logger.debug("Command: {} for Guild {} dosen't have a list mode yet.", name, guildID);
 			}
 		} catch (SQLException ex) {
 			logger.error(ex.getMessage());
@@ -83,7 +83,7 @@ public class CommandPermission {
 			pstmt.setString(2, name);
 			pstmt.executeUpdate();
 		} catch (SQLException ex) {
-			logger.error(ex.getMessage());
+			logger.error(ex.getMessage(), ex);
 		}
 		sql = "SELECT ID FROM commands WHERE (guildID = ?) AND (name = ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
@@ -92,9 +92,12 @@ public class CommandPermission {
 			ResultSet rs = pstmt.executeQuery();
 			if (rs.next()) {
 				commandID = rs.getInt(1);
+			} else {
+				logger.debug("Could not get the command ID back while creating a default entry...");
 			}
+			logger.trace("commandID in createDefaultEntry is {}", commandID);
 		} catch (SQLException ex) {
-			logger.error(ex.getMessage());
+			logger.error(ex.getMessage(), ex);
 		}
 		sql = "INSERT INTO permissions (commandID, roleMode, userMode) VALUES (?, ?, ?)";
 		userModeIsBlacklist = roleModeIsBlacklist = false;
@@ -104,7 +107,7 @@ public class CommandPermission {
 			pstmt.setString(3, "whitelist");
 			pstmt.executeUpdate();
 		} catch (SQLException ex) {
-			logger.error(ex.getMessage());
+			logger.error(ex.getMessage(), ex);
 		}
 	}
 
