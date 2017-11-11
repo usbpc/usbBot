@@ -1,17 +1,13 @@
-package config;
+package usbbot.config;
 
 import com.mchange.v2.c3p0.ComboPooledDataSource;
-import main.UsbBot;
+import org.sqlite.SQLiteConfig;
+import usbbot.main.UsbBot;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sqlite.SQLiteConfig;
 
-import javax.sql.DataSource;
-import java.beans.PropertyVetoException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class DatabaseConnection {
 	private static Logger logger = LoggerFactory.getLogger(DatabaseConnection.class);
@@ -20,10 +16,13 @@ public class DatabaseConnection {
 		Connection con = null;
 		if (dataSource == null)  {
 			try {
+				SQLiteConfig config = new SQLiteConfig();
+				config.enforceForeignKeys(true);
 				dataSource = new ComboPooledDataSource();
 				String url = "jdbc:sqlite:" + UsbBot.sqlFile;
 				logger.debug("Trying to connect with db url: {}", url);
 				dataSource.setJdbcUrl(url);
+				dataSource.setProperties(config.toProperties());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}
