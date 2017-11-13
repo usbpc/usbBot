@@ -1,5 +1,6 @@
 package usbbot.main;
 
+import sx.blah.discord.util.RequestBuffer;
 import usbbot.commands.CommandHandler;
 import usbbot.commands.security.PermissionManager;
 import usbbot.modules.*;

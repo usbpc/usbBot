@@ -22,11 +22,15 @@ apply plugin: 'application'
 sourceCompatibility = 1.8
 
 
+kotlin {experimental { coroutines 'enable' }}
+
 repositories {
-    mavenCentral()
     jcenter()
     maven {
         url  "https://jitpack.io"
+    }
+    maven {
+        url "https://dl.bintray.com/kotlin/exposed/"
     }
 }
 
@@ -48,8 +52,14 @@ dependencies {
     // https://mvnrepository.com/artifact/org.xerial/sqlite-jdbc
     compile group: 'org.xerial', name: 'sqlite-jdbc', version: '3.18.0'
 
+    // https://mvnrepository.com/artifact/commons-dbutils/commons-dbutils
+    compile group: 'commons-dbutils', name: 'commons-dbutils', version: '1.7'
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
+    compile 'org.jetbrains.kotlinx:kotlinx-coroutines-core:0.19.3'
+
+    compile 'org.postgresql:postgresql:42.1.4'
 }
 
 mainClassName = 'usbbot.main.UsbBot'

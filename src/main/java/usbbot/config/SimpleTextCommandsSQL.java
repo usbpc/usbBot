@@ -5,13 +5,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SimpleTextCommandsSQL {
-	public static void main(String args[]) {
-		insertCommand(104214741601247232L, "test2", "This is a Test!");
-		//editCommand(104214741601247232L, "test", "Update Command");
-		getAllCommandsForServer(104214741601247232L).forEach((x, y) -> System.out.println(x + ":" +  y));
-		System.out.println(getCommandText(104214741601247232L, "test"));
-		//removeCommand(104214741601247232L, "test");
-	}
 	/**
 	 * Gets all of the simple text usbbot.commands for a specified discord guild
 	 * @param serverID id of the discord guild to get the usbbot.commands for

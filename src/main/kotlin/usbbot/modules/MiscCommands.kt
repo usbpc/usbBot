@@ -2,6 +2,7 @@ package usbbot.modules
 
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
+import kotlinx.coroutines.experimental.launch
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
 import usbbot.main.UsbBot
@@ -248,7 +249,7 @@ class MiscCommands : DiscordCommands {
         RequestBuffer.request { msg.channel.sendMessage(embed.build()) }
     }
 
-    @DiscordCommand("giphy")
+    @DiscordCommand("gif")
     fun giphy(msg: IMessage, args: Array<String>) {
         if (args.size < 2) return
         val builder = StringBuilder()
@@ -265,9 +266,8 @@ class MiscCommands : DiscordCommands {
         } catch (ex: GiphyException) {
            MessageSending.sendMessage(msg.channel, "Couldn't find anything for `$builder` :(")
         }
-
-
     }
+
     @DiscordCommand("hug")
     fun hug(msg: IMessage, args: Array<String>) {
         msg.delete()
@@ -283,13 +283,11 @@ class MiscCommands : DiscordCommands {
         }
         MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
     }
-    //@DiscordCommand("spam")
+    @DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {
-        thread (start = true) {
-            var msgCount = args[1].toInt()
-            while (msgCount-- > 0) {
-                MessageSending.sendMessage(msg.channel, msgCount.toString())
-            }
+        var msgCount = args[1].toInt()
+        while (msgCount-- > 0) {
+            MessageSending.sendMessage(msg.channel, msgCount.toString())
         }
     }
 }

@@ -1,5 +1,6 @@
 package usbbot.commands
 
+import kotlinx.coroutines.experimental.launch
 import usbbot.commands.core.Command
 import usbbot.commands.security.PermissionManager
 import usbbot.config.SimpleTextCommandsSQL
@@ -45,33 +46,33 @@ class CommandHandler {
     }
     fun onMessageRecivedEvent(event: MessageReceivedEvent) {
         //Check that the message was not send in a private channel, if it was just ignore it.
-        if (!event.channel.isPrivate) {
-            //TODO: Check if the message is on the word/regex blacklist, remove it if it is (blacklist may not apply to all users)
-            //Check if the message starts with the server command prefix, if not ignore it
-            val prefix = usbbot.config.getGuildCmdPrefix(event.guild.longID)
-            if (event.message.content.startsWith(prefix)) {
-                val args = getArguments(event.message.content, prefix)
-                //check if the message contains a valid command for that guild and check permissions
-                //I need to check if the command exists before testing for permissions, otherwise a permission entry will be created
-                if(cmdMap.containsKey(args[0]) || SimpleTextCommandsSQL.getAllCommandsForServer(event.guild.longID).containsKey(args[0])) {
-                    val isAdministrator = event.author.getPermissionsForGuild(event.guild).contains(Permissions.ADMINISTRATOR)
-                    val hasPermission = PermissionManager.hasPermission(
-                            event.guild.longID,
-                            event.author.longID,
-                            event.message.guild.getRolesForUser(event.author).map { it.longID },
-                            args[0])
-                    if(isAdministrator || hasPermission) {
-                        if (cmdMap.containsKey(args[0])) {
-                            cmdMap.get(args[0])?.execute(event.message, args)
+        launch {
+            if (!event.author.isBot || !event.channel.isPrivate) {
+                //TODO: Check if the message is on the word/regex blacklist, remove it if it is (blacklist may not apply to all users)
+                //Check if the message starts with the server command prefix, if not ignore it
+                val prefix = usbbot.config.getGuildCmdPrefix(event.guild.longID)
+                if (event.message.content.startsWith(prefix)) {
+                    val args = getArguments(event.message.content, prefix)
+                    //check if the message contains a valid command for that guild and check permissions
+                    //I need to check if the command exists before testing for permissions, otherwise a permission entry will be created
+                    if(cmdMap.containsKey(args[0]) || SimpleTextCommandsSQL.getAllCommandsForServer(event.guild.longID).containsKey(args[0])) {
+                        val isAdministrator = event.author.getPermissionsForGuild(event.guild).contains(Permissions.ADMINISTRATOR)
+                        val hasPermission = PermissionManager.hasPermission(
+                                event.guild.longID,
+                                event.author.longID,
+                                event.message.guild.getRolesForUser(event.author).map { it.longID },
+                                args[0])
+                        if(isAdministrator || hasPermission) {
+                            if (cmdMap.containsKey(args[0])) {
+                                cmdMap[args[0]]?.execute(event.message, args)
+                            } else {
+                                SimpleTextResponses.answer(event.message, args)
+                            }
                         } else {
-                            SimpleTextResponses.answer(event.message, args)
+                            MessageSending.sendMessage(event.channel, "You don't have permissions required to use this command!")
                         }
-                    } else {
-                        MessageSending.sendMessage(event.channel, "You don't have permissions required to use this command!")
                     }
                 }
-
-
             }
         }
     }
