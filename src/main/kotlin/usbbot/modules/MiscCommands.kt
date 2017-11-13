@@ -44,6 +44,7 @@ class MiscCommands : DiscordCommands {
                         MessageHistory(it.map { it.value }.toList())
                                 .bulkDelete()
                     }.get().size
+
                     logger.debug("Deleted {} of {} messages so far.", numDeleted, history.size)
                 }
         return numDeleted
@@ -270,7 +271,7 @@ class MiscCommands : DiscordCommands {
 
     @DiscordCommand("hug")
     fun hug(msg: IMessage, args: Array<String>) {
-        msg.delete()
+        val delete = RequestBuffer.request { msg.delete() }
         val userID = if (args.size > 1) {
             var tmp = MessageParsing.getUserID(args[1])
             if (tmp == -1L) {
@@ -282,6 +283,7 @@ class MiscCommands : DiscordCommands {
             msg.author.longID
         }
         MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
+        delete.get()
     }
     @DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {

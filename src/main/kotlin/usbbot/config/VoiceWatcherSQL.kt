@@ -170,7 +170,6 @@ fun delWatched(category: ICategory) : Boolean {
         con.prepareStatement(sql).use {
             it.setLong(1, category.guild.longID)
             it.setLong(2, category.longID)
-
             return 1 == it.executeUpdate()
 
         }
