@@ -7,6 +7,9 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeave
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent
 import sx.blah.discord.handle.obj.ICategory
 import sx.blah.discord.handle.obj.IMessage
+import usbbot.config.addWatchedForGuild
+import usbbot.config.delWatchedForGuild
+import usbbot.config.isWached
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
@@ -30,7 +33,7 @@ class MoreVoiceChannel : DiscordCommands {
     fun voiceAdd(msg: IMessage, args: Array<String>) {
         val categoryID = args[2].toLong()
         msg.guild.getCategoryByID(categoryID)?.let {
-            if (usbbot.config.addWatched(it)) {
+            if (addWatchedForGuild(it.guild.longID, it.longID) >= 1) {
                 MessageSending.sendMessage(msg.channel, "Okay, am now watching " + it.name)
             } else {
                 MessageSending.sendMessage(msg.channel, "Am already watching " + it.name)
@@ -44,7 +47,7 @@ class MoreVoiceChannel : DiscordCommands {
     fun voiceRemove(msg: IMessage, args: Array<String>) {
         val categoryID = args[2].toLong()
         msg.guild.getCategoryByID(categoryID)?.let {
-            if (usbbot.config.delWatched(it)) {
+            if (delWatchedForGuild(it.guild.longID, it.longID) >= 1) {
                 MessageSending.sendMessage(msg.channel, "Okay, am no longer watching " + it.name)
             } else {
                 MessageSending.sendMessage(msg.channel, "Was never watching " + it.name)
@@ -56,22 +59,22 @@ class MoreVoiceChannel : DiscordCommands {
 }
 
 fun someoneJoined(event: UserVoiceChannelJoinEvent) {
-    if (usbbot.config.isWatched(event.voiceChannel.category)) {
+    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.voiceChannel.category)
     }
 }
 
 fun someoneMoved(event: UserVoiceChannelMoveEvent) {
-    if (usbbot.config.isWatched(event.oldChannel.category)) {
+    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.oldChannel.category)
     }
-    if (usbbot.config.isWatched(event.newChannel.category)) {
+    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.newChannel.category)
     }
 }
 
 fun someoneLeft(event: UserVoiceChannelLeaveEvent) {
-    if (usbbot.config.isWatched(event.voiceChannel.category)) {
+    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.voiceChannel.category)
     }
 }

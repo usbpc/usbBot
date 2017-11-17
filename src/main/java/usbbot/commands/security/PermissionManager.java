@@ -2,8 +2,8 @@ package usbbot.commands.security;
 
 import usbbot.commands.DiscordCommands;
 import usbbot.commands.core.Command;
-import usbbot.config.CommandPermission;
-import usbbot.config.MiscSQLCommand;
+import usbbot.config.DBCommand;
+import usbbot.config.DBCommandKt;
 import usbbot.util.commands.AnnotationExtractor;
 import usbbot.util.commands.DiscordCommand;
 import usbbot.util.commands.DiscordSubCommand;
@@ -23,37 +23,46 @@ public class PermissionManager implements DiscordCommands {
 
 
     public static boolean hasPermission(long guildID, long userID, Collection<Long> roleIDs, String name) {
-        CommandPermission permission = new CommandPermission(guildID, name);
-        if (permission.isUserModeBlacklist()) {
-            if (permission.containsUser(userID)) {
-                return false;
+        DBCommand cmd = DBCommandKt.getCommandForGuild(guildID, name);
+        if (cmd != null) {
+            Collection<Long> users = cmd.getPermissionUsers();
+            Collection<Long> roles = cmd.getPermissionRoles();
+
+            if (cmd.getUsermode().equals("blacklist")) {
+                if (users.contains(userID)) {
+                    return false;
+                }
+            } else {
+                if(users.contains(userID)) {
+                    return true;
+                }
+                if (cmd.getRolemode().equals("blacklist") && users.isEmpty() && roles.isEmpty()) {
+                    return false;
+                }
             }
+
+            if (cmd.getRolemode().equals("blacklist")) {
+                if (roleIDs.stream().noneMatch(roles::contains)) {
+                    return true;
+                }
+            } else {
+                if (roleIDs.stream().anyMatch(roles::contains)) {
+                    return true;
+                }
+            }
+            return false;
         } else {
-            if(permission.containsUser(userID)) {
-                return true;
-            }
-            if (permission.isRoleModeBlacklist() && !permission.anyListPopulated()) {
-                return false;
-            }
+            throw new IllegalStateException("There should never be a request to this methode if the command is not in the DB");
         }
 
-        if (permission.isRoleModeBlacklist()) {
-            if (!permission.containsAnyRole(roleIDs)) {
-                return true;
-            }
-        } else {
-            if (permission.containsAnyRole(roleIDs)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     //Discord permissions command stuff starts here
     @DiscordCommand("permissions")
     public int permissions(IMessage msg, String...args) {
         if (args.length > 1) {
-            if (!MiscSQLCommand.commandExists(msg.getGuild().getLongID(), args[1])) {
+
+            if (DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]) == null) {
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }
@@ -83,9 +92,14 @@ public class PermissionManager implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
-        CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
-        permission.addUser(user.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) + " to the " + (permission.isUserModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
+        cmd.addUserToList(user.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) +
+                " to the " + cmd.getUsermode() + " for command `" + args[1] + "`.");
     }
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
@@ -98,32 +112,38 @@ public class PermissionManager implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
-		CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() +
+                    " dosen't exist!");
 
-        if (permission.delUser(userID)) {
+        if (cmd.delUserFromList(userID) >= 1) {
             IUser user = msg.getClient().getUserByID(userID);
-            MessageSending.sendMessage(msg.getChannel(), "Removed " + (user == null ? "The user did not exist anymore" : user.getDisplayName(msg.getGuild())) + " from the " + (permission.isUserModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+            MessageSending.sendMessage(msg.getChannel(), "Removed " +
+                    (user == null ? "The user did not exist anymore" : user.getDisplayName(msg.getGuild())) +
+                    " from the " + cmd.getUsermode() +
+                    " for command `" + args[1] + "`.");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "User " + args[4] + " was not on the " + (permission.isUserModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+            MessageSending.sendMessage(msg.getChannel(), "User " + args[4] + " was not on the " +
+                    cmd.getUsermode() + " for command `" + args[1] + "`.");
         }
-
-
     }
 
     //permissions <command> users mode blacklist|whitelist
     @DiscordSubCommand(name = "mode", parent = "permissionsUsers")
     private void permissionsUsersMode(IMessage msg, String...args) {
-    	CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
-    	if (args.length <= 4) {
+        if (args.length <= 4) {
     		MessageSending.sendMessage(msg.getChannel(), "Specify either blacklist or whitelist");
     		return;
 		}
-		switch (args[4]) {
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
+        switch (args[4]) {
 			case "blacklist":
-				permission.setUserMode(true);
-				break;
 			case "whitelist":
-				permission.setUserMode(false);
+			    cmd.setUserMode(args[4]);
 				break;
 			default:
 				MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
@@ -135,13 +155,16 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "list", parent = "permissionsUsers")
     private void permissionsUsersList(IMessage msg, String...args) {
 		IGuild guild = msg.getGuild();
-		CommandPermission permission = new CommandPermission(guild.getLongID(), args[1]);
 		logger.debug("Looking up all users for command {} on guild {}", args[1], guild.getLongID());
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
         StringBuilder builder = new StringBuilder();
 
 
-        builder.append("User ").append(permission.isUserModeBlacklist() ? "blacklist" : "whitelist").append(" contains: ```");
-        permission.getAllUserIDs().forEach(x -> {
+        builder.append("User ").append(cmd.getUsermode()).append(" contains: ```");
+        cmd.getPermissionUsers().forEach(x -> {
             IUser user = guild.getUserByID(x);
             //Fixed null pointer exception, hopefully
             builder.append(user == null ? "USER IS NOT ON THIS SERVER OR DOES NOT EXIST ANYMORE" : user.getDisplayName(guild)).append(": ").append(x).append('\n');
@@ -179,13 +202,17 @@ public class PermissionManager implements DiscordCommands {
             MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
-        CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
-        permission.addRole(role.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " + (permission.isRoleModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
+        cmd.addRoleToList(role.getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " +
+                cmd.getRolemode() + " for command `" + args[1] + "`.");
     }
 
     /*public void addRoleToPermission(String cmdName, Long roleId) {
-        Command cmd = cmdHandler.getCommandByName(cmdName);
+        DBCommand cmd = cmdHandler.getCommandByName(cmdName);
         Permission cmdPermission = cmd.getPermission();
         cmdPermission.getRoles().add(roleId);
         Config.getConfigByName("permissions").putConfigElement(new DummyCommand(cmdName, cmdPermission));
@@ -208,27 +235,34 @@ public class PermissionManager implements DiscordCommands {
             return;
         }
         IRole role = msg.getClient().getRoleByID(roleID);
-		CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
-        if (permission.delRole(roleID)) {
-            MessageSending.sendMessage(msg.getChannel(), "Removed " + (role == null ? "ROLE DID NOT EXIST ANYMORE" : role.getName()) + " from the " + (permission.isRoleModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
+        if (cmd.delRoleFromList(roleID) >= 1) {
+            MessageSending.sendMessage(msg.getChannel(), "Removed " +
+                    (role == null ? "ROLE DID NOT EXIST ANYMORE" : role.getName()) +
+                    " from the " + cmd.getRolemode() + " for command `" + args[1] + "`.");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "Role " + args[4] + " was not on the " + (permission.isRoleModeBlacklist() ? "blacklist" : "whitelist") + " for command `" + args[1] + "`.");
+            MessageSending.sendMessage(msg.getChannel(), "Role " + args[4] + " was not on the " +
+                    cmd.getRolemode() + " for command `" + args[1] + "`.");
         }
     }
 
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")
     private void permissionsRolesMode(IMessage msg, String...args) {
-		CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
 		if (args.length <= 4) {
 			MessageSending.sendMessage(msg.getChannel(), "Specify either blacklist or whitelist");
 			return;
 		}
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
+
         switch (args[4]) {
             case "blacklist":
-            	permission.setRoleMode(true);
-                break;
             case "whitelist":
-            	permission.setRoleMode(false);
+            	cmd.setRoleMode(args[4]);
                 break;
             default:
                 MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
@@ -239,13 +273,16 @@ public class PermissionManager implements DiscordCommands {
 
     @DiscordSubCommand(name = "list", parent = "permissionsRoles")
     private void permissionsRolesList(IMessage msg, String...args) {
-    	CommandPermission permission = new CommandPermission(msg.getGuild().getLongID(), args[1]);
         IGuild guild = msg.getGuild();
         StringBuilder builder = new StringBuilder();
 
+        DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
+        if (cmd == null)
+            throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
 
-        builder.append("Roles ").append(permission.isRoleModeBlacklist() ? "blacklist" : "whitelist").append(" contains: ```");
-        permission.getAllRoleIDs().forEach(x -> {
+
+        builder.append("Roles ").append(cmd.getRolemode()).append(" contains: ```");
+        cmd.getPermissionRoles().forEach(x -> {
             IRole role = guild.getRoleByID(x);
             //Fixed bug null pointer exceptions for deleted roles
             builder.append(role == null ? "DOES NOT EXIST ANYMORE" : role.getName()).append(": ").append(x).append('\n');

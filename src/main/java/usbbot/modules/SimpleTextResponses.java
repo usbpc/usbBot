@@ -3,8 +3,8 @@ package usbbot.modules;
 import usbbot.commands.CommandHandler;
 import usbbot.commands.DiscordCommands;
 import usbbot.commands.core.Command;
-import usbbot.config.CommandPermission;
-import usbbot.config.SimpleTextCommandsSQL;
+import usbbot.config.DBTextCommand;
+import usbbot.config.DBTextCommandsKt;
 import usbbot.util.commands.AnnotationExtractor;
 import usbbot.util.commands.DiscordCommand;
 import usbbot.util.commands.DiscordSubCommand;
@@ -50,9 +50,13 @@ public class SimpleTextResponses implements DiscordCommands {
 
         String message = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
 
-        SimpleTextCommandsSQL.insertCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
-        new CommandPermission(msg.getGuild().getLongID(), args[2]).addRole(msg.getGuild().getEveryoneRole().getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
+        DBTextCommand cmd = DBTextCommandsKt.createDBTextCommand(msg.getGuild().getLongID(),
+                args[2],
+                "whitelist",
+                "whitelist",
+                msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
+        cmd.addRoleToList(msg.getGuild().getEveryoneRole().getLongID());
+        MessageSending.sendMessage(msg.getChannel(), "DBCommand `" + args[2] + "` successfully added!");
     }
 
     //usbbot.commands remove <commandName>
@@ -60,10 +64,14 @@ public class SimpleTextResponses implements DiscordCommands {
     private void commandsRemove(IMessage msg, String...args) {
         if (args.length < 3) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
-        } else if (SimpleTextCommandsSQL.removeCommand(msg.getGuild().getLongID(), args[2])) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            DBTextCommand cmd = DBTextCommandsKt.getDBTextCommand(msg.getGuild().getLongID(), args[2]);
+            if (cmd != null) {
+                cmd.delete();
+                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
+            } else {
+                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            }
         }
     }
 
@@ -71,10 +79,14 @@ public class SimpleTextResponses implements DiscordCommands {
     private void commandsEdit(IMessage msg, String...args) {
         if (args.length < 4) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
-        } else if (SimpleTextCommandsSQL.editCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1))) {
-            MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            DBTextCommand cmd = DBTextCommandsKt.getDBTextCommand(msg.getGuild().getLongID(), args[2]);
+            if (cmd != null) {
+                cmd.editText(msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
+                MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
+            } else {
+                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+            }
         }
     }
 
@@ -91,11 +103,12 @@ public class SimpleTextResponses implements DiscordCommands {
         }
     }
     public static void answer(IMessage msg, String args[]) {
-        String content = SimpleTextCommandsSQL.getCommandText(msg.getGuild().getLongID(), args[0]);
-        if (content == null) {
-            MessageSending.sendMessage(msg.getChannel(), "");
-            return;
-        }
+        DBTextCommand cmd = DBTextCommandsKt.getDBTextCommand(msg.getGuild().getLongID(), args[0]);
+        answer(msg, cmd);
+    }
+
+    public static void answer(IMessage msg, DBTextCommand cmd) {
+        String content = cmd.getText();
         //TODO placeholder for args to be replaced by the arguments given when called
             /*
             * possible placeholders: author, args

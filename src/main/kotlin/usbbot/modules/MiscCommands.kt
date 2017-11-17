@@ -13,6 +13,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.RequestBuffer
+import usbbot.config.setGuildPrefix
 import usbbot.util.MessageParsing
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
@@ -237,8 +238,8 @@ class MiscCommands : DiscordCommands {
     fun prefix(msg: IMessage, vararg args: String) {
         if (args.size < 2) MessageSending.sendMessage(msg.channel, "You need to specify a new prefix!")
         else {
-            usbbot.config.setGuildCmdPrefix(msg.guild.longID, args[1])
-            MessageSending.sendMessage(msg.channel, "The Command prefix is now " + args[1])
+            setGuildPrefix(msg.guild.longID, args[1])
+            MessageSending.sendMessage(msg.channel, "The DBCommand prefix is now " + args[1])
         }
     }
 

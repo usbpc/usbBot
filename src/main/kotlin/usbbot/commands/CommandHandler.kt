@@ -7,11 +7,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import usbbot.commands.core.Command
 import usbbot.commands.security.PermissionManager
-import usbbot.config.SimpleTextCommandsSQL
 import usbbot.modules.SimpleTextResponses
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.Permissions
+import usbbot.config.*
 import usbbot.util.MessageSending
 import kotlin.system.measureTimeMillis
 
@@ -29,10 +29,16 @@ class CommandHandler {
                 while (iterator.hasNext()) {
                     builder.append('`').append(iterator.next()).append("`").append(", ")
                 }
-                val iterator2 = SimpleTextCommandsSQL.getAllCommandsForServer(msg.guild.longID).iterator()
-                while (iterator2.hasNext()) {
-                    builder.append('`').append(iterator2.next().key).append("`")
-                    if (iterator2.hasNext()) {
+
+                var iterator2 : Iterator<DBTextCommand>? = null
+                val time = measureTimeMillis {
+                    iterator2 = getDBTextCommandsForGuild(msg.guild.longID).iterator()
+                }
+                logger.trace("It took me {}ms to look up how many text commands there are.", time)
+
+                while (iterator2!!.hasNext()) {
+                    builder.append('`').append(iterator2!!.next().name).append("`")
+                    if (iterator2!!.hasNext()) {
                         builder.append(", ")
                     }
                 }
@@ -40,13 +46,18 @@ class CommandHandler {
             }
         })
     }
-
+    fun createMissingPermissions(guildID: Long) {
+        var guildCommands = getCommandsForGuild(guildID)
+        cmdMap.keys.filter { cmdName -> guildCommands.find { it.name == cmdName} == null }.forEach {
+            createDBCommand(guildID, it, "whitelist", "whitelist")
+        }
+    }
     fun registerCommand(cmd: Command) = cmdMap.put(cmd.name, cmd)
     fun registerCommands(cmds: DiscordCommands) = cmds.discordCommands.forEach({registerCommand(it)})
     fun discordCommandExists(name: String, guildID: Long) : Boolean {
         if (cmdMap.containsKey(name)) return true
         //FIXME: This only exists so that the SimpleTextResponses Module knows that a command with that name is already registered, so remove this
-        if (SimpleTextCommandsSQL.getAllCommandsForServer(guildID).containsKey(name)) return true
+        if (getCommandForGuild(guildID, name) != null) return true
         return false
     }
     fun getArguments(input: String, prefix: String): Array<String> {
@@ -57,16 +68,24 @@ class CommandHandler {
         //repeat(10) {
             val timeForCoroutineStart = measureTimeMillis {
                 launch(stc) {
-                    val timeCorotineTook = measureTimeMillis {
+                    val timeCoroutineStart = System.currentTimeMillis()
                         if (!(event.author.isBot || event.channel.isPrivate)) {
                             //TODO: Check if the message is on the word/regex blacklist, remove it if it is (blacklist may not apply to all users)
                             //Check if the message starts with the server command prefix, if not ignore it
-                            val prefix = usbbot.config.getGuildCmdPrefix(event.guild.longID)
-                            if (event.message.content.startsWith(prefix)) {
-                                val args = getArguments(event.message.content, prefix)
+                            val guild = getGuildById(event.guild.longID) ?:
+                                    throw IllegalStateException("A Command was tried to be executed on a Guild that has no DB entry")
+
+                            if (event.message.content.startsWith(guild.prefix)) {
+                                val args = getArguments(event.message.content, guild.prefix)
                                 //check if the message contains a valid command for that guild and check permissions
                                 //I need to check if the command exists before testing for permissions, otherwise a permission entry will be created
-                                if(cmdMap.containsKey(args[0]) || SimpleTextCommandsSQL.getAllCommandsForServer(event.guild.longID).containsKey(args[0])) {
+                                logger.trace("IT took me {}ms to get before StupidWrapper", System.currentTimeMillis() - timeCoroutineStart)
+                                val stupidWrapper = StupidWrapper()
+
+                                logger.trace("IT took me {}ms to get after StupidWrapper", System.currentTimeMillis() - timeCoroutineStart)
+                                if(stupidWrapper.isCommand(cmdMap, event.guild.longID, args[0])) {
+
+                                    logger.trace("IT took me {}ms to check if it is a command", System.currentTimeMillis() - timeCoroutineStart)
                                     val isAdministrator = event.author.getPermissionsForGuild(event.guild).contains(Permissions.ADMINISTRATOR)
 
                                     if(isAdministrator || PermissionManager.hasPermission(
@@ -74,24 +93,38 @@ class CommandHandler {
                                             event.author.longID,
                                             event.message.guild.getRolesForUser(event.author).map { it.longID },
                                             args[0])) {
-                                        if (cmdMap.containsKey(args[0])) {
+
+                                        logger.trace("IT took me {}ms to check permissions (successful)", System.currentTimeMillis() - timeCoroutineStart)
+                                        if (stupidWrapper.stc == null) {
                                             cmdMap[args[0]]?.execute(event.message, args)
                                         } else {
-                                            SimpleTextResponses.answer(event.message, args)
+                                            SimpleTextResponses.answer(event.message, stupidWrapper.stc)
                                         }
                                     } else {
+                                        logger.trace("IT took me {}ms to check permissions (unsuccessful)", System.currentTimeMillis() - timeCoroutineStart)
                                         MessageSending.sendMessage(event.channel, "You don't have permissions required to use this command!")
                                     }
+                                    logger.trace("IT took me {}ms to run the command", System.currentTimeMillis() - timeCoroutineStart)
                                 }
                             }
                         }
-                    }
-                    logger.trace("It took me {} ms to execute the Coroutine for message {}", timeCorotineTook, event.message.content)
+                    logger.trace("It took me {} ms to execute the Coroutine for message {}", System.currentTimeMillis() - timeCoroutineStart, event.message.content)
                 }
             }
             logger.trace("It took me {} ms to start the Coroutine for message {}", timeForCoroutineStart, event.message.content)
     //    }
 
 
+    }
+
+}
+
+private class StupidWrapper {
+    var stc : DBTextCommand? = null
+    fun isCommand(cmdMap: HashMap<String, Command>, guildID: Long, name: String) : Boolean {
+        if (cmdMap.containsKey(name)) return true
+        stc = getDBTextCommand(guildID, name)
+        if (stc != null) return true
+        return false
     }
 }

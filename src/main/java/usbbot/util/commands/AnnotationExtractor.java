@@ -55,8 +55,8 @@ public class AnnotationExtractor {
 			}
 		});
 		//TODO make this code smarter and less sucky
-		logger.debug("This is the map of all command I currently have before creating any Command Objects {}", commandMap.toString());
-		//System.out.printf("This is the map of all command I currently have before creating any Command Objects %s\n", commandMap.toString());
+		logger.debug("This is the map of all command I currently have before creating any DBCommand Objects {}", commandMap.toString());
+		//System.out.printf("This is the map of all command I currently have before creating any DBCommand Objects %s\n", commandMap.toString());
 		//commandMap.forEach((name, cmdContainer) -> System.out.printf("%s: children %b, parent is %s\r\n", name, cmdContainer.hasChildren, cmdContainer.parentCommand));
 
 		//This puts all usbbot.commands that don't have sub usbbot.commands into the usbbot.commands list and removes them from the commandMap Map

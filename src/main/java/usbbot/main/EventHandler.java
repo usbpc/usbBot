@@ -22,7 +22,6 @@ public class EventHandler {
     private static long CHANNEL = 378509902009597965L;
     private CommandHandler cmdHandler = new CommandHandler();
     EventHandler() {
-
         //cmdHandler.registerCommands(new TestCommands());
         cmdHandler.registerCommands(new SimpleTextResponses(cmdHandler));
         cmdHandler.registerCommands(new HelpCommand());
@@ -59,6 +58,9 @@ public class EventHandler {
     @EventSubscriber
     public void onGuildCreateEvent(GuildCreateEvent event) {
         logger.debug("I'm connected to {}", event.getGuild().getName());
+        Long start = System.currentTimeMillis();
+        cmdHandler.createMissingPermissions(event.getGuild().getLongID());
+        logger.debug("It took {}ms to create permissions for {}", System.currentTimeMillis() - start, event.getGuild().getName());
                 /*CommandModule commandModule = new CommandModule(event.getGuild().getLongID());
         commandModule.registerCommands(commandModule);
         //commandModule.registerCommands(new TestCommands());

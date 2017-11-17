@@ -2,9 +2,9 @@ package usbbot.modules
 
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
-import usbbot.config.MiscSQLCommand
-import usbbot.config.SimpleTextCommandsSQL
 import sx.blah.discord.handle.obj.IMessage
+import usbbot.config.getDBTextCommand
+import usbbot.config.getHelptext
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
@@ -17,16 +17,16 @@ class HelpCommand : DiscordCommands {
     @DiscordCommand("help")
     fun help(msg: IMessage, args: Array<String>) {
         if (args.size > 1) {
-            val helpText = MiscSQLCommand.getHelpText(args[1])
+            val helpText = getHelptext(args[1])
             if (helpText != null) {
                 MessageSending.sendMessage(msg.channel, "Syntax for command `" + args[1] + "`\n```\n" + helpText + "```")
             } else {
-                val responseText = SimpleTextCommandsSQL.getCommandText(msg.guild.longID, args[1]);
-                if ( responseText != null) {
+                val dbTextCommand = getDBTextCommand(msg.guild.longID, args[1])
+                if ( dbTextCommand != null) {
                     MessageSending.sendMessage(msg.channel, "`" + args[1] +
-                            "` is just a simple text command that answers with:\n" + "```" + responseText + "```")
+                            "` is just a simple text command that answers with:\n" + "```" + dbTextCommand.text + "```")
                 } else {
-                    MessageSending.sendMessage(msg.channel, "`" + args[1] + "` is not a Command.")
+                    MessageSending.sendMessage(msg.channel, "`" + args[1] + "` is not a DBCommand.")
                 }
             }
         } else {

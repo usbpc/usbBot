@@ -23,7 +23,7 @@ public class UsbBot implements DiscordCommands {
 
 		client = createClient(discordAPIKey, false);
 		client.getDispatcher().registerListener(new EventHandler());
-		Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection::closeConnection));
+		Runtime.getRuntime().addShutdownHook(new Thread(DatabaseConnection.INSTANCE::close));
 		client.login();
 
 	}
