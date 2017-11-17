@@ -16,13 +16,16 @@ public class DatabaseConnection {
 		Connection con = null;
 		if (dataSource == null)  {
 			try {
-				SQLiteConfig config = new SQLiteConfig();
-				config.enforceForeignKeys(true);
+				//SQLiteConfig config = new SQLiteConfig();
+				//config.enforceForeignKeys(true);
 				dataSource = new ComboPooledDataSource();
-				String url = "jdbc:sqlite:" + UsbBot.sqlFile;
+				//String url = "jdbc:sqlite:" + UsbBot.sqlFile;
+				String url = "jdbc:postgresql://localhost/ava";
 				logger.debug("Trying to connect with db url: {}", url);
 				dataSource.setJdbcUrl(url);
-				dataSource.setProperties(config.toProperties());
+				dataSource.setUser("postgres");
+				dataSource.setPassword("admin");
+				//dataSource.setProperties(config.toProperties());
 			} catch (Exception ex) {
 				ex.printStackTrace();
 			}

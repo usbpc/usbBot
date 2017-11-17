@@ -50,15 +50,15 @@ class CommandHandler {
         return false
     }
     fun getArguments(input: String, prefix: String): Array<String> {
-        return input.substring(input.indexOf(prefix) + prefix.length).split(" +".toRegex()).dropLastWhile({ it.isEmpty() }).toTypedArray()
+        return input.substring(input.indexOf(prefix) + prefix.length).split(" +".toRegex()).dropWhile({ it.isEmpty() }).toTypedArray()
     }
     fun onMessageRecivedEvent(event: MessageReceivedEvent) {
         //Check that the message was not send in a private channel, if it was just ignore it.
-        repeat(10) {
+        //repeat(10) {
             val timeForCoroutineStart = measureTimeMillis {
                 launch(stc) {
                     val timeCorotineTook = measureTimeMillis {
-                        if (!event.author.isBot || !event.channel.isPrivate) {
+                        if (!(event.author.isBot || event.channel.isPrivate)) {
                             //TODO: Check if the message is on the word/regex blacklist, remove it if it is (blacklist may not apply to all users)
                             //Check if the message starts with the server command prefix, if not ignore it
                             val prefix = usbbot.config.getGuildCmdPrefix(event.guild.longID)
@@ -68,12 +68,12 @@ class CommandHandler {
                                 //I need to check if the command exists before testing for permissions, otherwise a permission entry will be created
                                 if(cmdMap.containsKey(args[0]) || SimpleTextCommandsSQL.getAllCommandsForServer(event.guild.longID).containsKey(args[0])) {
                                     val isAdministrator = event.author.getPermissionsForGuild(event.guild).contains(Permissions.ADMINISTRATOR)
-                                    val hasPermission = PermissionManager.hasPermission(
+
+                                    if(isAdministrator || PermissionManager.hasPermission(
                                             event.guild.longID,
                                             event.author.longID,
                                             event.message.guild.getRolesForUser(event.author).map { it.longID },
-                                            args[0])
-                                    if(isAdministrator || hasPermission) {
+                                            args[0])) {
                                         if (cmdMap.containsKey(args[0])) {
                                             cmdMap[args[0]]?.execute(event.message, args)
                                         } else {
@@ -90,7 +90,7 @@ class CommandHandler {
                 }
             }
             logger.trace("It took me {} ms to start the Coroutine for message {}", timeForCoroutineStart, event.message.content)
-        }
+    //    }
 
 
     }

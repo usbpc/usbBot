@@ -1,10 +1,12 @@
 package usbbot.config
 
+import ch.qos.logback.core.db.dialect.DBUtil
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
+import org.apache.commons.dbutils.AsyncQueryRunner
 import org.apache.commons.dbutils.DbUtils
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
@@ -16,7 +18,8 @@ import java.sql.ResultSetMetaData
 import java.sql.ResultSet
 import java.util.*
 
-
+data class Test(val name: String, val id: Long) {
+}
 object ResultSetHandlers {
     val guild = ResultSetHandler {
         if (!it.next()) {
@@ -43,15 +46,19 @@ object ResultSetHandlers {
 object DatabaseConnectionKt {
     private val dataSource = ComboPooledDataSource()
     init {
-        dataSource.jdbcUrl = "jdbc:postgresql://localhost:5432/testDB"
+        dataSource.jdbcUrl = "jdbc:postgresql://localhost:5432/ava"
         val properties = Properties()
         properties.setProperty("user", "postgres")
         properties.setProperty("password", "admin")
-        properties.setProperty("ssl", "false")
         dataSource.properties = properties
 
     }
+
     val queryRunner = QueryRunner(dataSource)
+
+    fun close() {
+        dataSource.close()
+    }
 }
 class Guilds(val guildID: Long, val prefix: String) {
     fun getCommands() : Iterable<Command> {
@@ -66,47 +73,32 @@ class Command(val ID: Long, val guildID: Long, val name: String)
 
 fun main(args: Array<String>) {
     val dataSource = ComboPooledDataSource()
-    dataSource.jdbcUrl = "jdbc:postgresql://localhost:5432/testDB"
+    dataSource.jdbcUrl = "jdbc:postgresql://localhost:5432/ava"
     val properties = Properties()
     properties.setProperty("user", "postgres")
     properties.setProperty("password", "admin")
     properties.setProperty("ssl", "false")
     dataSource.properties = properties
     val queryRunner = QueryRunner(dataSource)
-    queryRunner.execute("DELETE FROM public.test WHERE true")
     val startTime = System.currentTimeMillis()
-    val data = Array<Array<Any>>(1000000) { i ->
+
+    val data = Array<Array<Any>>(1_000_000) { i ->
         Array<Any>(2) {
             if (it == 0) {
                 i
             } else{
-                "$i"
+                "!$i"
             }
         }
     }
     val dateCreationEndTime = System.currentTimeMillis()
     println("It took ${dateCreationEndTime - startTime}ms to create the data.")
-    queryRunner.batch("INSERT INTO public.test (guildID, cmdPrefix) VALUES (?, ?)", data)
-
-
-
-    val endTime = System.currentTimeMillis()
-    println("It took ${endTime - dateCreationEndTime}ms to execute everything. That means it took ${(endTime - dateCreationEndTime)/1000000.0}ms per row inserted")
-    queryRunner.execute("DELETE FROM public.test WHERE true")
-    println("now starting corutine execution")
-    val coroutineStart = System.currentTimeMillis()
-    val deffered = (1..1000000L).map { i ->
-        async {
-            queryRunner.execute("INSERT INTO public.test (guildID, cmdPrefix) VALUES (?, ?)", i * 100L, "$i!")
-        }
+    data.forEach {
+        queryRunner.execute("INSERT INTO guilds (guildID, prefix) VALUES (?, ?)", it[0], it[1])
+        println("Did stuff ${it[0]}")
     }
+    //queryRunner.batch("INSERT INTO guilds (guildID, prefix) VALUES (?, ?)", data)
 
-    runBlocking {
-        deffered.forEach { it.await() }
-    }
-
-    val corutineEnd = System.currentTimeMillis()
-    println("It took ${corutineEnd - coroutineStart}ms to execute everything. That means it took ${(corutineEnd - coroutineStart)/1000000.0}ms per row inserted")
 
 }
 
@@ -177,7 +169,7 @@ fun delWatched(category: ICategory) : Boolean {
 }
 
 fun getGuildCmdPrefix(guildID: Long) : String {
-    val sql = "SELECT cmdPrefix FROM guilds WHERE guildID = ?"
+    val sql = "SELECT prefix FROM guilds WHERE guildID = ?"
     DatabaseConnection.getConnection().use { con ->
         con.prepareStatement(sql).use {
             it.setLong(1, guildID)
@@ -192,7 +184,7 @@ fun getGuildCmdPrefix(guildID: Long) : String {
 }
 
 fun setGuildCmdPrefix(guildID: Long, newPrefix: String) : Boolean {
-    val sql = "UPDATE guilds SET cmdPrefix = ? WHERE guildID = ?"
+    val sql = "UPDATE guilds SET prefix = ? WHERE guildID = ?"
     DatabaseConnection.getConnection().use { con ->
         con.prepareStatement(sql).use {
             it.setString(1, newPrefix)

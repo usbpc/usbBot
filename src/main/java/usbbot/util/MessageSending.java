@@ -7,12 +7,14 @@ import sx.blah.discord.util.DiscordException;
 import sx.blah.discord.util.RequestBuffer;
 
 import java.io.InputStream;
+import java.util.concurrent.Future;
 
 public class MessageSending {
     private static Logger logger = LoggerFactory.getLogger(MessageSending.class);
 
-    public static IMessage sendMessage(IChannel channel, String message) {
+    public static Future<IMessage> sendMessage(IChannel channel, String message) {
         //INFO This just buffers the message sending for now, it could be made smarter with bundling messages to the same channel together if a RLE happens
+        //TODO retry on DiscordException with text "Discord didn't return a response" and "cloudflare" in the message
         return RequestBuffer.request(() -> {
             try {
                 return channel.sendMessage(message);
@@ -20,18 +22,20 @@ public class MessageSending {
                 logger.debug("I got an error trying to send a message: {}", e.getErrorMessage(), e);
                 throw e;
             }
-        }).get();
+        });
     }
 
-    public static void sendFile(IChannel channel, String message, InputStream inputStream, String fileName) {
-        RequestBuffer.request(() -> {
+    public static Future<IMessage> sendFile(IChannel channel, String message, InputStream inputStream, String fileName) {
+        return RequestBuffer.request(() -> {
             try {
-                channel.sendFile(message, inputStream, fileName);
+                return channel.sendFile(message, inputStream, fileName);
             } catch (DiscordException e) {
                 logger.debug("I got an error trying to send a message: {}", e.getErrorMessage(), e);
                 throw e;
             }
         });
     }
+
+    //public static Future<IMessage> sendEmbed(IChannel channel, Embed)
 
 }

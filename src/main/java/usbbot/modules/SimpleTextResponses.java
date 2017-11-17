@@ -72,7 +72,6 @@ public class SimpleTextResponses implements DiscordCommands {
         if (args.length < 4) {
             MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
         } else if (SimpleTextCommandsSQL.editCommand(msg.getGuild().getLongID(), args[2], msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1))) {
-            String content = msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1);
             MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
         } else {
             MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");

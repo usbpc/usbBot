@@ -2,7 +2,9 @@ package usbbot.modules
 
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
+import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
 import usbbot.main.UsbBot
@@ -31,6 +33,8 @@ class MiscCommands : DiscordCommands {
     fun bulkdelete(msg: IMessage, args: Array<String>) : Int {
         return 0
     }
+
+    //TODO do this more better with coroutines and streams/pipes to speed things up
     private fun workingBulkdelete(history: MessageHistory) : Int {
         if (history.isEmpty()) return 0
         var numDeleted = 0
@@ -132,7 +136,7 @@ class MiscCommands : DiscordCommands {
                 }
 
                 val startingTime = LocalDateTime.now()
-                val message = MessageSending.sendMessage(msg.channel, "Trying to delete ${messages.size} messages.")
+                val message = MessageSending.sendMessage(msg.channel, "Trying to delete ${messages.size} messages.").get()
                 var history = MessageHistory(messages)
 
                 var deleted = if (!history.isEmpty()) {
@@ -283,13 +287,33 @@ class MiscCommands : DiscordCommands {
             msg.author.longID
         }
         MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
-        delete.get()
     }
+
     @DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {
         var msgCount = args[1].toInt()
         while (msgCount-- > 0) {
             MessageSending.sendMessage(msg.channel, msgCount.toString())
+        }
+    }
+    @DiscordCommand("test")
+    fun test(msg: IMessage, args: Array<String>) {
+        val message = MessageSending.sendMessage(msg.channel, "Message to get the id.").get()
+        runBlocking {
+            delay(5000)
+        }
+        message.edit("This message is now edited!")
+    }
+
+    @DiscordCommand("massmove")
+    fun massmove(msg: IMessage, args: Array<String>) {
+        //TODO make this more robust
+        val location = args[1].toLong()
+        val goalChannel = msg.guild.getVoiceChannelByID(location)
+        msg.author.getVoiceStateForGuild(msg.guild).channel.connectedUsers.forEach {
+            RequestBuffer.request {
+                it.moveToVoiceChannel(goalChannel)
+            }
         }
     }
 }

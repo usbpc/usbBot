@@ -59,7 +59,7 @@ public class CommandPermission {
 		return false;
 	}
 	private void getListModes() {
-		String sql = "SELECT roleMode, userMode FROM permissions WHERE (commandID = ?)";
+		String sql = "SELECT roleMode, userMode FROM commands WHERE (ID = ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setInt(1, commandID);
 			ResultSet rs = pstmt.executeQuery();
@@ -99,12 +99,12 @@ public class CommandPermission {
 		} catch (SQLException ex) {
 			logger.error(ex.getMessage(), ex);
 		}
-		sql = "INSERT INTO permissions (commandID, roleMode, userMode) VALUES (?, ?, ?)";
+		sql = "UPDATE commands SET roleMode = ?, userMode = ? WHERE id = ?";
 		userModeIsBlacklist = roleModeIsBlacklist = false;
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
-			pstmt.setInt(1, commandID);
+			pstmt.setString(1, "whitelist");
 			pstmt.setString(2, "whitelist");
-			pstmt.setString(3, "whitelist");
+			pstmt.setInt(3, commandID);
 			pstmt.executeUpdate();
 		} catch (SQLException ex) {
 			logger.error(ex.getMessage(), ex);
@@ -112,7 +112,7 @@ public class CommandPermission {
 	}
 
 	public void setRoleMode(boolean toBlacklist) {
-		String sql = "UPDATE permissions SET roleMode = ? WHERE (commandID = ?)";
+		String sql = "UPDATE commands SET roleMode = ? WHERE (id = ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, (toBlacklist ? "blacklist" : "whitelist"));
 			pstmt.setInt(2, commandID);
@@ -123,7 +123,7 @@ public class CommandPermission {
 	}
 
 	public void setUserMode(boolean toBlacklist) {
-		String sql = "UPDATE permissions SET userMode =  ? WHERE (commandID = ?)";
+		String sql = "UPDATE commands SET userMode =  ? WHERE (id = ?)";
 		try (Connection con = DatabaseConnection.getConnection(); PreparedStatement pstmt = con.prepareStatement(sql)) {
 			pstmt.setString(1, (toBlacklist ? "blacklist" : "whitelist"));
 			pstmt.setInt(2, commandID);
