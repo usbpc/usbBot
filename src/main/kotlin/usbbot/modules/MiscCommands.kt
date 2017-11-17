@@ -3,7 +3,6 @@ package usbbot.modules
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
@@ -25,7 +24,7 @@ import java.time.LocalDateTime
 import kotlin.concurrent.thread
 
 class MiscCommands : DiscordCommands {
-    val giphy = Giphy(UsbBot.getAPIKey("giphy"))
+    val giphy = Giphy(UsbBot.getProperty("giphy"))
     val logger = LoggerFactory.getLogger(MiscCommands::class.java)
 
     override fun getDiscordCommands(): MutableCollection<Command> = AnnotationExtractor.getCommandList(this)

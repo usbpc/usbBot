@@ -17,7 +17,6 @@ import java.util.Properties;
 public class UsbBot implements DiscordCommands {
 	private static Logger logger = LoggerFactory.getLogger(UsbBot.class);
 	private static String keysFile = "keys.properties";
-	public static String sqlFile = "configs/database.sqlite";
 	private IDiscordClient client;
 	private UsbBot(String discordAPIKey) {
 
@@ -31,15 +30,12 @@ public class UsbBot implements DiscordCommands {
 	public static void main(String...args) {
 		if (args.length == 1) {
 			keysFile = args[0];
-		} else if (args.length == 2) {
-			keysFile = args[0];
-			sqlFile = args[1];
 		}
-		new UsbBot(getAPIKey("discord"));
+		new UsbBot(getProperty("discord"));
 	}
 
 
-	public static String getAPIKey(String name) {
+	public static String getProperty(String name) {
 		//TODO the get property throws an exeption when it dosen't finde the file... fix that and stuff
 		Properties keys = new Properties();
 		String discordApiKey = "404";

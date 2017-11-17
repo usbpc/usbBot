@@ -3,6 +3,7 @@ package usbbot.config
 import com.mchange.v2.c3p0.ComboPooledDataSource
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
+import usbbot.main.UsbBot
 
 /**
  * The Object that Wraps the Connection to the Database Server
@@ -10,9 +11,9 @@ import org.apache.commons.dbutils.ResultSetHandler
 object DatabaseConnection {
     private val dataSource = ComboPooledDataSource()
     init {
-        dataSource.jdbcUrl = "jdbc:postgresql://localhost:5432/ava"
-        dataSource.user = "postgres"
-        dataSource.password = "admin"
+        dataSource.jdbcUrl = UsbBot.getProperty("DBURL")
+        dataSource.user = UsbBot.getProperty("DBUser")
+        dataSource.password = UsbBot.getProperty("DBPassword")
 
     }
 
