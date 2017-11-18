@@ -2,8 +2,6 @@ package usbbot.modules
 
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.runBlocking
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
 import usbbot.main.UsbBot
@@ -11,19 +9,16 @@ import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
-import sx.blah.discord.util.MessageHistory
-import sx.blah.discord.util.PermissionUtils
 import sx.blah.discord.util.RequestBuffer
-import usbbot.config.setGuildPrefix
 import usbbot.util.MessageParsing
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
-import usbbot.util.commands.DiscordSubCommand
+import util.checkOurPermissions
+import util.sendError
+import util.sendProcessing
+import util.sendSuccess
 import java.awt.Color
-import java.io.ByteArrayInputStream
-import java.time.LocalDateTime
-import kotlin.concurrent.thread
 
 class MiscCommands : DiscordCommands {
     val giphy = Giphy(UsbBot.getProperty("giphy"))
@@ -34,11 +29,11 @@ class MiscCommands : DiscordCommands {
     @DiscordCommand("getavatarlink")
     fun getavatarlink(msg: IMessage, vararg args: String) {
         if (args.size < 2) {
-            MessageSending.sendMessage(msg.channel, msg.author.avatarURL)
+            msg.channel.sendSuccess(msg.author.avatarURL)
         } else if (msg.mentions.size  == 1){
             MessageSending.sendMessage(msg.channel, msg.mentions.first().avatarURL)
         } else {
-            MessageSending.sendMessage(msg.channel, "Invalid syntax")
+            msg.channel.sendError("Invalid syntax")
         }
     }
 
@@ -75,6 +70,10 @@ class MiscCommands : DiscordCommands {
 
     @DiscordCommand("hug")
     fun hug(msg: IMessage, args: Array<String>) {
+        if (!msg.channel.checkOurPermissions(Permissions.MANAGE_MESSAGES)) {
+            msg.channel.sendError("I don't have Permissions to delete Messages.")
+            return
+        }
         val delete = RequestBuffer.request { msg.delete() }
         val userID = if (args.size > 1) {
             var tmp = MessageParsing.getUserID(args[1])
@@ -86,7 +85,7 @@ class MiscCommands : DiscordCommands {
         } else {
             msg.author.longID
         }
-        MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
+        msg.channel.sendSuccess("*hugs <@$userID>*")
     }
 
     //@DiscordCommand("spam")
@@ -96,5 +95,4 @@ class MiscCommands : DiscordCommands {
             MessageSending.sendMessage(msg.channel, msgCount.toString())
         }
     }
-
 }

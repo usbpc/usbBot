@@ -7,6 +7,7 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeave
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent
 import sx.blah.discord.handle.obj.ICategory
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.handle.obj.Permissions
 import usbbot.config.addWatchedForGuild
 import usbbot.config.delWatchedForGuild
 import usbbot.config.isWached
@@ -14,6 +15,7 @@ import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
 import usbbot.util.commands.DiscordSubCommand
+import util.checkOurPermissions
 
 //TODO: Add help lines for this
 //TODO: Make responses more clear
@@ -58,29 +60,36 @@ class MoreVoiceChannel : DiscordCommands {
     }
 }
 
-//TODO Null pointer exception can happen everywhere if someone joins a voice channel that is not in a category
 fun someoneJoined(event: UserVoiceChannelJoinEvent) {
+    if (event.voiceChannel.category == null) return
     if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.voiceChannel.category)
     }
 }
 
 fun someoneMoved(event: UserVoiceChannelMoveEvent) {
-    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
+    if (event.oldChannel.category == null) return
+    if (isWached(event.guild.longID, event.oldChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.oldChannel.category)
     }
-    if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
+
+    if (event.newChannel.category == null) return
+    if (isWached(event.guild.longID, event.newChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.newChannel.category)
     }
 }
 
 fun someoneLeft(event: UserVoiceChannelLeaveEvent) {
+    if (event.voiceChannel.category == null) return
     if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.voiceChannel.category)
     }
 }
 
 fun checkCategorieForRoom(category: ICategory) {
+    if (!category.guild.checkOurPermissions(Permissions.MANAGE_CHANNELS)) {
+        return
+    }
     //If there isn't an empty voice room anymore create one
     if (category.voiceChannels.none { it.connectedUsers.isEmpty() }) {
         category.createVoiceChannel(category.name)
@@ -88,5 +97,6 @@ fun checkCategorieForRoom(category: ICategory) {
 }
 
 fun checkCategorieForEmptyRooms(category: ICategory) {
+    category.guild.checkOurPermissions(Permissions.MANAGE_CHANNELS)
     category.voiceChannels.filter { it.connectedUsers.isEmpty() }.dropLast(1).forEach { it.delete() }
 }

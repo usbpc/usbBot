@@ -3,10 +3,7 @@ package util
 import kotlinx.coroutines.experimental.newFixedThreadPoolContext
 import kotlinx.coroutines.experimental.run
 import sx.blah.discord.api.internal.json.objects.EmbedObject
-import sx.blah.discord.handle.obj.IChannel
-import sx.blah.discord.handle.obj.IMessage
-import sx.blah.discord.handle.obj.IUser
-import sx.blah.discord.handle.obj.Permissions
+import sx.blah.discord.handle.obj.*
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.PermissionUtils
 import sx.blah.discord.util.RequestBuffer
@@ -26,10 +23,16 @@ fun IChannel.checkPermissions(user: IUser, vararg permissions: Permissions) : Bo
     return if (PermissionUtils.hasPermissions(this, user, *permissions)) {
         true
     } else {
-        MessageSending.sendMessage(this, "Nope, don't have permissions!")
+        //MessageSending.sendMessage(this, "Nope, don't have permissions!")
         false
     }
 }
+
+fun IGuild.checkPermissions(user: IUser, vararg permissions: Permissions) : Boolean =
+        PermissionUtils.hasPermissions(this, user, *permissions)
+
+fun IGuild.checkOurPermissions(vararg permissions: Permissions) : Boolean =
+        this.checkPermissions(this.client.ourUser, *permissions)
 
 fun IChannel.checkOurPermissions(vararg permissions: Permissions) : Boolean =
         this.checkPermissions(this.client.ourUser, *permissions)

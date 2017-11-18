@@ -35,6 +35,3 @@ abstract class DatabaseEntry {
      */
     abstract fun delete() : Int
 }
-
-
-
