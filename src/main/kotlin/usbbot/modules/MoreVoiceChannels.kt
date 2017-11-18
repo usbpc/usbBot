@@ -58,6 +58,7 @@ class MoreVoiceChannel : DiscordCommands {
     }
 }
 
+//TODO Null pointer exception can happen everywhere if someone joins a voice channel that is not in a category
 fun someoneJoined(event: UserVoiceChannelJoinEvent) {
     if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.voiceChannel.category)

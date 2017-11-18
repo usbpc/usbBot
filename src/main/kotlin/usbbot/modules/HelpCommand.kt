@@ -26,7 +26,7 @@ class HelpCommand : DiscordCommands {
                     MessageSending.sendMessage(msg.channel, "`" + args[1] +
                             "` is just a simple text command that answers with:\n" + "```" + dbTextCommand.text + "```")
                 } else {
-                    MessageSending.sendMessage(msg.channel, "`" + args[1] + "` is not a DBCommand.")
+                    MessageSending.sendMessage(msg.channel, "`" + args[1] + "` is not a Command.")
                 }
             }
         } else {

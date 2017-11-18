@@ -30,7 +30,7 @@ object DatabaseConnection {
  */
 abstract class DatabaseEntry {
     /**
-     * Function that allowes to delete the DatabaseEntry Contained by the current Object
+     * Function that allows to delete the DatabaseEntry Contained by the current Object
      * @return the number of deleted rows
      */
     abstract fun delete() : Int
