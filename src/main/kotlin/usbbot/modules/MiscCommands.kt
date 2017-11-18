@@ -9,8 +9,10 @@ import usbbot.commands.core.Command
 import usbbot.main.UsbBot
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.handle.obj.Permissions
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
+import sx.blah.discord.util.PermissionUtils
 import sx.blah.discord.util.RequestBuffer
 import usbbot.config.setGuildPrefix
 import usbbot.util.MessageParsing
@@ -289,28 +291,34 @@ class MiscCommands : DiscordCommands {
         MessageSending.sendMessage(msg.channel, "*hugs <@$userID>*")
     }
 
-    @DiscordCommand("spam")
+    //@DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {
         var msgCount = args[1].toInt()
         while (msgCount-- > 0) {
             MessageSending.sendMessage(msg.channel, msgCount.toString())
         }
     }
-    @DiscordCommand("test")
-    fun test(msg: IMessage, args: Array<String>) {
-        val message = MessageSending.sendMessage(msg.channel, "Message to get the id.").get()
-        runBlocking {
-            delay(5000)
-        }
-        message.edit("This message is now edited!")
-    }
 
     @DiscordCommand("massmove")
     fun massmove(msg: IMessage, args: Array<String>) {
-        //TODO make this more robust
-        val location = args[1].toLong()
+        val location = args[1].toLongOrNull()
+        if (location == null) {
+            MessageSending.sendMessage(msg.channel, "${args[1]} is not a a valid number")
+            return
+        }
         val goalChannel = msg.guild.getVoiceChannelByID(location)
-        msg.author.getVoiceStateForGuild(msg.guild).channel.connectedUsers.forEach {
+        if (goalChannel == null) {
+            MessageSending.sendMessage(msg.channel, "${args[1]} does not represented a valid voice channel")
+            return
+        }
+        if (!PermissionUtils.hasPermissions(goalChannel, msg.author, Permissions.VOICE_MOVE_MEMBERS)) {
+            MessageSending.sendMessage(msg.channel, "You do not have move permissions for the channel that you try to move to")
+            return
+        }
+
+        val voiceState = msg.author.getVoiceStateForGuild(msg.guild)
+
+        msg.author.getVoiceStateForGuild(msg.guild)?.channel?.connectedUsers?.forEach {
             RequestBuffer.request {
                 it.moveToVoiceChannel(goalChannel)
             }
