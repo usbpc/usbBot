@@ -60,3 +60,6 @@ fun IMessage.bufferedEdit(embed: EmbedObject) : Future<IMessage> =
 
 fun IChannel.bufferedSend(embed: EmbedObject) : Future<IMessage> =
         RequestBuffer.request <IMessage> { this.sendMessage(embed) }
+
+fun IMessage.bufferedDelete() : Future<Unit> =
+        RequestBuffer.request <Unit> { this.delete() }

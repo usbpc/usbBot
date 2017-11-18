@@ -14,10 +14,7 @@ import usbbot.util.MessageParsing
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
-import util.checkOurPermissions
-import util.sendError
-import util.sendProcessing
-import util.sendSuccess
+import util.*
 import java.awt.Color
 
 class MiscCommands : DiscordCommands {
@@ -30,8 +27,8 @@ class MiscCommands : DiscordCommands {
     fun getavatarlink(msg: IMessage, vararg args: String) {
         if (args.size < 2) {
             msg.channel.sendSuccess(msg.author.avatarURL)
-        } else if (msg.mentions.size  == 1){
-            MessageSending.sendMessage(msg.channel, msg.mentions.first().avatarURL)
+        } else if (msg.mentions.size  == 1) {
+            msg.channel.sendSuccess(msg.mentions.first().avatarURL)
         } else {
             msg.channel.sendError("Invalid syntax")
         }
@@ -41,7 +38,7 @@ class MiscCommands : DiscordCommands {
     fun cat(msg: IMessage, args: Array<String>) {
         val embed = EmbedBuilder()
                 .withImage(giphy.searchRandom("cute cat").data.imageOriginalUrl)
-                .withColor(Color.RED)
+                .withColor(Color.GREEN)
                 //.withTitle("A cute cat:")
                 //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
                 //.withAuthorIcon(msg.client.ourUser.avatarURL)
@@ -57,7 +54,7 @@ class MiscCommands : DiscordCommands {
         try {
             val embed = EmbedBuilder()
                     .withImage(giphy.searchRandom(builder.toString()).data.imageOriginalUrl)
-                    .withColor(Color.RED)
+                    .withColor(Color.GREEN)
                     //.withTitle("A cute cat:")
                     //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
                     //.withAuthorIcon(msg.client.ourUser.avatarURL)
@@ -70,11 +67,9 @@ class MiscCommands : DiscordCommands {
 
     @DiscordCommand("hug")
     fun hug(msg: IMessage, args: Array<String>) {
-        if (!msg.channel.checkOurPermissions(Permissions.MANAGE_MESSAGES)) {
-            msg.channel.sendError("I don't have Permissions to delete Messages.")
-            return
+        if (msg.channel.checkOurPermissions(Permissions.MANAGE_MESSAGES)) {
+            msg.bufferedDelete()
         }
-        val delete = RequestBuffer.request { msg.delete() }
         val userID = if (args.size > 1) {
             var tmp = MessageParsing.getUserID(args[1])
             if (tmp == -1L) {
