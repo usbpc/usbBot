@@ -36,6 +36,7 @@ class MiscCommands : DiscordCommands {
 
     @DiscordCommand("cat")
     fun cat(msg: IMessage, args: Array<String>) {
+        val messageFuture = msg.channel.sendProcessing("Loading...")
         val embed = EmbedBuilder()
                 .withImage(giphy.searchRandom("cute cat").data.imageOriginalUrl)
                 .withColor(Color.GREEN)
@@ -43,12 +44,14 @@ class MiscCommands : DiscordCommands {
                 //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
                 //.withAuthorIcon(msg.client.ourUser.avatarURL)
                 .withFooterText("Powered By GIPHY")
-        RequestBuffer.request { msg.channel.sendMessage(embed.build()) }
+        val message = messageFuture.get()
+        RequestBuffer.request { message.edit(embed.build()) }
     }
 
     @DiscordCommand("gif")
     fun giphy(msg: IMessage, args: Array<String>) {
         if (args.size < 2) return
+        val messageFuture = msg.channel.sendProcessing("Loading...")
         val builder = StringBuilder()
         args.drop(1).forEach { builder.append(it).append(" ") }
         try {
@@ -59,9 +62,9 @@ class MiscCommands : DiscordCommands {
                     //.withAuthorName(msg.client.ourUser.getDisplayName(msg.guild))
                     //.withAuthorIcon(msg.client.ourUser.avatarURL)
                     .withFooterText("Powered By GIPHY")
-            RequestBuffer.request { msg.channel.sendMessage(embed.build()) }
+            messageFuture.updateSuccess(embed.build())
         } catch (ex: GiphyException) {
-           MessageSending.sendMessage(msg.channel, "Couldn't find anything for `$builder` :(")
+            messageFuture.updateError("Could not find a gif for `$builder`")
         }
     }
 

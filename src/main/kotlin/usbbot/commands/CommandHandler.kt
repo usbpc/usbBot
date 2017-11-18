@@ -13,6 +13,7 @@ import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.Permissions
 import usbbot.config.*
 import usbbot.util.MessageSending
+import util.sendSuccess
 import kotlin.system.measureTimeMillis
 
 class CommandHandler {
@@ -42,7 +43,7 @@ class CommandHandler {
                         builder.append(", ")
                     }
                 }
-                MessageSending.sendMessage(msg.channel, "Commands are: " + builder.toString())
+                msg.channel.sendSuccess("Commands are: " + builder.toString())
             }
         })
     }

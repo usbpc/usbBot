@@ -1,8 +1,11 @@
 package usbbot.modules
 
 import org.slf4j.LoggerFactory
+import sx.blah.discord.handle.impl.obj.VoiceState
 import sx.blah.discord.handle.obj.IMessage
+import sx.blah.discord.handle.obj.IVoiceState
 import sx.blah.discord.handle.obj.Permissions
+import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.MessageHistory
 import sx.blah.discord.util.PermissionUtils
 import sx.blah.discord.util.RequestBuffer
@@ -13,6 +16,7 @@ import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
 import usbbot.util.commands.DiscordSubCommand
+import util.*
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
 import kotlin.concurrent.thread
@@ -24,28 +28,47 @@ class ModerationHelp : DiscordCommands {
 
     @DiscordCommand("massmove")
     fun massmove(msg: IMessage, args: Array<String>) {
+        if (args.isEmpty()) {
+            msg.channel.sendError("Invalid Syntax")
+            return
+        }
+
         val location = args[1].toLongOrNull()
         if (location == null) {
-            MessageSending.sendMessage(msg.channel, "${args[1]} is not a a valid number")
+            msg.channel.sendError("${args[1]} is not a a valid number")
             return
         }
+
         val goalChannel = msg.guild.getVoiceChannelByID(location)
         if (goalChannel == null) {
-            MessageSending.sendMessage(msg.channel, "${args[1]} does not represented a valid voice channel")
-            return
-        }
-        if (!PermissionUtils.hasPermissions(goalChannel, msg.author, Permissions.VOICE_MOVE_MEMBERS)) {
-            MessageSending.sendMessage(msg.channel, "You do not have move permissions for the channel that you try to move to")
+            msg.channel.sendError("${args[1]} does not represented a valid voice channel")
             return
         }
 
-        val voiceState = msg.author.getVoiceStateForGuild(msg.guild)
+        if (!goalChannel.checkPermissions(msg.author, Permissions.VOICE_MOVE_MEMBERS)) {
+            msg.channel.sendError("You do not have move permissions for the channel that you try to move to!")
+            return
+        }
 
-        msg.author.getVoiceStateForGuild(msg.guild)?.channel?.connectedUsers?.forEach {
+        val voiceState : IVoiceState? = msg.author.getVoiceStateForGuild(msg.guild)
+        if (voiceState == null) {
+            msg.channel.sendError("You are not currently in any voice channel!")
+            return
+        }
+
+        if (!goalChannel.checkOurPermissionsOrSendError(msg.channel, Permissions.VOICE_MOVE_MEMBERS) ||
+                !voiceState.channel.checkOurPermissionsOrSendError(msg.channel, Permissions.VOICE_MOVE_MEMBERS))
+            return
+
+        val message = msg.channel.sendProcessing("Will now move everyone...")
+
+        voiceState.channel.connectedUsers.forEach {
             RequestBuffer.request {
                 it.moveToVoiceChannel(goalChannel)
             }
         }
+
+        message.updateSuccess("Everyone was moved!")
     }
     @DiscordCommand("bulkdelete")
     fun bulkdelete(msg: IMessage, args: Array<String>) : Int {

@@ -1,13 +1,10 @@
 package util
 
-import kotlinx.coroutines.experimental.newFixedThreadPoolContext
-import kotlinx.coroutines.experimental.run
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.*
 import sx.blah.discord.util.EmbedBuilder
 import sx.blah.discord.util.PermissionUtils
 import sx.blah.discord.util.RequestBuffer
-import usbbot.util.MessageSending
 import java.awt.Color
 import java.util.concurrent.Future
 
@@ -34,11 +31,50 @@ fun IGuild.checkPermissions(user: IUser, vararg permissions: Permissions) : Bool
 fun IGuild.checkOurPermissions(vararg permissions: Permissions) : Boolean =
         this.checkPermissions(this.client.ourUser, *permissions)
 
+inline fun IGuild.checkOurPermissions(vararg permissions: Permissions, block: () -> Any) : Boolean {
+    return if (!this.checkOurPermissions(*permissions)) {
+        block()
+        false
+    } else {
+        true
+    }
+}
+
+fun IGuild.checkOurPermissionOrSendError(channel: IChannel, vararg permissions: Permissions) : Boolean {
+    return this.checkOurPermissions(*permissions) {
+        val builder = StringBuilder("Missing Permissions: ").append("```")
+        permissions.forEach { builder.append('\n').append(it) }
+        builder.append("```")
+        channel.sendError(builder.toString())
+    }
+}
+
 fun IChannel.checkOurPermissions(vararg permissions: Permissions) : Boolean =
         this.checkPermissions(this.client.ourUser, *permissions)
 
+inline fun IChannel.checkOurPermissions(vararg permissions: Permissions, block: () -> Any) : Boolean {
+    return if (!this.checkOurPermissions(*permissions)) {
+        block()
+        false
+    } else {
+        true
+    }
+}
+
+fun IChannel.checkOurPermissionsOrSendError(channel: IChannel, vararg permissions: Permissions) : Boolean {
+    return this.checkOurPermissions(*permissions) {
+        val builder = StringBuilder("Missing Permissions: ").append("```")
+        permissions.forEach { builder.append('\n').append(it) }
+        builder.append("```")
+        channel.sendError(builder.toString())
+    }
+}
+
 fun Future<IMessage>.updateSuccess(message: String) : Future<IMessage> =
         this.get().bufferedEdit(getDefaultEmbed(Color.GREEN, message))
+
+fun Future<IMessage>.updateSuccess(embed: EmbedObject) : Future<IMessage> =
+        this.get().bufferedEdit(embed)
 
 fun Future<IMessage>.updateError(message: String) : Future<IMessage> =
         this.get().bufferedEdit(getDefaultEmbed(Color.RED, message))

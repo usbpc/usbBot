@@ -15,7 +15,11 @@ import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
 import usbbot.util.commands.DiscordSubCommand
+import util.checkOurPermissionOrSendError
 import util.checkOurPermissions
+import util.sendError
+import util.sendSuccess
+import java.security.Permission
 
 //TODO: Add help lines for this
 //TODO: Make responses more clear
@@ -33,16 +37,17 @@ class MoreVoiceChannel : DiscordCommands {
 
     @DiscordSubCommand(name = "add", parent = "voice")
     fun voiceAdd(msg: IMessage, args: Array<String>) {
+        if (!msg.guild.checkOurPermissionOrSendError(msg.channel, Permissions.MANAGE_CHANNELS)) return
         val categoryID = args[2].toLong()
         msg.guild.getCategoryByID(categoryID)?.let {
             if (addWatchedForGuild(it.guild.longID, it.longID) >= 1) {
-                MessageSending.sendMessage(msg.channel, "Okay, am now watching " + it.name)
+                msg.channel.sendSuccess("Okay, am now watching ${it.name}")
             } else {
-                MessageSending.sendMessage(msg.channel, "Am already watching " + it.name)
+                msg.channel.sendError("Am already watching ${it.name}")
             }
             return
         }
-        MessageSending.sendMessage(msg.channel, "That is not a Categorie!")
+        msg.channel.sendError("That is not a Categorie")
     }
 
     @DiscordSubCommand(name = "remove", parent = "voice")
@@ -50,13 +55,13 @@ class MoreVoiceChannel : DiscordCommands {
         val categoryID = args[2].toLong()
         msg.guild.getCategoryByID(categoryID)?.let {
             if (delWatchedForGuild(it.guild.longID, it.longID) >= 1) {
-                MessageSending.sendMessage(msg.channel, "Okay, am no longer watching " + it.name)
+                msg.channel.sendSuccess("Okay, am no longer watching ${it.name}")
             } else {
-                MessageSending.sendMessage(msg.channel, "Was never watching " + it.name)
+                msg.channel.sendError("Was never watching ${it.name}")
             }
             return
         }
-        MessageSending.sendMessage(msg.channel, "That is not a Categorie!")
+        msg.channel.sendError("That is not a Categorie!")
     }
 }
 
