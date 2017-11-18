@@ -28,6 +28,8 @@ public class EventHandler {
         cmdHandler.registerCommands(new MiscCommands());
         cmdHandler.registerCommands(new MoreVoiceChannel());
         cmdHandler.registerCommands(new PermissionManager());
+        cmdHandler.registerCommands(new ModerationHelp());
+        cmdHandler.registerCommands(new SystemCommands());
     }
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
     @EventSubscriber

@@ -1,5 +1,7 @@
 package util
 
+import kotlinx.coroutines.experimental.newFixedThreadPoolContext
+import kotlinx.coroutines.experimental.run
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
@@ -11,6 +13,8 @@ import sx.blah.discord.util.RequestBuffer
 import usbbot.util.MessageSending
 import java.awt.Color
 import java.util.concurrent.Future
+
+//private val futureWaiterPool = newFixedThreadPoolContext(5, "Future Waiter Pool")
 
 fun getDefaultEmbed(color: Color, message: String) : EmbedObject =
         getDefaultEmbedBuilder(color).withDescription(message).build()
