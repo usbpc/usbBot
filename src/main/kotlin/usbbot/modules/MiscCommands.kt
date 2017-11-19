@@ -50,7 +50,10 @@ class MiscCommands : DiscordCommands {
 
     @DiscordCommand("gif")
     fun giphy(msg: IMessage, args: Array<String>) {
-        if (args.size < 2) return
+        if (args.size < 2) {
+            msg.channel.sendError("Please specify a search term...")
+            return
+        }
         val messageFuture = msg.channel.sendProcessing("Loading...")
         val builder = StringBuilder()
         args.drop(1).forEach { builder.append(it).append(" ") }
