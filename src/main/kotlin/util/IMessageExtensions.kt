@@ -1,6 +1,7 @@
 package util
 
 import org.slf4j.LoggerFactory
+import sun.misc.Request
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.*
 import sx.blah.discord.util.*
@@ -118,4 +119,7 @@ fun IMessage.bufferedDelete() : Future<Unit> =
 
 fun MessageHistory.bufferedBulkDelete() : Future<List<IMessage>> =
         RequestBuffer.request <List<IMessage>> { this.bulkDelete() }
+
+fun IUser.bufferedMoveToVoiceChannel(channel: IVoiceChannel) =
+        RequestBuffer.request { this.moveToVoiceChannel(channel) }
 

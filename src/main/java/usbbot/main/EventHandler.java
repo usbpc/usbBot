@@ -22,6 +22,7 @@ import usbbot.modules.Moderation.BulkDeleteCommand;
 public class EventHandler {
     private static long CHANNEL = 378509902009597965L;
     private CommandHandler cmdHandler = new CommandHandler();
+    private Jail jail = new Jail();
     EventHandler() {
         //cmdHandler.registerCommands(new TestCommands());
         cmdHandler.registerCommands(new SimpleTextResponses(cmdHandler));
@@ -32,12 +33,14 @@ public class EventHandler {
         cmdHandler.registerCommands(new ModerationHelp());
         cmdHandler.registerCommands(new SystemCommands());
         cmdHandler.registerCommands(new BulkDeleteCommand());
+        cmdHandler.registerCommands(jail);
     }
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
     @EventSubscriber
     public void onUserVoiceChannelJoinEvent(UserVoiceChannelJoinEvent event) {
-        logger.debug("Someone joined: {}", event);
+        logger.debug("Someone joined: {}", event.getVoiceChannel().getName());
         MoreVoiceChannelsKt.someoneJoined(event);
+        jail.userMoved(event.getUser(), event.getVoiceChannel());
         /*if (event.getUser().getLongID() == 315264591867281408L && event.getVoiceChannel().getLongID() != CHANNEL) {
             RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
         }*/
@@ -45,8 +48,9 @@ public class EventHandler {
 
     @EventSubscriber
     public void onUserVoiceChannelMoveEvent(UserVoiceChannelMoveEvent event) {
-        logger.debug("Someone moved: {}", event);
+        logger.debug("Someone moved to: {}", event.getOldChannel().getName());
         MoreVoiceChannelsKt.someoneMoved(event);
+        jail.userMoved(event.getUser(), event.getNewChannel());
         /*if (event.getUser().getLongID() == 315264591867281408L && event.getNewChannel().getLongID() != CHANNEL) {
             RequestBuffer.request(() -> event.getUser().moveToVoiceChannel(event.getGuild().getVoiceChannelByID(CHANNEL)));
         }*/
@@ -54,7 +58,7 @@ public class EventHandler {
 
     @EventSubscriber
     public void onUserVoiceChannelLeaveEvent(UserVoiceChannelLeaveEvent event) {
-        logger.debug("Someone left: {}", event);
+        logger.debug("Someone left: {}", event.getVoiceChannel().getName());
         MoreVoiceChannelsKt.someoneLeft(event);
     }
 
