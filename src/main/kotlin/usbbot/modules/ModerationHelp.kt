@@ -1,7 +1,15 @@
 package usbbot.modules
 
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.ClosedSendChannelException
+import kotlinx.coroutines.experimental.channels.consumeEach
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.newSingleThreadContext
+import kotlinx.coroutines.experimental.runBlocking
 import org.slf4j.LoggerFactory
 import sx.blah.discord.handle.impl.obj.VoiceState
+import sx.blah.discord.handle.obj.IChannel
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IVoiceState
 import sx.blah.discord.handle.obj.Permissions
@@ -19,6 +27,9 @@ import usbbot.util.commands.DiscordSubCommand
 import util.*
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
+import java.time.ZoneId
+import java.util.concurrent.Future
+import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.concurrent.thread
 
 class ModerationHelp : DiscordCommands {
@@ -28,7 +39,7 @@ class ModerationHelp : DiscordCommands {
 
     @DiscordCommand("massmove")
     fun massmove(msg: IMessage, args: Array<String>) {
-        if (args.isEmpty()) {
+        if (args.size < 2) {
             msg.channel.sendError("Invalid Syntax")
             return
         }
@@ -70,181 +81,12 @@ class ModerationHelp : DiscordCommands {
 
         message.updateSuccess("Everyone was moved!")
     }
-    @DiscordCommand("bulkdelete")
-    fun bulkdelete(msg: IMessage, args: Array<String>) : Int {
-        return 0
-    }
-
-    //TODO do this more better with coroutines and streams/pipes to speed things up
-    private fun workingBulkdelete(history: MessageHistory) : Int {
-        if (history.isEmpty()) return 0
-        var numDeleted = 0
-        history.spliterator()
-        var deleted = history.bulkDelete()
-        numDeleted += deleted.size
-        history.withIndex().groupBy { Math.floor(it.index / 100.0) }
-                .map { it.value }
-                .forEach {
-                    numDeleted += RequestBuffer.request <List<IMessage>> {
-                        MessageHistory(it.map { it.value }.toList())
-                                .bulkDelete()
-                    }.get().size
-
-                    logger.debug("Deleted {} of {} messages so far.", numDeleted, history.size)
-                }
-        return numDeleted
-    }
-
-    @DiscordSubCommand(name = "range", parent = "bulkdelete")
-    fun bulkdeleteRange(msg: IMessage, args: Array<String>) {
-        MessageSending.sendMessage(msg.channel, "Trying to delete messages")
-        if (args.size < 4) {
-            MessageSending.sendMessage(msg.channel, "Invalid Syntax.")
-            return
-        }
-        val first = args[2].toLongOrNull()
-        val second = args[3].toLongOrNull()
-        if (first != null && second != null) {
-            val firstMsg : IMessage? = msg.channel.getMessageByID(first)
-            val secondMsg : IMessage? = msg.channel.getMessageByID(second)
-
-            if (firstMsg == null || secondMsg == null) {
-                MessageSending.sendMessage(msg.channel, "Both messages need to be in the same channel, and it has to be the channel where you execute this command!")
-            } else {
-                var history = if (firstMsg.timestamp.isAfter(secondMsg.timestamp)) {
-                    msg.channel.getMessageHistoryIn(first, second)
-                } else {
-                    msg.channel.getMessageHistoryIn(second, first)
-                }
-                history = MessageHistory(history.filter { it.timestamp.isAfter(LocalDateTime.now().minusWeeks(2)) })
-                thread (start = true, name = "Bulkdelete on guild ${msg.guild.name}") { MessageSending.sendMessage(msg.channel, "Deleted ${workingBulkdelete(history)} messages.") }
-            }
-        } else {
-            MessageSending.sendMessage(msg.channel, "Invalid Arguments")
-        }
-    }
-
-    @DiscordSubCommand(name = "last", parent = "bulkdelete")
-    fun bulkdeleteLast(msg: IMessage, args: Array<String>) {
-        if (args.size < 3) {
-            MessageSending.sendMessage(msg.channel, "Invalid Syntax.")
-        }
-
-        val number : Int? = args[2].toIntOrNull()
-        if (number != null) {
-            var messageList = msg.channel.getMessageHistoryTo(LocalDateTime.now().minusWeeks(2), number).toList()
-            logger.debug("Tried to get {} messages got {} messages", number, messageList.size)
-            //TODO: This is a workaroung because getMessageHistoryTo is broken.
-            if (messageList.size > number) {
-                logger.debug("Dropping the last {} messages...", messageList.size - number)
-                messageList = messageList.dropLast(messageList.size - number)
-            }
-            var deletedLast = RequestBuffer.request <List<IMessage>>{ MessageHistory(messageList).bulkDelete()}.get()
-            var messagesDeleted = deletedLast.size
-            messageList = messageList.minus(deletedLast)
-            while (messageList.isNotEmpty() && deletedLast.size == 100) {
-                deletedLast = RequestBuffer.request <List<IMessage>>{ MessageHistory(messageList).bulkDelete()}.get()
-                messagesDeleted += deletedLast.size
-                messageList = messageList.minus(deletedLast)
-                logger.debug("Still have {} messages to delete", messageList.size)
-            }
-            if (messagesDeleted < number) {
-                MessageSending.sendMessage(msg.channel, "Deleted $messagesDeleted messages. Could not delete any more, they are too old!")
-            } else {
-                MessageSending.sendMessage(msg.channel, "Deleted $messagesDeleted messages.")
-            }
-        } else {
-            MessageSending.sendMessage(msg.channel, "You need to specify how many messages to delete!")
-        }
-    }
-
-    @DiscordSubCommand(name = "user", parent = "bulkdelete")
-    fun bulkdeleteUser(msg: IMessage, args: Array<out String>) {
-        if (args.size < 4) {
-            MessageSending.sendMessage(msg.channel, "Invalid Syntax.")
-        } else {
-            val userID = MessageParsing.getUserID(args[2])
-            val count = args[3].toIntOrNull()
-            if (userID != -1L) {
-                if (count == null) {
-                    MessageSending.sendMessage(msg.channel, "No valid message count provided.")
-                    return
-                }
-                var messages = msg.channel.messageHistory.filter { it.author.longID == userID }.toList()
-
-                if (messages.size - count >= 0) {
-                    messages = messages.dropLast(messages.size - count)
-                }
-
-                val startingTime = LocalDateTime.now()
-                val message = MessageSending.sendMessage(msg.channel, "Trying to delete ${messages.size} messages.").get()
-                var history = MessageHistory(messages)
-
-                var deleted = if (!history.isEmpty()) {
-                    RequestBuffer.request <List<IMessage>> {
-                        history.bulkDelete()
-                    }.get()
-                } else {
-                    ArrayList<IMessage>()
-                }
-
-                val notDeleted = history.asArray().filter { !deleted.contains(it) }
-                var deletedCount = deleted.size
-                RequestBuffer.request { message.edit("Deleted $deletedCount messages. (Still running...)") }
-
-                logger.debug("count: {}, deleteCount: {}, notDeleted: {}", count, deletedCount, notDeleted.size)
-
-                if (count > deletedCount && notDeleted.isEmpty()) {
-                    //messages = msg.channel.getMessageHistoryIn(startingTime, LocalDateTime.now().minusWeeks(2)).filter { it.author.longID == userID }.toList()
-                    /*logger.debug("now, before: {} before, now: {}",
-                            msg.channel.getMessageHistoryIn(startingTime, LocalDateTime.now().minusWeeks(2)).size,
-                            msg.channel.getMessageHistoryIn(LocalDateTime.now().minusWeeks(2), startingTime).size)*/
-
-                    messages = msg.channel.getMessageHistoryTo(LocalDateTime.now().minusWeeks(2)).filter { it.author.longID == userID }.filter { it.timestamp.isBefore(startingTime) }.toList()
-                    if (messages.size - count >= 0) {
-                        messages = messages.dropLast(messages.size - count + deletedCount)
-                    }
-
-                    while (!messages.isEmpty()) {
-                        history = MessageHistory(messages)
-
-                        if (history.size != 0) {
-                            RequestBuffer.request { deleted = history.bulkDelete() }.get()
-                            deletedCount += deleted.size
-                        }
-                        messages = messages.minus(deleted)
-                    }
-                } else {
-
-                }
-                if (deletedCount < count) {
-                    RequestBuffer.request {
-                        message.edit("Deleted $deletedCount messages. Not more messages could be deleted, because they were too old. (Done)")
-                        logger.debug("A nice log message to make sure, that this is getting called {}", message.longID)
-                    }.get()
-                    MessageSending.sendMessage(msg.channel, "Deleted $deletedCount messages. Not more messages could be deleted, because they were too old. (Done)")
-                } else {
-                    RequestBuffer.request {
-                        message.edit("Deleted $deletedCount messages. (Done)")
-                        logger.debug("A nice log message to make sure, that this is getting called aswell {}", message.longID)
-                    }.get()
-                    MessageSending.sendMessage(msg.channel, "Deleted $deletedCount messages. (Done)")
-                }
-
-                MessageSending.sendMessage(msg.channel, "Done!")
-
-
-            } else {
-                MessageSending.sendMessage(msg.channel, "No valid user specified")
-            }
-        }
-    }
 
     @DiscordCommand("getroleids")
     fun getroleids(msg: IMessage, vararg args: String) {
         val builder = StringBuilder()
         msg.guild.roles.forEach { role -> builder.append(role.name).append(": ").append(role.longID).append('\n') }
-        MessageSending.sendMessage(msg.channel, "There are the IDs I found: ```" + builder.toString() + "```")
+        msg.channel.sendSuccess("There are the IDs I found: ```" + builder.toString() + "```")
     }
 
     @DiscordCommand("getuserids")

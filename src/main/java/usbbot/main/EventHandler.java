@@ -13,6 +13,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedE
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
+import usbbot.modules.Moderation.BulkDeleteCommand;
 
 /**
  * @author usbpc
@@ -30,6 +31,7 @@ public class EventHandler {
         cmdHandler.registerCommands(new PermissionManager());
         cmdHandler.registerCommands(new ModerationHelp());
         cmdHandler.registerCommands(new SystemCommands());
+        cmdHandler.registerCommands(new BulkDeleteCommand());
     }
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
     @EventSubscriber

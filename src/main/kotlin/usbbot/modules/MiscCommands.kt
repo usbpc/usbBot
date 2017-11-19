@@ -86,11 +86,11 @@ class MiscCommands : DiscordCommands {
         msg.channel.sendSuccess("*hugs <@$userID>*")
     }
 
-    //@DiscordCommand("spam")
+    @DiscordCommand("spam")
     fun spam(msg: IMessage, args: Array<String>) {
         var msgCount = args[1].toInt()
         while (msgCount-- > 0) {
-            MessageSending.sendMessage(msg.channel, msgCount.toString())
+            MessageSending.sendMessage(msg.channel, msgCount.toString()).get()
         }
     }
 }
