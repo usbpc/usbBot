@@ -1,5 +1,6 @@
 package usbbot.modules
 
+import org.slf4j.LoggerFactory
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent
@@ -15,10 +16,7 @@ import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
 import usbbot.util.commands.DiscordSubCommand
-import util.checkOurPermissionOrSendError
-import util.checkOurPermissions
-import util.sendError
-import util.sendSuccess
+import util.*
 import java.security.Permission
 
 //TODO: Add help lines for this
@@ -26,6 +24,9 @@ import java.security.Permission
 //TODO: Allow more than just categories growing, maybe multiple channels in categorie or something
 //TODO: Add master slave channel system (Streaming -> Warteraum Stream)
 class MoreVoiceChannel : DiscordCommands {
+    companion object {
+        val logger = this.getLogger()
+    }
     override fun getDiscordCommands(): MutableCollection<Command> {
         return AnnotationExtractor.getCommandList(this)
     }
@@ -66,6 +67,7 @@ class MoreVoiceChannel : DiscordCommands {
 }
 
 fun someoneJoined(event: UserVoiceChannelJoinEvent) {
+    MoreVoiceChannel.logger.trace("someoneJoined was called!")
     if (event.voiceChannel.category == null) return
     if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForRoom(event.voiceChannel.category)
@@ -73,8 +75,8 @@ fun someoneJoined(event: UserVoiceChannelJoinEvent) {
 }
 
 fun someoneMoved(event: UserVoiceChannelMoveEvent) {
-    if (event.oldChannel.category == null) return
-    if (isWached(event.guild.longID, event.oldChannel.category.longID) >= 1) {
+    MoreVoiceChannel.logger.trace("someoneMoved was called!")
+    if (event.oldChannel.category != null && isWached(event.guild.longID, event.oldChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.oldChannel.category)
     }
 
@@ -85,6 +87,7 @@ fun someoneMoved(event: UserVoiceChannelMoveEvent) {
 }
 
 fun someoneLeft(event: UserVoiceChannelLeaveEvent) {
+    MoreVoiceChannel.logger.trace("someoneLeft was called!")
     if (event.voiceChannel.category == null) return
     if (isWached(event.guild.longID, event.voiceChannel.category.longID) >= 1) {
         checkCategorieForEmptyRooms(event.voiceChannel.category)
@@ -92,6 +95,7 @@ fun someoneLeft(event: UserVoiceChannelLeaveEvent) {
 }
 
 fun checkCategorieForRoom(category: ICategory) {
+    MoreVoiceChannel.logger.trace("checkCategoriForRoom was called!")
     if (!category.guild.checkOurPermissions(Permissions.MANAGE_CHANNELS)) {
         return
     }
