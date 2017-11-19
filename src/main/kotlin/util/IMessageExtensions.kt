@@ -1,14 +1,14 @@
 package util
 
+import org.slf4j.LoggerFactory
 import sx.blah.discord.api.internal.json.objects.EmbedObject
 import sx.blah.discord.handle.obj.*
-import sx.blah.discord.util.EmbedBuilder
-import sx.blah.discord.util.PermissionUtils
-import sx.blah.discord.util.RequestBuffer
+import sx.blah.discord.util.*
 import java.awt.Color
 import java.util.concurrent.Future
 
 //private val futureWaiterPool = newFixedThreadPoolContext(5, "Future Waiter Pool")
+private val logger = LoggerFactory.getLogger("usbbot.util.IMessageExtensionsKT")
 
 fun getDefaultEmbed(color: Color, message: String) : EmbedObject =
         getDefaultEmbedBuilder(color).withDescription(message).build()
@@ -95,7 +95,27 @@ fun IMessage.bufferedEdit(embed: EmbedObject) : Future<IMessage> =
         RequestBuffer.request <IMessage> { this.edit(embed) }
 
 fun IChannel.bufferedSend(embed: EmbedObject) : Future<IMessage> =
-        RequestBuffer.request <IMessage> { this.sendMessage(embed) }
+        RequestBuffer.request <IMessage> {
+            var success = false
+            var msg : IMessage? = null
+            while (!success) {
+                try {
+                    msg = this.sendMessage(embed)
+                    success = true
+                } catch (ex: DiscordException) {
+                    if (ex.errorMessage != "Message was unable to be sent (Discord didn't return a response)") {
+                        throw ex
+                    } else {
+                        logger.error("Got an exception, but ignoring it.", ex)
+                    }
+                }
+            }
+            msg
+        }
 
 fun IMessage.bufferedDelete() : Future<Unit> =
         RequestBuffer.request <Unit> { this.delete() }
+
+fun MessageHistory.bufferedBulkDelete() : Future<List<IMessage>> =
+        RequestBuffer.request <List<IMessage>> { this.bulkDelete() }
+

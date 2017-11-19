@@ -15,6 +15,7 @@ import sx.blah.discord.handle.obj.IGuild;
 import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
+import util.IMessageExtensionsKt;
 
 import java.util.*;
 
@@ -63,7 +64,7 @@ public class PermissionManager implements DiscordCommands {
         if (args.length > 1) {
 
             if (DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]) == null) {
-                MessageSending.sendMessage(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
+                IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[1] + "` is not a valid command name");
                 return -1;
             }
         }
@@ -79,17 +80,17 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "add", parent = "permissionsUsers")
     private void permissionsUsersAdd(IMessage msg, String...args) {
         if (args.length < 5) {
-            MessageSending.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
         long userID = MessageParsing.getUserID(args[4]);
         if (userID == -1) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IUser user = msg.getClient().getUserByID(userID);
         if (user == null) {
-            MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "<@" + args[4] + "> is not a valid user on this server");
             return;
         }
 
@@ -98,18 +99,18 @@ public class PermissionManager implements DiscordCommands {
             throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
 
         cmd.addUserToList(user.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) +
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Added " + user.getDisplayName(msg.getGuild()) +
                 " to the " + cmd.getUsermode() + " for command `" + args[1] + "`.");
     }
     @DiscordSubCommand(name = "remove", parent = "permissionsUsers")
     private void permissionsUsersRemove(IMessage msg, String...args) {
     	if (args.length < 5) {
-            MessageSending.sendMessage(msg.getChannel(), "Please specify a user either by @mention or by ID");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Please specify a user either by @mention or by ID");
             return;
         }
         long userID = MessageParsing.getUserID(args[4]);
         if (userID == -1) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
@@ -119,12 +120,12 @@ public class PermissionManager implements DiscordCommands {
 
         if (cmd.delUserFromList(userID) >= 1) {
             IUser user = msg.getClient().getUserByID(userID);
-            MessageSending.sendMessage(msg.getChannel(), "Removed " +
+            IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Removed " +
                     (user == null ? "The user did not exist anymore" : user.getDisplayName(msg.getGuild())) +
                     " from the " + cmd.getUsermode() +
                     " for command `" + args[1] + "`.");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "User " + args[4] + " was not on the " +
+            IMessageExtensionsKt.sendError(msg.getChannel(), "User " + args[4] + " was not on the " +
                     cmd.getUsermode() + " for command `" + args[1] + "`.");
         }
     }
@@ -133,7 +134,7 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "mode", parent = "permissionsUsers")
     private void permissionsUsersMode(IMessage msg, String...args) {
         if (args.length <= 4) {
-    		MessageSending.sendMessage(msg.getChannel(), "Specify either blacklist or whitelist");
+    		IMessageExtensionsKt.sendError(msg.getChannel(), "Specify either blacklist or whitelist");
     		return;
 		}
         DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
@@ -146,10 +147,10 @@ public class PermissionManager implements DiscordCommands {
 			    cmd.setUserMode(args[4]);
 				break;
 			default:
-				MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+				IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
 				return;
 		}
-		MessageSending.sendMessage(msg.getChannel(), "The Mode for Users is now " + args[4]);
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), "The Mode for Users is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsUsers")
@@ -171,7 +172,7 @@ public class PermissionManager implements DiscordCommands {
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
-        MessageSending.sendMessage(msg.getChannel(), builder.toString());
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), builder.toString());
     }
 
 
@@ -184,7 +185,7 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "add", parent = "permissionsRoles")
     private void permissionsRolesAdd(IMessage msg, String...args) {
         if (args.length < 5) {
-            MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
         long roleID;
@@ -194,12 +195,12 @@ public class PermissionManager implements DiscordCommands {
             roleID = MessageParsing.getGroupID(args[4]);
         }
         if (roleID == -1) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IRole role = msg.getClient().getRoleByID(roleID);
         if (role == null) {
-            MessageSending.sendMessage(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "<@" + args[4] + "> is not a valid role on this server");
             return;
         }
         DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
@@ -207,7 +208,7 @@ public class PermissionManager implements DiscordCommands {
             throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
 
         cmd.addRoleToList(role.getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "Added " + role.getName() + " to the " +
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Added " + role.getName() + " to the " +
                 cmd.getRolemode() + " for command `" + args[1] + "`.");
     }
 
@@ -221,7 +222,7 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "remove", parent = "permissionsRoles")
     private void permissionsRolesRemove(IMessage msg, String...args) {
         if (args.length < 5) {
-            MessageSending.sendMessage(msg.getChannel(), "Please specify a role either by @mention or by ID");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Please specify a role either by @mention or by ID");
             return;
         }
         long roleID;
@@ -231,7 +232,7 @@ public class PermissionManager implements DiscordCommands {
             roleID = MessageParsing.getGroupID(args[4]);
         }
         if (roleID == -1) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
             return;
         }
         IRole role = msg.getClient().getRoleByID(roleID);
@@ -240,11 +241,11 @@ public class PermissionManager implements DiscordCommands {
             throw new IllegalStateException("The command " + args[1] + " for Guild " + msg.getGuild().getName() + " dosen't exist!");
 
         if (cmd.delRoleFromList(roleID) >= 1) {
-            MessageSending.sendMessage(msg.getChannel(), "Removed " +
+            IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Removed " +
                     (role == null ? "ROLE DID NOT EXIST ANYMORE" : role.getName()) +
                     " from the " + cmd.getRolemode() + " for command `" + args[1] + "`.");
         } else {
-            MessageSending.sendMessage(msg.getChannel(), "Role " + args[4] + " was not on the " +
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Role " + args[4] + " was not on the " +
                     cmd.getRolemode() + " for command `" + args[1] + "`.");
         }
     }
@@ -252,7 +253,7 @@ public class PermissionManager implements DiscordCommands {
     @DiscordSubCommand(name = "mode", parent = "permissionsRoles")
     private void permissionsRolesMode(IMessage msg, String...args) {
 		if (args.length <= 4) {
-			MessageSending.sendMessage(msg.getChannel(), "Specify either blacklist or whitelist");
+		    IMessageExtensionsKt.sendError(msg.getChannel(), "Specify either blacklist or whitelist!");
 			return;
 		}
         DBCommand cmd = DBCommandKt.getCommandForGuild(msg.getGuild().getLongID(), args[1]);
@@ -265,10 +266,10 @@ public class PermissionManager implements DiscordCommands {
             	cmd.setRoleMode(args[4]);
                 break;
             default:
-                MessageSending.sendMessage(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
+                IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[4] + "` is not a valid argument");
                 return;
         }
-        MessageSending.sendMessage(msg.getChannel(), "The Mode for Roles is now " + args[4]);
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), "The Mode for Roles is now " + args[4]);
     }
 
     @DiscordSubCommand(name = "list", parent = "permissionsRoles")
@@ -289,7 +290,7 @@ public class PermissionManager implements DiscordCommands {
         });
         builder.deleteCharAt(builder.length() - 1).append("```");
 
-        MessageSending.sendMessage(msg.getChannel(), builder.toString());
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), builder.toString());
     }
 
     @Override

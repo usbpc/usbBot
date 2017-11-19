@@ -7,16 +7,19 @@ import usbbot.config.setGuildPrefix
 import usbbot.util.MessageSending
 import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
+import util.sendError
+import util.sendSuccess
 
 class SystemCommands : DiscordCommands{
     override fun getDiscordCommands(): MutableCollection<Command> = AnnotationExtractor.getCommandList(this)
 
     @DiscordCommand("prefix")
     fun prefix(msg: IMessage, vararg args: String) {
-        if (args.size < 2) MessageSending.sendMessage(msg.channel, "You need to specify a new prefix!")
-        else {
+        if (args.size < 2) {
+            msg.channel.sendError("You need to specify a new prefix!")
+        } else {
             setGuildPrefix(msg.guild.longID, args[1])
-            MessageSending.sendMessage(msg.channel, "The DBCommand prefix is now " + args[1])
+            msg.channel.sendSuccess("The Command prefix is now " + args[1])
         }
     }
 }

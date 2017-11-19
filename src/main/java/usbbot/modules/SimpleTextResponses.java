@@ -12,6 +12,7 @@ import usbbot.util.MessageSending;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sx.blah.discord.handle.obj.IMessage;
+import util.IMessageExtensionsKt;
 
 import java.util.*;
 /**
@@ -29,7 +30,7 @@ public class SimpleTextResponses implements DiscordCommands {
     @DiscordCommand("commands")
     private int commands(IMessage msg, String...args) {
         if (args.length < 3) {
-            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Not enough arguments!");
             return -1;
         }
         return 0;
@@ -39,11 +40,11 @@ public class SimpleTextResponses implements DiscordCommands {
     @DiscordSubCommand(parent = "commands", name = "add")
     private void commandsAdd(IMessage msg, String...args) {
         if (args.length < 4) {
-            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments!");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Not enough arguments!");
             return;
         }
         if (commandModule.discordCommandExists(args[2], msg.getGuild().getLongID())) {
-            MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is already a command!");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[2] + "` is already a command!");
             return;
         }
 
@@ -56,21 +57,21 @@ public class SimpleTextResponses implements DiscordCommands {
                 "whitelist",
                 msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
         cmd.addRoleToList(msg.getGuild().getEveryoneRole().getLongID());
-        MessageSending.sendMessage(msg.getChannel(), "DBCommand `" + args[2] + "` successfully added!");
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Command `" + args[2] + "` successfully added!");
     }
 
     //usbbot.commands remove <commandName>
     @DiscordSubCommand(parent = "commands", name = "remove")
     private void commandsRemove(IMessage msg, String...args) {
         if (args.length < 3) {
-            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Not enough arguments.");
         } else {
             DBTextCommand cmd = DBTextCommandsKt.getDBTextCommand(msg.getGuild().getLongID(), args[2]);
             if (cmd != null) {
                 cmd.delete();
-                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` successfully removed.");
+                IMessageExtensionsKt.sendSuccess(msg.getChannel(), "`" + args[2] + "` successfully removed.");
             } else {
-                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+                IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[2] + "` is not a command");
             }
         }
     }
@@ -78,14 +79,14 @@ public class SimpleTextResponses implements DiscordCommands {
     @DiscordSubCommand(parent = "commands", name = "edit")
     private void commandsEdit(IMessage msg, String...args) {
         if (args.length < 4) {
-            MessageSending.sendMessage(msg.getChannel(), "Not enough arguments.");
+            IMessageExtensionsKt.sendError(msg.getChannel(), "Not enough arguments.");
         } else {
             DBTextCommand cmd = DBTextCommandsKt.getDBTextCommand(msg.getGuild().getLongID(), args[2]);
             if (cmd != null) {
                 cmd.editText(msg.getContent().substring(msg.getContent().indexOf(args[2]) + args[2].length() + 1));
-                MessageSending.sendMessage(msg.getChannel(), "Changed `" + args[2] + "`!");
+                IMessageExtensionsKt.sendSuccess(msg.getChannel(), "Changed `" + args[2] + "`!");
             } else {
-                MessageSending.sendMessage(msg.getChannel(), "`" + args[2] + "` is not a command");
+                IMessageExtensionsKt.sendError(msg.getChannel(), "`" + args[2] + "` is not a command");
             }
         }
     }
@@ -117,7 +118,7 @@ public class SimpleTextResponses implements DiscordCommands {
             *
             * */
         content = content.replaceAll("§§AUTHOR§§", msg.getAuthor().mention(true));
-        MessageSending.sendMessage(msg.getChannel(), content);
+        IMessageExtensionsKt.sendSuccess(msg.getChannel(), content);
     }
 
 
