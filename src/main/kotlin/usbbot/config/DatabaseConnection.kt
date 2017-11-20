@@ -4,6 +4,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
 import usbbot.main.UsbBot
+import java.util.*
 
 /**
  * The Object that Wraps the Connection to the Database Server
@@ -11,9 +12,14 @@ import usbbot.main.UsbBot
 object DatabaseConnection {
     private val dataSource = ComboPooledDataSource()
     init {
+        val prop = Properties()
+        prop.setProperty("tcpKeepAlive", "true")
+        prop.setProperty("ApplicationName", "Ava Discord Bot")
         dataSource.jdbcUrl = UsbBot.getProperty("DBURL")
         dataSource.user = UsbBot.getProperty("DBUser")
         dataSource.password = UsbBot.getProperty("DBPassword")
+        dataSource.properties = prop
+
 
     }
 
