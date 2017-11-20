@@ -15,9 +15,9 @@ object DatabaseConnection {
         val prop = Properties()
         prop.setProperty("tcpKeepAlive", "true")
         prop.setProperty("ApplicationName", "Ava Discord Bot")
+        prop.setProperty("password", UsbBot.getProperty("DBPassword"))
+        prop.setProperty("user", UsbBot.getProperty("DBUser"))
         dataSource.jdbcUrl = UsbBot.getProperty("DBURL")
-        dataSource.user = UsbBot.getProperty("DBUser")
-        dataSource.password = UsbBot.getProperty("DBPassword")
         dataSource.properties = prop
 
 
