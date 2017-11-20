@@ -206,10 +206,14 @@ class BulkDeleteCommand : DiscordCommands {
             //Making sure that I don't try to delete messages older than 2 weeks... because discord and stuff!
             if (msgHistory.latestMessage.creationDate.atZone(ZoneId.of("UTC")).isAfter(LocalDateTime.now().atZone(ZoneId.of("UTC")).minusWeeks(2))) {
                 counter += msgHistory.bufferedBulkDelete().get()?.size ?: 0
+                logger.trace("Before sending the message update!")
                 progressMsg = progressMsg.uptadeProcessing("Deleted $counter messages so far...")
+                logger.trace("After sending the message update!")
             }
         }
+        logger.trace("Before sending the end update")
         progressMsg.updateSuccess("Deleted $counter messages!")
+        logger.trace("After sending the end update")
     }
 
     suspend fun MutableList<IMessage>.addAndSend(msg: IMessage, channel: Channel<Collection<IMessage>>) : MutableList<IMessage> {

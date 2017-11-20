@@ -2,6 +2,8 @@ package usbbot.modules
 
 import at.mukprojects.giphy4j.Giphy
 import at.mukprojects.giphy4j.exception.GiphyException
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import usbbot.commands.DiscordCommands
 import usbbot.commands.core.Command
 import usbbot.main.UsbBot
@@ -16,6 +18,7 @@ import usbbot.util.commands.AnnotationExtractor
 import usbbot.util.commands.DiscordCommand
 import util.*
 import java.awt.Color
+import java.util.concurrent.TimeUnit
 
 class MiscCommands : DiscordCommands {
     val giphy = Giphy(UsbBot.getProperty("giphy"))
@@ -90,9 +93,10 @@ class MiscCommands : DiscordCommands {
     }
 
     @DiscordCommand("spam")
-    fun spam(msg: IMessage, args: Array<String>) {
+    fun spam(msg: IMessage, args: Array<String>) = launch {
         var msgCount = args[1].toInt()
         while (msgCount-- > 0) {
+            delay(1500)
             MessageSending.sendMessage(msg.channel, msgCount.toString()).get()
         }
     }
