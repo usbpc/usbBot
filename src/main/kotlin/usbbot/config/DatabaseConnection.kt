@@ -1,6 +1,6 @@
 package usbbot.config
 
-import com.mchange.v2.c3p0.ComboPooledDataSource
+import com.zaxxer.hikari.HikariDataSource
 import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
 import usbbot.main.UsbBot
@@ -10,16 +10,11 @@ import java.util.*
  * The Object that Wraps the Connection to the Database Server
  */
 object DatabaseConnection {
-    private val dataSource = ComboPooledDataSource()
+    val dataSource = HikariDataSource()
     init {
-        val prop = Properties()
-        prop.setProperty("tcpKeepAlive", "true")
-        prop.setProperty("ApplicationName", "Ava Discord Bot")
-        prop.setProperty("password", UsbBot.getProperty("DBPassword"))
-        prop.setProperty("user", UsbBot.getProperty("DBUser"))
+        dataSource.password=  UsbBot.getProperty("DBPassword")
+        dataSource.username = UsbBot.getProperty("DBUser")
         dataSource.jdbcUrl = UsbBot.getProperty("DBURL")
-        dataSource.properties = prop
-
 
     }
 

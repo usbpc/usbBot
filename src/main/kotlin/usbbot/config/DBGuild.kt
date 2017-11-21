@@ -11,8 +11,6 @@ fun getGuildById(guildID: Long) : DBGuild? =
 fun setGuildPrefix(guildID: Long, newPrefix: String) = DatabaseConnection.queryRunner
             .update("UPDATE guilds SET prefix = ? WHERE guildid = ?",
                     newPrefix, guildID)
-
-
 class DBGuild(val guildID: Long, val prefix: String) : DatabaseEntry() {
     companion object {
         val resultSetHandler = ResultSetHandler<DBGuild?> {

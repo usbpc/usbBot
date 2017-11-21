@@ -5,9 +5,6 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.newSingleThreadContext
 import org.slf4j.LoggerFactory
-import sx.blah.discord.handle.impl.events.guild.member.UserJoinEvent
-import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinEvent
-import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent
 import sx.blah.discord.handle.obj.IMessage
 import sx.blah.discord.handle.obj.IUser
 import sx.blah.discord.handle.obj.IVoiceChannel

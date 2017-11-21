@@ -97,6 +97,9 @@ class MiscCommands : DiscordCommands {
         var msgCount = args[1].toInt()
         while (msgCount-- > 0) {
             delay(1500)
+            msg.channel.sendSuccess("""\W"i"ll this work?
+                |yes!
+            """.trimMargin())
             MessageSending.sendMessage(msg.channel, msgCount.toString()).get()
         }
     }

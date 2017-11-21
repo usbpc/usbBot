@@ -1,6 +1,5 @@
 package usbbot.main;
 
-import sx.blah.discord.util.RequestBuffer;
 import usbbot.commands.CommandHandler;
 import usbbot.commands.security.PermissionManager;
 import usbbot.modules.*;
@@ -14,6 +13,7 @@ import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelJoinE
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelLeaveEvent;
 import sx.blah.discord.handle.impl.events.guild.voice.user.UserVoiceChannelMoveEvent;
 import usbbot.modules.Moderation.BulkDeleteCommand;
+import usbbot.modules.music.Music;
 
 /**
  * @author usbpc
@@ -33,6 +33,7 @@ public class EventHandler {
         cmdHandler.registerCommands(new ModerationHelp());
         cmdHandler.registerCommands(new SystemCommands());
         cmdHandler.registerCommands(new BulkDeleteCommand());
+        cmdHandler.registerCommands(new Music());
         cmdHandler.registerCommands(jail);
     }
     private static Logger logger = LoggerFactory.getLogger(EventHandler.class);
