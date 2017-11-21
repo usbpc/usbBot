@@ -6,6 +6,8 @@ import com.sedmelluq.discord.lavaplayer.tools.FriendlyException
 import com.sedmelluq.discord.lavaplayer.track.AudioTrack
 import com.sedmelluq.discord.lavaplayer.track.AudioTrackEndReason
 import sx.blah.discord.handle.obj.IGuild
+import usbbot.config.DBMusicQueue
+import usbbot.config.getMusicQueueForGuild
 import util.sendError
 import util.sendSuccess
 import java.util.concurrent.BlockingQueue
@@ -19,16 +21,12 @@ class TrackScheduler
  * @param player The audio player this scheduler uses
  */
 (private val player: AudioPlayer, val guild: IGuild) : AudioEventAdapter() {
-    val queue: BlockingQueue<AudioTrack>
+    val queue: DBMusicQueue
 
     init {
-        this.queue = LinkedBlockingQueue()
+        this.queue = getMusicQueueForGuild(guild.longID)
     }
 
-
-    fun clear() {
-        queue.clear()
-    }
 
     /**
      * Add the next track to queue or play right away if nothing is in the queue.
@@ -40,7 +38,7 @@ class TrackScheduler
         // something is playing, it returns false and does nothing. In that case the player was already playing so this
         // track goes to the queue instead.
         if (!player.startTrack(track, true)) {
-            queue.offer(track)
+            queue.add(track)
         }
     }
 
@@ -50,25 +48,28 @@ class TrackScheduler
     fun nextTrack() {
         // Start the next track, regardless of if something is already playing or not. In case queue was empty, we are
         // giving null to startTrack, which is a valid argument and will simply stop the player.
-        if (!queue.isEmpty()) {
-            player.startTrack(queue.poll(), false)
+        if (queue.hasNext()) {
+            val track = queue.getNext()
+            guild.getChannelByID(274560721147265024).sendSuccess("Now playing: `${track?.info?.title}`")
+            player.startTrack(track, false)
         } else {
+            player.startTrack(null, false)
             guild.client.ourUser.getVoiceStateForGuild(guild).channel.leave()
         }
     }
 
     override fun onTrackStart(player: AudioPlayer, track: AudioTrack) {
-        (track.userData as MyData).requestChannel.sendSuccess("Now playing ${track.info.title}")
+        //(track.userData as MyData).requestChannel.sendSuccess("Now playing ${track.info.title}")
     }
 
     override fun onTrackStuck(player: AudioPlayer, track: AudioTrack, thresholdMs: Long) {
         nextTrack()
-        (track.userData as MyData).requestChannel.sendError("The Music got stuck, skipping to next song...")
+        //(track.userData as MyData).requestChannel.sendError("The Music got stuck, skipping to next song...")
     }
 
     override fun onTrackException(player: AudioPlayer, track: AudioTrack, exception: FriendlyException) {
         nextTrack()
-        (track.userData as MyData).requestChannel.sendError("Something went wrong while playing ${track.info.title}:\n```${exception.message}```\nWill skip to the next song.")
+        //(track.userData as MyData).requestChannel.sendError("Something went wrong while playing ${track.info.title}:\n```${exception.message}```\nWill skip to the next song.")
     }
 
     override fun onTrackEnd(player: AudioPlayer, track: AudioTrack, endReason: AudioTrackEndReason) {
