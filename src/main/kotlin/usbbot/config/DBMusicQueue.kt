@@ -41,11 +41,11 @@ data class DBMusicQueueEntry(val id: Int, val forGuild: Long, val youtubeId: Str
     }
 }
 
-fun getSongsFromDB(guildID: Long, limit: Int) : List<DBMusicQueueEntry> =
+fun getSongsFromDB(guildID: Long, limit: Int, offset: Int = 0) : List<DBMusicQueueEntry> =
         DatabaseConnection.queryRunner
-                .query("SELECT * FROM music_queue WHERE forGuild = ? ORDER BY addedAt ASC LIMIT ?",
+                .query("SELECT * FROM music_queue WHERE forGuild = ? ORDER BY addedAt ASC LIMIT ? OFFSET ?",
                         DBMusicQueue.songDBEntryCreator,
-                        guildID, limit)
+                        guildID, limit, offset)
 
 fun getMusicQueueForGuild(guildID: Long) : DBMusicQueue {
     val result = getSongsFromDB(guildID, 10)
@@ -127,13 +127,15 @@ class DBMusicQueue(val guildID: Long, val queue : Queue<AudioTrack>, var size: I
                 val size = synchronized(queue) {
                     queue.size
                 }
-                val songs = getSongsFromDB(guildID, 10 - size)
+                val songs = getSongsFromDB(guildID, 10 - size, size)
 
                 songs.forEach {
                     val audioTrack = it.getAudioTrack()
                     if (audioTrack != null) {
                         synchronized(queue) {
-                            queue.add(audioTrack)
+                            if (!queue.contains(audioTrack)) {
+                                queue.add(audioTrack)
+                            }
                         }
                     }
                 }
